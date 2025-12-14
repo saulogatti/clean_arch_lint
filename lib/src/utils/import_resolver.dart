@@ -243,7 +243,7 @@ bool isFlutterImport(String uri) {
 /// // Retorna: '/projeto'
 ///
 /// extractProjectRoot('/projeto/test/widget_test.dart');
-/// // Retorna: '/projeto' (fallback - diretório pai de 'test')
+/// // Retorna: '/projeto/test' (fallback - diretório que contém o arquivo)
 /// ```
 String extractProjectRoot(String filePath) {
   final segments = filePath.split('/');
