@@ -2,6 +2,8 @@
 ///
 /// This file demonstrates a VIOLATION of the core_no_flutter rule
 /// when using the /lib/src/core/ structure
+library;
+
 import 'package:flutter/material.dart'; // ❌ ERROR: Core cannot import Flutter
 
 class BadProductWidget extends StatelessWidget {

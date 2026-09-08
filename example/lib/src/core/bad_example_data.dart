@@ -2,6 +2,7 @@
 ///
 /// This file demonstrates a VIOLATION of the core_no_data_or_presentation rule
 /// when using the /lib/src/core/ structure
+library;
 import 'package:clean_archt_lint_example/src/data/models/product_model.dart'; // ❌ ERROR: Core cannot import Data
 
 class BadGetProduct {

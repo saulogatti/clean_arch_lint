@@ -4,7 +4,7 @@ include:
 analyzer:
   plugins:
     clean_arch_lint:
-      paths: /Users/saulogatti-pessoal/Public/DocumentosLocal/repo/flutter_arq_lint/clean_archt_lint
+      paths: C:\\Users\\saulo\\repo\\clean_arch_lint
       diagnostics:
         presentation_no_data: true
         teste_meu: true

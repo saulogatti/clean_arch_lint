@@ -2,6 +2,7 @@
 ///
 /// This file demonstrates a VIOLATION of the data_no_presentation rule
 /// when using the /lib/src/data/ structure
+library;
 import 'package:clean_archt_lint_example/src/presentation/pages/product_page.dart'; // ❌ ERROR: Data cannot import Presentation
 import 'package:clean_archt_lint_example/src/core/entities/product.dart';
 

@@ -1,6 +1,7 @@
 /// Product page in presentation layer with /lib/src/presentation/ structure
 ///
 /// Example of valid file in /lib/src/presentation/ structure
+library;
 import 'package:flutter/material.dart';
 import 'package:clean_archt_lint_example/src/core/entities/product.dart';
 
