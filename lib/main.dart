@@ -45,8 +45,7 @@ import 'dart:async';
 import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
 import 'package:clean_arch_lint/src/rules/always_use_package_imports.dart';
-
-import 'src/rules/presentation_no_data.dart' show PresentationNoData;
+import 'package:clean_arch_lint/src/rules/presentation_no_data.dart' show PresentationNoData;
 
 export 'src/rules/always_use_package_imports.dart' show AlwaysUsePackageImports;
 // export 'src/rules/core_no_data_or_presentation.dart' show CoreNoDataOrPresentation;
@@ -78,12 +77,10 @@ class CleanArchitectureLintPlugin extends Plugin {
   //     ];
 
   @override
-  String get name => "Flutter Clean Architecture Lint Plugin";
+  String get name => 'Flutter Clean Architecture Lint Plugin';
 
   @override
   FutureOr<void> register(PluginRegistry registry) {
-    // registry.registerLintRule(PresentationNoData());
-    registry.registerLintRule(AlwaysUsePackageImports());
     registry.registerWarningRule(AlwaysUsePackageImports());
     registry.registerWarningRule(PresentationNoData());
   }

@@ -1,11 +1,11 @@
 import 'package:analyzer/analysis_rule/analysis_rule.dart';
 import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
+import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
+import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 import 'package:clean_arch_lint/src/utils/logger_util.dart';
-
-import '../utils/import_resolver.dart';
 
 /// Lint rule that discourages the presentation layer from depending on data.
 ///
@@ -19,9 +19,9 @@ import '../utils/import_resolver.dart';
 ///
 /// ## Dependency rule
 ///
-/// ```
+/// ``
 /// presentation → core ← data
-/// ```
+/// ``
 ///
 /// Presentation should not know concrete implementations from the data layer.
 ///
@@ -71,28 +71,23 @@ import '../utils/import_resolver.dart';
 /// }
 /// ```
 class PresentationNoData extends AnalysisRule {
-  static const _code = LintCode(
-    'presentation_no_data',
-    'Presentation should not depend directly on Data.',
-    correctionMessage:
-        'Depend only on Core (usecases/contracts) and inject implementations.',
-    severity: .WARNING,
-  );
-
   /// Creates an instance of the [PresentationNoData] rule.
   PresentationNoData()
     : super(
         name: 'presentation_no_data',
         description: 'Warns when presentation directly depends on data.',
       );
+  static const _code = LintCode(
+    'presentation_no_data',
+    'Presentation should not depend directly on Data.',
+    correctionMessage: 'Depend only on Core (usecases/contracts) and inject implementations.',
+    severity: .WARNING,
+  );
   @override
   DiagnosticCode get diagnosticCode => _code;
 
   @override
-  void registerNodeProcessors(
-    RuleVisitorRegistry registry,
-    RuleContext context,
-  ) {
+  void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
     final visitor = _PresentationNoDataVisitor(this, context);
     registry.addImportDirective(this, visitor);
   }
@@ -139,11 +134,11 @@ class PresentationNoData extends AnalysisRule {
 }
 
 class _PresentationNoDataVisitor extends SimpleAstVisitor<void> {
+  _PresentationNoDataVisitor(this.rule, this.context);
   final RuleContext context;
   final AnalysisRule rule;
-  _PresentationNoDataVisitor(this.rule, this.context);
   @override
-  void visitImportDirective(node) {
+  void visitImportDirective(ImportDirective node) {
     final filePath = context.currentUnit?.file.path ?? '';
 
     // Checks if the file is in the presentation layer
@@ -155,8 +150,7 @@ class _PresentationNoDataVisitor extends SimpleAstVisitor<void> {
     if (uri == null) return;
 
     // Ignores dart: imports and external packages
-    if (uri.startsWith('dart:') ||
-        (uri.startsWith('package:') && uri.contains('/presentation/'))) {
+    if (uri.startsWith('dart:') || (uri.startsWith('package:') && uri.contains('/presentation/'))) {
       return;
     }
 

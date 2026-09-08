@@ -1,3 +1,11 @@
+## 1.2.0
+- **Feature: PresentationNoData rule**
+  - New lint rule to warn when presentation directly depends on data
+  - Can be configured to ERROR via `analysis_options.yaml`
+  - Added comprehensive tests for the rule
+  - Added example files demonstrating the rule
+  - Updated documentation (README and USAGE) to reflect the new rule
+
 ## 1.1.0
 
 - **Feature: Flexible folder structure support**

@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: sort_constructors_first
 /// Represents a resolved import with information about its location.
 ///
 /// Contains both the normalized file path and the original URI,

@@ -6,9 +6,8 @@
 library;
 
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:clean_arch_lint/src/utils/resolved_import.dart';
 import 'package:path/path.dart' as p;
-
-import 'resolved_import.dart';
 
 /// Extracts the package name from an import URI.
 ///

@@ -9,11 +9,10 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 
-const _desc = r'Avoid relative imports for files in `lib/`.';
+const _desc = 'Avoid relative imports for files in `lib/`.';
 
 class AlwaysUsePackageImports extends AnalysisRule {
-  AlwaysUsePackageImports()
-    : super(name: LintNames.always_use_package_imports, description: _desc);
+  AlwaysUsePackageImports() : super(name: LintNames.always_use_package_imports, description: _desc);
 
   @override
   DiagnosticCode get diagnosticCode => LintCode(
@@ -25,32 +24,28 @@ class AlwaysUsePackageImports extends AnalysisRule {
   );
 
   @override
-  void registerNodeProcessors(
-    RuleVisitorRegistry registry,
-    RuleContext context,
-  ) {
+  void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
     // Relative paths from outside of the lib folder are handled by the
     // `avoid_relative_lib_imports` lint rule.
     if (!context.isInLibDir) return;
 
-    var visitor = _Visitor(this);
+    final visitor = _Visitor(this);
     registry.addImportDirective(this, visitor);
   }
 }
 
 class LintNames {
-  static String get always_use_package_imports => "teste_meu";
+  static String get always_use_package_imports => 'teste_meu';
 }
 
 class _Visitor extends SimpleAstVisitor<void> {
+  _Visitor(this.rule);
   final AnalysisRule rule;
 
-  _Visitor(this.rule);
-
   bool isRelativeImport(ImportDirective node) {
-    var uriContent = node.uri.stringValue;
+    final uriContent = node.uri.stringValue;
     if (uriContent != null) {
-      var uri = Uri.tryParse(uriContent);
+      final uri = Uri.tryParse(uriContent);
       return uri != null && uri.scheme.isEmpty;
     }
     return false;

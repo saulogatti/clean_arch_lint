@@ -2,14 +2,14 @@ import 'package:analyzer/instrumentation/file_instrumentation.dart';
 import 'package:analyzer/instrumentation/instrumentation.dart';
 
 class LoggerUtil {
-  static final LoggerUtil _instance = LoggerUtil._internal();
-  late final InstrumentationLogAdapter instrumentationLogAdapter;
   factory LoggerUtil() => _instance;
   LoggerUtil._internal() {
     instrumentationLogAdapter = InstrumentationLogAdapter(
       FileInstrumentationLogger('analysis_engine.log'),
     );
   }
+  static final LoggerUtil _instance = LoggerUtil._internal();
+  late final InstrumentationLogAdapter instrumentationLogAdapter;
 
   void log(String message) {
     instrumentationLogAdapter.logInfo(message);
