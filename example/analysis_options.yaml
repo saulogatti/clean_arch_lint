@@ -2,9 +2,15 @@ include:
   - package:flutter_lints/flutter.yaml
 
 analyzer:
-  plugins:
-    clean_arch_lint:
-      paths: C:\\Users\\saulo\\repo\\clean_arch_lint
-      diagnostics:
-        presentation_no_data: true
-        teste_meu: true
+
+  exclude:
+    - build/**
+plugins:
+  clean_arch_lint:
+    path: ../
+    diagnostics:
+      presentation_no_data: error # enable to see the error, default is warning
+      teste_meu: false # disable to not see the warning. Default is true.
+
+
+

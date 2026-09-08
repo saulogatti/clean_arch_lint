@@ -12,19 +12,23 @@ import 'package:analyzer/error/error.dart';
 const _desc = r'Avoid relative imports for files in `lib/`.';
 
 class AlwaysUsePackageImports extends AnalysisRule {
-  AlwaysUsePackageImports() : super(name: LintNames.always_use_package_imports, description: _desc);
+  AlwaysUsePackageImports()
+    : super(name: LintNames.always_use_package_imports, description: _desc);
 
   @override
   DiagnosticCode get diagnosticCode => LintCode(
     LintNames.always_use_package_imports,
     "Use 'package:' imports for files in the 'lib' directory.",
     correctionMessage: "Try converting the URI to a 'package:' URI.",
-    hasPublishedDocs: true,
+
     uniqueName: 'always_use_package_imports',
   );
 
   @override
-  void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
+  ) {
     // Relative paths from outside of the lib folder are handled by the
     // `avoid_relative_lib_imports` lint rule.
     if (!context.isInLibDir) return;

@@ -82,7 +82,7 @@ class CleanArchitectureLintPlugin extends Plugin {
 
   @override
   FutureOr<void> register(PluginRegistry registry) {
-    registry.registerLintRule(PresentationNoData());
+    // registry.registerLintRule(PresentationNoData());
     registry.registerLintRule(AlwaysUsePackageImports());
     registry.registerWarningRule(AlwaysUsePackageImports());
     registry.registerWarningRule(PresentationNoData());

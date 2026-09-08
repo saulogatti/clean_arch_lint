@@ -3,6 +3,7 @@ import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
+import 'package:clean_arch_lint/src/utils/logger_util.dart';
 
 import '../utils/import_resolver.dart';
 
@@ -73,18 +74,25 @@ class PresentationNoData extends AnalysisRule {
   static const _code = LintCode(
     'presentation_no_data',
     'Presentation should not depend directly on Data.',
-    correctionMessage: 'Depend only on Core (usecases/contracts) and inject implementations.',
-    severity: .ERROR,
+    correctionMessage:
+        'Depend only on Core (usecases/contracts) and inject implementations.',
+    severity: .WARNING,
   );
 
   /// Creates an instance of the [PresentationNoData] rule.
   PresentationNoData()
-    : super(name: 'presentation_no_data', description: 'Warns when presentation directly depends on data.');
+    : super(
+        name: 'presentation_no_data',
+        description: 'Warns when presentation directly depends on data.',
+      );
   @override
   DiagnosticCode get diagnosticCode => _code;
 
   @override
-  void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
+  ) {
     final visitor = _PresentationNoDataVisitor(this, context);
     registry.addImportDirective(this, visitor);
   }
@@ -137,7 +145,7 @@ class _PresentationNoDataVisitor extends SimpleAstVisitor<void> {
   @override
   void visitImportDirective(node) {
     final filePath = context.currentUnit?.file.path ?? '';
-    rule.reportAtNode(node);
+
     // Checks if the file is in the presentation layer
     if (!isInLayer(filePath, 'presentation')) {
       return;
@@ -147,7 +155,8 @@ class _PresentationNoDataVisitor extends SimpleAstVisitor<void> {
     if (uri == null) return;
 
     // Ignores dart: imports and external packages
-    if (uri.startsWith('dart:') || (uri.startsWith('package:') && uri.contains('/presentation/'))) {
+    if (uri.startsWith('dart:') ||
+        (uri.startsWith('package:') && uri.contains('/presentation/'))) {
       return;
     }
 
@@ -157,11 +166,12 @@ class _PresentationNoDataVisitor extends SimpleAstVisitor<void> {
     final packageName = extractPackageName(uri);
 
     final resolved = resolveImport(node, filePath, packageName, projectRoot);
-
+    LoggerUtil().log('resolved: ${resolved?.resolvedPath}');
     if (resolved == null) return;
 
     // Checks if it imports from data
     if (importsFromLayer(resolved.resolvedPath, 'data')) {
+      LoggerUtil().log('imports from data: ${resolved.resolvedPath}');
       rule.reportAtNode(node);
     }
   }
