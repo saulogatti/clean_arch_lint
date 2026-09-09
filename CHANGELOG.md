@@ -1,3 +1,8 @@
+## 2.0.1
+
+- **Fix:** missing main file
+
+
 ## 2.0.0
 
 - **Breaking changes:**
