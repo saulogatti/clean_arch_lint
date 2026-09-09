@@ -1,0 +1,42 @@
+---
+references:
+  - "File: /lib/clean_arch_lint.dart"
+  - "File: /lib/src/rules"
+generationTime: 2026-09-09T09:25:25.786Z
+---
+flowchart TD
+    A("Analysis Server Loads Plugin") --> B["Create plugin = CleanArchitectureLintPlugin()"]
+    B --> C[["register(registry)"]]
+    C --> D["registry.registerLintRule(NoScreensDependenciesRule())"]
+    D --> E("Analyzer Encounters ImportDirective")
+    E --> F[["_Visitor.visitImportDirective(node)"]]
+    F --> G["filePath := context.currentUnit?.file.path"]
+    G --> H[["_importType(filePath)"]]
+    H --> I{"importType is null?"}
+    I -->|Yes| Z("Return without diagnostic")
+    I -->|No| J["uri := node.uri.stringValue"]
+    J --> K{"uri is null?"}
+    K -->|Yes| Z
+    K -->|No| L["resolved := resolveImport(node, filePath, packageName, projectRoot)"]
+    L --> M{"resolved is null?"}
+    M -->|Yes| Z
+    M -->|No| N{"Switch on importType"}
+
+    N -->|data or core| O{"imports screens or presentation?"}
+    O -->|Yes| P["reportAtNode(no_screens_dependencies or no_data_dependencies)"]
+    O -->|No| Z
+
+    N -->|presentation or screens| Q{"imports data?"}
+    Q -->|Yes| R["reportAtNode(no_data_dependencies)"]
+    Q -->|No| Z
+
+    N -->|domain| S{"imports only domain?"}
+    S -->|No| T["reportAtNode(domain_only_depends_on_itself)"]
+    S -->|Yes| Z
+
+    H -.-> H1["Loop layers: data, presentation, screens, core, domain"]
+    H1 --> H2{"isInLayer(uri, layer)?"}
+    H2 -->|Yes| H3["return _ImportType(layer)"]
+    H2 -->|No| H4{"More layers?"}
+    H4 -->|Yes| H1
+    H4 -->|No| H5["return null"]
