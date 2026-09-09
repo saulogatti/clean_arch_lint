@@ -5,6 +5,7 @@
 // ignore_for_file: unused_import
 
 import 'package:clean_archt_lint_example/data/models/user_model.dart';
+import 'package:clean_archt_lint_example/domain/entities/user.dart';
 
 // ⚠️ WARNING: Presentation should not depend directly on Data
 import '../data/repositories/user_repository_impl.dart';

@@ -3,11 +3,6 @@ import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:clean_arch_lint/src/utils/import_resolver.dart';
-import 'package:clean_arch_lint/src/utils/logger_util.dart';
-
-final noImportVisitorLogger = LoggerUtil(
-  fileName: 'no_import_visitor_${DateTime.now().millisecondsSinceEpoch}',
-);
 
 /// A visitor that checks for imports from one layer to another.
 ///
@@ -36,11 +31,7 @@ class NoImportVisitor extends SimpleAstVisitor<void> {
   @override
   void visitImportDirective(ImportDirective node) {
     final filePath = context.currentUnit?.file.path ?? '';
-    noImportVisitorLogger.log('filePath: $filePath');
-    noImportVisitorLogger.log('exportLayer: $exportLayer');
-    noImportVisitorLogger.log('importLayer: $importLayer');
     if (!isInLayer(filePath, exportLayer)) {
-      noImportVisitorLogger.log('filePath is not in exportLayer');
       return;
     }
 
@@ -48,7 +39,6 @@ class NoImportVisitor extends SimpleAstVisitor<void> {
     if (uri == null) return;
 
     if (uri.startsWith('dart:') || (uri.startsWith('package:') && uri.contains('/$exportLayer/'))) {
-      noImportVisitorLogger.log('uri is not in exportLayer');
       return;
     }
 
@@ -61,7 +51,6 @@ class NoImportVisitor extends SimpleAstVisitor<void> {
     if (resolved == null) return;
 
     if (importsFromLayer(resolved.resolvedPath, importLayer)) {
-      noImportVisitorLogger.log('importsFromLayer is true');
       rule.reportAtNode(node);
     }
   }

@@ -1,4 +1,3 @@
-// ignore_for_file: sort_constructors_first
 /// Represents a resolved import with information about its location.
 ///
 /// Contains both the normalized file path and the original URI,
@@ -13,6 +12,9 @@
 /// );
 /// ```
 class ResolvedImport {
+  /// Creates an instance of [ResolvedImport].
+  const ResolvedImport({required this.resolvedPath, required this.originalUri});
+
   /// Normalized and absolute path of the imported file.
   ///
   /// Uses `/` as directory separator regardless of operating system.
@@ -23,9 +25,6 @@ class ResolvedImport {
   /// Can be a package import (`package:...`), relative import (`../...`),
   /// or dart import (`dart:...`).
   final String originalUri;
-
-  /// Creates an instance of [ResolvedImport].
-  const ResolvedImport({required this.resolvedPath, required this.originalUri});
 
   @override
   String toString() => 'ResolvedImport(resolvedPath: $resolvedPath, originalUri: $originalUri)';

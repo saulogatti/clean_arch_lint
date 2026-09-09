@@ -11,9 +11,9 @@
 /// ## Implemented rules
 ///
 /// - [CoreNoFlutter]: Prevents core layer from importing Flutter/UI
-/// - [CoreNoDataOrPresentation]: Prevents core from depending on data or presentation
+/// - [NoScreensDependencies]: Prevents screens from depending on data or presentation
 /// - [DataNoPresentation]: Prevents data from depending on presentation
-/// - [PresentationNoData]: Warns when presentation directly depends on data
+/// - [NoScreensDependencies]: Warns when screens directly depends on data
 /// - [DomainOnly]: Warns when domain depends on anything other than itself
 ///
 /// ## Usage example
@@ -47,18 +47,11 @@ import 'dart:async';
 
 import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
-import 'package:clean_arch_lint/src/rules/always_use_package_imports.dart';
-import 'package:clean_arch_lint/src/rules/core_no_flutter.dart';
-import 'package:clean_arch_lint/src/rules/data_no_presentation.dart';
-import 'package:clean_arch_lint/src/rules/domain_only.dart';
-import 'package:clean_arch_lint/src/rules/presentation_no_data.dart' show PresentationNoData;
+import 'package:clean_arch_lint/src/rules/no_screens_dependencies_rule.dart';
 
-export 'src/rules/always_use_package_imports.dart' show AlwaysUsePackageImports;
 // export 'src/rules/core_no_data_or_presentation.dart' show CoreNoDataOrPresentation;
-export 'src/rules/core_no_flutter.dart' show CoreNoFlutter;
-export 'src/rules/data_no_presentation.dart' show DataNoPresentation;
-export 'src/rules/domain_only.dart' show DomainOnly;
-export 'src/rules/presentation_no_data.dart' show PresentationNoData;
+
+export 'src/rules/no_screens_dependencies_rule.dart' show NoScreensDependenciesRule;
 
 /// Creates and returns the lint plugin instance for Clean Architecture.
 ///
@@ -89,10 +82,11 @@ class CleanArchitectureLintPlugin extends Plugin {
 
   @override
   FutureOr<void> register(PluginRegistry registry) {
-    registry.registerWarningRule(AlwaysUsePackageImports());
-    registry.registerWarningRule(PresentationNoData());
-    registry.registerWarningRule(DataNoPresentation());
-    registry.registerWarningRule(CoreNoFlutter());
-    registry.registerWarningRule(DomainOnly());
+    registry.registerLintRule(NoScreensDependenciesRule());
+    // registry.registerWarningRule(AlwaysUsePackageImports());
+    // registry.registerWarningRule(PresentationNoData());
+    // registry.registerWarningRule(DataNoPresentation());
+    // registry.registerWarningRule(CoreNoFlutter());
+    // registry.registerWarningRule(DomainOnly());
   }
 }

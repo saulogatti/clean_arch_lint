@@ -4,9 +4,8 @@
 /// when using the /lib/src/presentation/ structure
 library;
 
+import 'package:clean_archt_lint_example/src/core/bad_example_data.dart';
 import 'package:clean_archt_lint_example/src/data/models/product_model.dart'; // ⚠️ WARNING: Presentation should not import Data directly
-
-import '../core/bad_example_data.dart';
 
 class BadProductController {
   Future<ProductModel> loadProduct(String id) async {

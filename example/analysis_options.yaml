@@ -9,11 +9,8 @@ plugins:
   clean_arch_lint:
     path: ../
     diagnostics:
-      core_no_flutter: true
-      data_no_presentation: false
-      presentation_no_data: false # enable to see the error, default is warning
-      domain_only: true
-      teste_meu: false # disable to not see the warning. Default is true.
-
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
 
 
