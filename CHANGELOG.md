@@ -1,27 +1,16 @@
-## Unreleased
+## 2.0.0
 
-- **Breaking: one `MultiAnalysisRule` instead of five rule classes**
+- **Breaking changes:**
   - Removed `CoreNoFlutter`, `CoreNoDataOrPresentation`, `DataNoPresentation`, `PresentationNoData`, `DomainOnly`
   - Removed `NoImportVisitor` / `OnlyImportVisitor`; one import visitor covers all layers
   - Diagnostics: `no_data_dependencies`, `no_screens_dependencies`, `domain_only_depends_on_itself`
-- **Breaking: `analysis_server_plugin` replaces `custom_lint`**
   - Enable via the top-level `plugins` section in `analysis_options.yaml`
   - Run `dart analyze` / `flutter analyze` (not `dart run custom_lint`)
   - Lint diagnostics are off until listed under `plugins.clean_arch_lint.diagnostics`
-- Added `screens` as a first-class layer alongside `core`, `domain`, `data`, `presentation`
-- Documentation (README, USAGE, RULES, CONTRIBUTING, library dartdoc) updated to the simplified plugin
-
-## 1.3.0
-- **Feature: DomainOnly rule**
-  - New lint rule to warn when domain depends on anything other than itself
-  - Allows Dart SDK imports except `dart:ui`; blocks other layers, Flutter, and third-party packages
-  - Added `OnlyImportVisitor` (allowlist) alongside the existing `NoImportVisitor` (blocklist)
-  - Added example files for `/lib/domain/` and `/lib/src/domain/`
-  - Updated documentation (README, USAGE, RULES) to reflect the new rule
-
-## 1.2.0
-- **Feature: PresentationNoData rule**
-  - New lint rule to warn when presentation directly depends on data
+  - Added `screens` as a first-class layer alongside `core`, `domain`, `data`, `presentation`
+  - Documentation (README, USAGE, RULES, CONTRIBUTING, library dartdoc) updated to the simplified plugin
+- **New features:**
+  - New lint rule to warn when screens depend on data
   - Can be configured to ERROR via `analysis_options.yaml`
   - Added comprehensive tests for the rule
   - Added example files demonstrating the rule
