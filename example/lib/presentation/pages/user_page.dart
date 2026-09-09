@@ -19,6 +19,5 @@ class UserPage {
 
   void _displayUser(User user) {
     // Display user in UI
-    print('User: ${user.name} (${user.email})');
   }
 }

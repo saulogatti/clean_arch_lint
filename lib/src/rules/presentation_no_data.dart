@@ -1,11 +1,8 @@
 import 'package:analyzer/analysis_rule/analysis_rule.dart';
 import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
-import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
-import 'package:clean_arch_lint/src/utils/import_resolver.dart';
-import 'package:clean_arch_lint/src/utils/logger_util.dart';
+import 'package:clean_arch_lint/src/rules/no_import_visitor.dart';
 
 /// Lint rule that discourages the presentation layer from depending on data.
 ///
@@ -30,9 +27,11 @@ import 'package:clean_arch_lint/src/utils/logger_util.dart';
 /// To transform into ERROR, add to `analysis_options.yaml`:
 ///
 /// ```yaml
-/// analyzer:
-///   errors:
-///     presentation_no_data: error
+/// plugins:
+/// clean_arch_lint:
+///   diagnostics:
+///     presentation_no_data: error # enable to see the error, default is warning
+///
 /// ```
 ///
 /// ## Violation example
@@ -88,85 +87,12 @@ class PresentationNoData extends AnalysisRule {
 
   @override
   void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
-    final visitor = _PresentationNoDataVisitor(this, context);
+    final visitor = NoImportVisitor(
+      rule: this,
+      context: context,
+      exportLayer: 'presentation',
+      importLayer: 'data',
+    );
     registry.addImportDirective(this, visitor);
-  }
-
-  /// Runs the analysis to detect direct data dependencies in presentation.
-  ///
-  /// Traverses all import directives in the current file and, if the file
-  /// is in the presentation layer, resolves each import and checks if it points
-  /// to the data layer. Reports a warning (or error, if configured) if
-  /// violations are found.
-  // @override
-  // void run(CustomLintResolver resolver, ErrorReporter reporter, CustomLintContext context) {
-  //   context.registry.addImportDirective((node) {
-  //     final filePath = resolver.path;
-
-  //     // Checks if the file is in the presentation layer
-  //     if (!isInLayer(filePath, 'presentation')) {
-  //       return;
-  //     }
-
-  //     final uri = node.uri.stringValue;
-  //     if (uri == null) return;
-
-  //     // Ignores dart: imports and external packages
-  //     if (uri.startsWith('dart:') || (uri.startsWith('package:') && uri.contains('/presentation/'))) {
-  //       return;
-  //     }
-
-  //     // Resolves the import using utility functions
-  //     final sourceFilePath = resolver.source.uri.toFilePath();
-  //     final projectRoot = extractProjectRoot(sourceFilePath);
-  //     final packageName = extractPackageName(uri);
-
-  //     final resolved = resolveImport(node, filePath, packageName, projectRoot);
-
-  //     if (resolved == null) return;
-
-  //     // Checks if it imports from data
-  //     if (importsFromLayer(resolved.resolvedPath, 'data')) {
-  //       reporter.atNode(node, _code);
-  //     }
-  //   });
-  // }
-}
-
-class _PresentationNoDataVisitor extends SimpleAstVisitor<void> {
-  _PresentationNoDataVisitor(this.rule, this.context);
-  final RuleContext context;
-  final AnalysisRule rule;
-  @override
-  void visitImportDirective(ImportDirective node) {
-    final filePath = context.currentUnit?.file.path ?? '';
-
-    // Checks if the file is in the presentation layer
-    if (!isInLayer(filePath, 'presentation')) {
-      return;
-    }
-
-    final uri = node.uri.stringValue;
-    if (uri == null) return;
-
-    // Ignores dart: imports and external packages
-    if (uri.startsWith('dart:') || (uri.startsWith('package:') && uri.contains('/presentation/'))) {
-      return;
-    }
-
-    // Resolves the import using utility functions
-    final sourceFilePath = context.definingUnit.file.shortName;
-    final projectRoot = extractProjectRoot(sourceFilePath);
-    final packageName = extractPackageName(uri);
-
-    final resolved = resolveImport(node, filePath, packageName, projectRoot);
-    LoggerUtil().log('resolved: ${resolved?.resolvedPath}');
-    if (resolved == null) return;
-
-    // Checks if it imports from data
-    if (importsFromLayer(resolved.resolvedPath, 'data')) {
-      LoggerUtil().log('imports from data: ${resolved.resolvedPath}');
-      rule.reportAtNode(node);
-    }
   }
 }

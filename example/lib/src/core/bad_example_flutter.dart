@@ -1,11 +1,9 @@
+import 'package:flutter/material.dart'; // ❌ ERROR: Core cannot import Flutter
+
 /// ❌ BAD EXAMPLE: Core importing Flutter in /lib/src/core/ structure
 ///
 /// This file demonstrates a VIOLATION of the core_no_flutter rule
 /// when using the /lib/src/core/ structure
-library;
-
-import 'package:flutter/material.dart'; // ❌ ERROR: Core cannot import Flutter
-
 class BadProductWidget extends StatelessWidget {
   const BadProductWidget({super.key});
 

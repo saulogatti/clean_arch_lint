@@ -45,12 +45,14 @@ import 'dart:async';
 import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
 import 'package:clean_arch_lint/src/rules/always_use_package_imports.dart';
+import 'package:clean_arch_lint/src/rules/core_no_flutter.dart';
+import 'package:clean_arch_lint/src/rules/data_no_presentation.dart';
 import 'package:clean_arch_lint/src/rules/presentation_no_data.dart' show PresentationNoData;
 
 export 'src/rules/always_use_package_imports.dart' show AlwaysUsePackageImports;
 // export 'src/rules/core_no_data_or_presentation.dart' show CoreNoDataOrPresentation;
-// export 'src/rules/core_no_flutter.dart' show CoreNoFlutter;
-// export 'src/rules/data_no_presentation.dart' show DataNoPresentation;
+export 'src/rules/core_no_flutter.dart' show CoreNoFlutter;
+export 'src/rules/data_no_presentation.dart' show DataNoPresentation;
 export 'src/rules/presentation_no_data.dart' show PresentationNoData;
 
 /// Creates and returns the lint plugin instance for Clean Architecture.
@@ -83,5 +85,7 @@ class CleanArchitectureLintPlugin extends Plugin {
   FutureOr<void> register(PluginRegistry registry) {
     registry.registerWarningRule(AlwaysUsePackageImports());
     registry.registerWarningRule(PresentationNoData());
+    registry.registerWarningRule(DataNoPresentation());
+    registry.registerWarningRule(CoreNoFlutter());
   }
 }
