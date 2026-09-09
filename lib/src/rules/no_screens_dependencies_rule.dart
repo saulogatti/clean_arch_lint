@@ -6,18 +6,46 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 import 'package:clean_arch_lint/src/lint_utils.dart';
 import 'package:clean_arch_lint/src/utils/import_resolver.dart';
-import 'package:clean_arch_lint/src/utils/logger_util.dart';
 
-final logger = LoggerUtil(
-  fileName: 'no_screens_dependencies_rule_${DateTime.now().millisecondsSinceEpoch}',
-);
-
+/// Single [MultiAnalysisRule] that enforces import boundaries for every layer.
+///
+/// Former per-layer rules (`core_no_flutter`, `data_no_presentation`,
+/// `presentation_no_data`, `domain_only`, …) were collapsed into this visitor
+/// so the analyzer registers one processor per `ImportDirective` instead of
+/// walking the same file once per rule.
+///
+/// **Severity:** WARNING. Enable diagnostics under
+/// `plugins.clean_arch_lint.diagnostics` (`true` or `error`).
+///
+/// **Violation examples:**
+///
+/// ```dart
+/// // presentation/pages/product_page.dart
+/// import 'package:app/data/models/product_model.dart'; // no_data_dependencies
+///
+/// // domain/usecases/get_product.dart
+/// import 'package:app/data/models/product_model.dart'; // domain_only_depends_on_itself
+/// ```
+///
+/// **Config:**
+///
+/// ```yaml
+/// plugins:
+///   clean_arch_lint:
+///     path: ../clean_arch_lint
+///     diagnostics:
+///       no_data_dependencies: true
+///       domain_only_depends_on_itself: true
+///       no_screens_dependencies: true
+/// ```
 class NoScreensDependenciesRule extends MultiAnalysisRule {
-  /// Creates an instance of the [NoScreensDependenciesRule] rule.
+  /// Creates the architecture boundary rule.
   NoScreensDependenciesRule()
     : super(
         name: LintNames.noScreensDependencies,
-        description: 'Warns when screen directly depends on data.',
+        description:
+            'Enforces Clean Architecture import boundaries across core, '
+            'domain, data, presentation, and screens.',
       );
 
   @override
@@ -95,14 +123,9 @@ class _Visitor(final MultiAnalysisRule rule, final RuleContext context)
           rule.reportAtNode(node, diagnosticCode: domainOnlyDependsOnItselfCode);
         }
     }
-
-    if (importsFromLayer(resolved.resolvedPath, 'data')) {
-      rule.reportAtNode(node, diagnosticCode: noScreensDependenciesCode);
-    }
   }
 
   _ImportType? _importType(String uri) {
-    logger.log('uri: $uri');
     for (final importType in _ImportType.values) {
       if (isInLayer(uri, importType.name)) {
         return importType;

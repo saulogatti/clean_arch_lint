@@ -44,217 +44,179 @@
       
 <section class="desc markdown">
   <h1 id="clean_arch_lint">clean_arch_lint</h1>
-<p>Custom lint for <strong>Flutter Clean Architecture</strong>, focused on <strong>enforcing layers</strong> using static analysis (AST) with <code>custom_lint</code>.</p>
-<p>This package acts as an <strong>architecture guardian</strong>: if a layer depends on something it shouldn't, the error shows up immediately.</p>
+<p>Analyzer plugin for <strong>Flutter Clean Architecture</strong>. It inspects <code>import</code> directives (AST) and reports layer violations in the IDE and via <code>dart analyze</code> / <code>flutter analyze</code>.</p>
+<p>A single <a href="lib/src/rules/no_screens_dependencies_rule.dart">MultiAnalysisRule</a> covers every layer, so the analyzer walks each file once.</p>
 <hr>
-<h2 id="-objective">🎯 Objective</h2>
-<p>Ensure the structure below is automatically respected:</p>
+<h2 id="objective">Objective</h2>
+<p>Keep this structure honest:</p>
 <pre class="language-dart"><code>lib/
  ├─ core/
+ ├─ domain/
  ├─ data/
- └─ presentation/
+ ├─ presentation/
+ └─ screens/
 </code></pre>
-<p>No PR discussions. No "it was unintentional". The lint solves it.</p>
+<p><code>lib/src/{layer}/</code> is also detected. No extra configuration.</p>
 <hr>
-<h2 id="-layer-concepts">🧱 Layer Concepts</h2>
+<h2 id="layers">Layers</h2>
+<h3 id="domain">domain</h3>
+<p>Innermost layer. Other layers may import domain; domain imports only itself (plus Dart SDK). Flutter, <code>dart:ui</code>, and third-party packages are reported.</p>
+<p>Contains: entities, usecases, contracts.</p>
 <h3 id="core">core</h3>
-<p>Pure layer, without Flutter and without infrastructure.</p>
-<p>Contains:</p>
-<ul>
-<li>entities</li>
-<li>usecases</li>
-<li>contracts (interfaces)</li>
-<li>business rules</li>
-</ul>
+<p>Shared application code. Must not import <code>screens</code> or <code>presentation</code>.</p>
+<p>Contains: entities, usecases, contracts, business rules.</p>
 <h3 id="data">data</h3>
-<p>Technical implementations.</p>
-<p>Contains:</p>
-<ul>
-<li>datasources</li>
-<li>models / DTOs</li>
-<li>mappers</li>
-<li>repository implementations (<code>Impl</code>)</li>
-</ul>
+<p>Infrastructure. Must not import <code>screens</code> or <code>presentation</code>.</p>
+<p>Contains: datasources, models / DTOs, mappers, repository implementations.</p>
 <h3 id="presentation">presentation</h3>
-<p>User interface.</p>
-<p>Contains:</p>
-<ul>
-<li>widgets</li>
-<li>pages</li>
-<li>bloc / cubit</li>
-<li>viewmodels / controllers</li>
-</ul>
+<p>UI that is not a screen entrypoint. Must not import <code>data</code>.</p>
+<p>Contains: widgets, pages, bloc / cubit, viewmodels.</p>
+<h3 id="screens">screens</h3>
+<p>Screen-level UI. Must not import <code>data</code>.</p>
+<p>Contains: screens / routes that compose presentation and domain.</p>
 <hr>
-<h2 id="-lint-rules">🚨 Lint Rules</h2>
-<h3 id="1-core_no_flutter-error">1️⃣ core_no_flutter (ERROR)</h3>
-<p>❌ Prohibits Flutter imports in <code>core</code>.</p>
-<p>Blocks:</p>
-<ul>
-<li><code>package:flutter/*</code></li>
-<li><code>dart:ui</code></li>
-<li><code>package:flutter_test/*</code></li>
-</ul>
-<p>Reason: Core must be completely independent of UI.</p>
-<hr>
-<h3 id="2-core_no_data_or_presentation-error">2️⃣ core_no_data_or_presentation (ERROR)</h3>
-<p>❌ Prohibits <code>core</code> from depending on <code>data</code> or <code>presentation</code>.</p>
-<p>Clean Architecture golden rule:</p>
-<blockquote>
-<p>Dependencies always point inward.</p>
-</blockquote>
-<hr>
-<h3 id="3-data_no_presentation-error">3️⃣ data_no_presentation (ERROR)</h3>
-<p>❌ <code>data</code> cannot import anything from <code>presentation</code>.</p>
-<p>Reason:</p>
-<ul>
-<li>Avoids coupling infrastructure with UI</li>
-<li>Ensures testability</li>
-</ul>
-<hr>
-<h3 id="4-presentation_no_data-warning-configurable">4️⃣ presentation_no_data (WARNING configurable)</h3>
-<p>⚠️ By default, <code>presentation</code> <strong>should not depend directly on <code>data</code></strong>.</p>
-<p>✔️ Usecases and contracts should come from <code>core</code>.</p>
-<p>This rule can be configured to <strong>ERROR</strong>.</p>
-<hr>
-<h2 id="-installation">📦 Installation</h2>
-<h3 id="1-add-dependencies-to-your-flutter-app">1) Add dependencies to your Flutter app</h3>
-<pre class="language-yaml"><code class="language-yaml">dev_dependencies:
-  custom_lint: ^0.8.1
-  clean_arch_lint:
-    path: ../clean_arch_lint
-    # Or, when published:
-    # clean_arch_lint: ^1.0.0
-</code></pre>
-<blockquote>
-<p>Adjust the <code>path</code> according to your repository structure.</p>
-</blockquote>
-<hr>
-<h3 id="2-enable-the-plugin-in-analysis_optionsyaml">2) Enable the plugin in <code>analysis_options.yaml</code></h3>
-<pre class="language-yaml"><code class="language-yaml">analyzer:
-  plugins:
-    - custom_lint
-</code></pre>
-<hr>
-<h2 id="-how-to-run">▶️ How to Run</h2>
-<pre class="language-bash"><code class="language-bash"># Single execution
-dart run custom_lint
-
-# Watch mode (re-executes when saving files)
-dart run custom_lint --watch
-</code></pre>
-<p>In VSCode / Android Studio:</p>
-<ul>
-<li>Errors appear automatically in the editor</li>
-<li>Works in real-time as you type</li>
-</ul>
-<hr>
-<h2 id="-configuration">⚙️ Configuration</h2>
-<h3 id="make-presentation_no_data-an-error">Make <code>presentation_no_data</code> an ERROR</h3>
-<pre class="language-yaml"><code class="language-yaml">custom_lint:
-  rules:
-    - presentation_no_data:
-        severity: error
-</code></pre>
-<hr>
-<h3 id="ignore-specific-paths-example">Ignore specific paths (example)</h3>
-<pre class="language-yaml"><code class="language-yaml">custom_lint:
-  rules:
-    - core_no_flutter:
-        ignore:
-          - lib/core/di/**
-</code></pre>
-<p>Useful for very specific cases like DI bootstrap.</p>
-<hr>
-<h2 id="-examples">✅ Examples</h2>
-<h3 id="allowed-import">Allowed import</h3>
-<pre class="language-dart"><code class="language-dart">import 'package:my_app/core/usecases/get_user.dart';
-</code></pre>
-<h3 id="prohibited-import-core--flutter">Prohibited import (core → flutter)</h3>
-<pre class="language-dart"><code class="language-dart">import 'package:flutter/material.dart'; // ❌ error
-</code></pre>
-<h3 id="prohibited-import-presentation--data">Prohibited import (presentation → data)</h3>
-<pre class="language-dart"><code class="language-dart">import 'package:my_app/data/user_repository_impl.dart'; // ⚠️ or ❌
-</code></pre>
-<hr>
-<h2 id="-recommended-best-practices">🧠 Recommended Best Practices</h2>
-<ul>
-<li>Interfaces always in <code>core</code></li>
-<li>Implementations always in <code>data</code></li>
-<li>UI depends only on abstractions</li>
-<li>Dependency injection resolves the rest</li>
-</ul>
-<hr>
-<h2 id="-what-this-lint-does-not-do">❌ What This Lint Does NOT Do</h2>
-<ul>
-<li>Does not generate code</li>
-<li>Does not automatically fix</li>
-<li>Does not replace code review</li>
-</ul>
-<p>It only points out the error before it becomes technical debt.</p>
-<hr>
-<h2 id="-technical-stack">🧩 Technical Stack</h2>
-<ul>
-<li>Dart SDK &gt;= 3.0</li>
-<li>analyzer</li>
-<li>custom_lint_builder</li>
-<li>path</li>
-</ul>
-<p>No <code>build_runner</code>. No <code>source_gen</code>.</p>
-<hr>
-<h2 id="-quick-summary">🏁 Quick Summary</h2>
+<h2 id="diagnostics">Diagnostics</h2>
+<p>All of them are <strong>WARNING</strong> lint rules. Analyzer plugins disable lints until you turn them on.</p>
 <table>
 <thead>
 <tr>
-<th>Layer</th>
-<th>Can depend on</th>
+<th>Code</th>
+<th>Blocks</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>core</td>
-<td>core only</td>
+<td><code>no_data_dependencies</code></td>
+<td><code>presentation</code> or <code>screens</code> importing <code>data</code>; also <code>data</code>/<code>core</code> importing those UI layers</td>
 </tr>
 <tr>
-<td>data</td>
-<td>core, data</td>
+<td><code>no_screens_dependencies</code></td>
+<td><code>data</code> or <code>core</code> importing <code>screens</code> or <code>presentation</code></td>
 </tr>
 <tr>
-<td>presentation</td>
-<td>core, presentation</td>
+<td><code>domain_only_depends_on_itself</code></td>
+<td><code>domain</code> importing anything outside <code>domain</code></td>
 </tr>
 </tbody>
 </table>
-<p>If it goes beyond that, the lint alerts.</p>
+<p><code>core_no_flutter</code>, <code>core_no_data_or_presentation</code>, <code>data_no_presentation</code>, <code>presentation_no_data</code>, and <code>domain_only</code> no longer exist as separate rules.</p>
 <hr>
-<h2 id="-supported-structures">📁 Supported Structures</h2>
-<p>The lint automatically supports two folder structures:</p>
-<h3 id="structure-1-direct-simple-projects">Structure 1: Direct (simple projects)</h3>
-<pre class="language-dart"><code>lib/
- ├─ core/
- ├─ data/
- └─ presentation/
+<h2 id="installation">Installation</h2>
+<p>Requires Dart SDK <strong>&gt;= 3.13</strong> (Flutter 3.38+). This is an <code>analysis_server_plugin</code>, not <code>custom_lint</code>.</p>
+<h3 id="1-enable-the-plugin">1) Enable the plugin</h3>
+<p>Published:</p>
+<pre class="language-yaml"><code class="language-yaml">plugins:
+  clean_arch_lint:
+    version: ^1.3.0
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
 </code></pre>
-<h3 id="structure-2-with-src-larger-projects">Structure 2: With <code>src/</code> (larger projects)</h3>
-<pre class="language-dart"><code>lib/
- └─ src/
-     ├─ core/
-     ├─ data/
-     └─ presentation/
+<p>Local path (see <code>example/analysis_options.yaml</code>):</p>
+<pre class="language-yaml"><code class="language-yaml">plugins:
+  clean_arch_lint:
+    path: ../clean_arch_lint
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
 </code></pre>
-<p><strong>No additional configuration needed</strong> - the lint automatically detects which structure you're using!</p>
+<p>Restart the Dart Analysis Server after changing the <code>plugins</code> section.</p>
+<h3 id="2-run-analysis">2) Run analysis</h3>
+<pre class="language-bash"><code class="language-bash">dart analyze
+# or
+flutter analyze
+</code></pre>
+<p>Diagnostics also appear in VS Code / Android Studio while you type.</p>
 <hr>
-<p>Clean architecture is not an opinion. It's a contract.</p>
+<h2 id="configuration">Configuration</h2>
+<h3 id="raise-severity">Raise severity</h3>
+<pre class="language-yaml"><code class="language-yaml">plugins:
+  clean_arch_lint:
+    version: ^1.3.0
+    diagnostics:
+      no_data_dependencies: error
+      domain_only_depends_on_itself: error
+      no_screens_dependencies: error
+</code></pre>
+<h3 id="suppress-one-line-or-a-file">Suppress one line or a file</h3>
+<pre class="language-dart"><code class="language-dart">// ignore: clean_arch_lint/no_data_dependencies
+import 'package:my_app/data/models/product_model.dart';
+
+// ignore_for_file: clean_arch_lint/domain_only_depends_on_itself
+</code></pre>
+<hr>
+<h2 id="examples">Examples</h2>
+<p>Allowed:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:my_app/domain/entities/product.dart';
+import 'package:my_app/core/entities/product.dart';
+</code></pre>
+<p>Forbidden (<code>presentation</code> → <code>data</code>):</p>
+<pre class="language-dart"><code class="language-dart">import 'package:my_app/data/models/product_model.dart'; // no_data_dependencies
+</code></pre>
+<p>Forbidden (<code>domain</code> → Flutter):</p>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter/material.dart'; // domain_only_depends_on_itself
+</code></pre>
+<hr>
+<h2 id="dependency-flow">Dependency flow</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Must not import</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>domain</td>
+<td>anything outside domain (except Dart SDK)</td>
+</tr>
+<tr>
+<td>core</td>
+<td>screens, presentation</td>
+</tr>
+<tr>
+<td>data</td>
+<td>screens, presentation</td>
+</tr>
+<tr>
+<td>presentation</td>
+<td>data</td>
+</tr>
+<tr>
+<td>screens</td>
+<td>data</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="what-this-plugin-does-not-do">What this plugin does not do</h2>
+<ul>
+<li>Does not generate code</li>
+<li>Does not auto-fix imports</li>
+<li>Does not replace code review</li>
+</ul>
+<hr>
+<h2 id="stack">Stack</h2>
+<ul>
+<li>Dart SDK &gt;= 3.13</li>
+<li><code>analysis_server_plugin</code></li>
+<li><code>analyzer</code></li>
+<li><code>path</code></li>
+</ul>
+<p>No <code>custom_lint</code>, <code>build_runner</code>, or <code>source_gen</code>.</p>
 </section>
 
 
       <section class="summary">
           <h2>Libraries</h2>
         <dl>
-          <dt id="clean_arch_lint">
-  <span class="name"><a href="clean_arch_lint/">clean_arch_lint</a></span> 
+          <dt id="main">
+  <span class="name"><a href="main/">main</a></span> 
 
 </dt>
-<dd>Custom lint plugin for enforcing Flutter Clean Architecture rules.
+<dd>Analyzer plugin that enforces Flutter Clean Architecture layer boundaries.
 </dd>
 
         </dl>
@@ -274,7 +236,7 @@ dart run custom_lint --watch
     <h5 class="hidden-xs"><span class="package-name">clean_arch_lint</span> <span class="package-kind">package</span></h5>
     <ol>
       <li class="section-title">Libraries</li>
-      <li><a href="clean_arch_lint/">clean_arch_lint</a></li>
+      <li><a href="main/">main</a></li>
 </ol>
 
   </div>
@@ -284,7 +246,7 @@ dart run custom_lint --watch
 <footer>
   <span class="no-break">
     clean_arch_lint
-      1.1.0
+      1.3.0
   </span>
   
 </footer>

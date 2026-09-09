@@ -75,7 +75,8 @@ String extractProjectRoot(String filePath) {
 /// a file within the layer specified by [layerName].
 ///
 /// The [resolvedPath] should be a normalized path (obtained from [resolveImport]),
-/// and [layerName] should be one of the valid layers: 'core', 'data', or 'presentation'.
+/// and [layerName] should be one of: `core`, `domain`, `data`, `presentation`,
+/// or `screens`.
 ///
 /// Returns `true` if the import points to the specified layer, `false` otherwise.
 ///
@@ -88,8 +89,7 @@ String extractProjectRoot(String filePath) {
 /// importsFromLayer('/project/lib/core/entities/user.dart', 'data');         // false
 /// ```
 bool importsFromLayer(String resolvedPath, String layerName) {
-  return resolvedPath.contains('lib/$layerName/') ||
-      resolvedPath.contains('lib/src/$layerName/');
+  return resolvedPath.contains('lib/$layerName/') || resolvedPath.contains('lib/src/$layerName/');
 }
 
 /// Checks if an import is from a Flutter package or related.
@@ -127,7 +127,7 @@ bool isFlutterImport(String uri) {
 ///
 /// The [filePath] should be an absolute or relative path that contains the
 /// structure `/lib/{layer}/` or `/lib/src/{layer}/`. The [layerName] should be
-/// one of the valid layers: 'core', 'data', or 'presentation'.
+/// one of: `core`, `domain`, `data`, `presentation`, or `screens`.
 ///
 /// Returns `true` if the file is in the specified layer, `false` otherwise.
 ///
@@ -231,9 +231,7 @@ ResolvedImport? resolveImport(
   // If it's a package import from the project itself
   if (packageName != null && uri.startsWith('package:$packageName/')) {
     final relativePath = uri.substring('package:$packageName/'.length);
-    final resolvedPath = normalizePath(
-      p.join(projectRoot, 'lib', relativePath),
-    );
+    final resolvedPath = normalizePath(p.join(projectRoot, 'lib', relativePath));
     return ResolvedImport(resolvedPath: resolvedPath, originalUri: uri);
   }
 

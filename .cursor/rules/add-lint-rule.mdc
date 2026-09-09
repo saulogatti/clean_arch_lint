@@ -6,35 +6,30 @@ alwaysApply: false
 
 # Adding a lint rule
 
-Use `AnalysisRule` + `registerNodeProcessors`. Report with `rule.reportAtNode(node)`.
+Use `AnalysisRule` / `MultiAnalysisRule` + `registerNodeProcessors`. Report with `rule.reportAtNode(node, diagnosticCode: ...)`.
 Do not use `custom_lint_builder` or `DartLintRule`.
 
-## Visitor
+## Prefer the existing rule
 
-- **Blocklist** — `NoImportVisitor(exportLayer, importLayer)`: layer A must not import layer B (`presentation_no_data`, `data_no_presentation`).
-- **Allowlist** — `OnlyImportVisitor(layer)`: layer may import only itself + Dart SDK except `dart:ui` (`domain_only`).
-- Dedicated visitor only when neither fits (`core_no_flutter`).
+Architecture import checks belong in `NoScreensDependenciesRule` (`MultiAnalysisRule`) so each file still has one `ImportDirective` visitor. Add a `LintCodeArchitecture` in `lint_utils.dart` and include it in `diagnosticCodes`.
 
-Reuse `isInLayer`, `importsFromLayer`, `resolveImport`, `isFlutterImport`.
+A new rule class is only justified when the check cannot share that visitor.
+
+Reuse `isInLayer`, `importsFromLayer`, `resolveImport`.
 Use the full file path (`context.currentUnit?.file.path`), not `shortName`.
 
-## After the rule class
+## After changing diagnostics
 
-1. `registry.registerWarningRule(MyRule())` and export in `lib/main.dart`
-2. Enable in `example/analysis_options.yaml`
-3. Examples in `example/lib/{layer}/` and `example/lib/src/{layer}/`
+1. `registry.registerLintRule(...)` and export from `lib/main.dart` if you added a class
+2. Enable the diagnostic name in `example/analysis_options.yaml` under `plugins.clean_arch_lint.diagnostics`
+3. Examples in `example/lib/{layer}/`
 4. Tests for any new `import_resolver` behavior
-5. Dartdoc on the rule (severity, violation, fix, yaml config)
-6. README.md, USAGE.md, CHANGELOG.md
+5. Dartdoc on the rule / `LintCode` (severity, violation, yaml)
+6. README.md, USAGE.md, RULES.md, CHANGELOG.md
 
 ```dart
-class DomainOnly extends AnalysisRule {
-  @override
-  void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
-    registry.addImportDirective(
-      this,
-      OnlyImportVisitor(rule: this, context: context, layer: 'domain'),
-    );
-  }
+@override
+FutureOr<void> register(PluginRegistry registry) {
+  registry.registerLintRule(NoScreensDependenciesRule());
 }
 ```

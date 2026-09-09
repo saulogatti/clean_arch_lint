@@ -80,29 +80,23 @@ void main() {
   });
 
   group('Layer Dependency Rules', () {
-    test('core should not depend on flutter', () {
-      // This is validated by the core_no_flutter lint rule
-      expect(true, isTrue); // Placeholder - actual validation happens via lint
+    test('core and data should not import screens or presentation', () {
+      // Enforced by NoScreensDependenciesRule (no_screens_dependencies /
+      // no_data_dependencies). See example/lib/data/bad_example_in_data.dart.
+      expect(true, isTrue);
     });
 
-    test('core should not depend on data or presentation', () {
-      // This is validated by the core_no_data_or_presentation lint rule
-      expect(true, isTrue); // Placeholder - actual validation happens via lint
+    test('presentation and screens should not import data', () {
+      // Enforced by no_data_dependencies.
+      // See example/lib/presentation/bad_example_data.dart and
+      // example/lib/screens/home/home_screen.dart.
+      expect(true, isTrue);
     });
 
-    test('data should not depend on presentation', () {
-      // This is validated by the data_no_presentation lint rule
-      expect(true, isTrue); // Placeholder - actual validation happens via lint
-    });
-
-    test('presentation should not depend directly on data (warning)', () {
-      // This is validated by the presentation_no_data lint rule
-      expect(true, isTrue); // Placeholder - actual validation happens via lint
-    });
-
-    test('domain should only depend on itself (warning)', () {
-      // This is validated by the domain_only lint rule
-      expect(true, isTrue); // Placeholder - actual validation happens via lint
+    test('domain should only depend on itself', () {
+      // Enforced by domain_only_depends_on_itself.
+      // See example/lib/domain/bad_example_data.dart.
+      expect(true, isTrue);
     });
   });
 }

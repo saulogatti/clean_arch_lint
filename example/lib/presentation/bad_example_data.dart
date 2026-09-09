@@ -1,28 +1,16 @@
-// VIOLATION EXAMPLE: presentation_no_data
-// This file demonstrates the WARNING that will be reported
-// when presentation tries to import data directly.
-
-// ignore_for_file: unused_import
-
-import 'package:clean_archt_lint_example/data/models/user_model.dart';
-import 'package:clean_archt_lint_example/domain/entities/user.dart';
-
-// ⚠️ WARNING: Presentation should not depend directly on Data
-import '../data/repositories/user_repository_impl.dart';
-
-/// This is a commented example to not break the build.
-/// Uncomment the import above to see the lint in action.
+/// ⚠️ BAD EXAMPLE: Presentation importing Data.
 ///
-/// The correct solution is:
-/// 1. Depend only on the core contract (GetUser)
-/// 2. Inject the implementation (UserRepositoryImpl) via DI
-class BadExampleData {
-  UserModel userModel = UserModel(
-    email: 'teste@teste.com',
-    id: '1',
-    name: 'Teste',
-  );
-  void someMethod() {
-    // Attempting to use data directly in presentation
+/// Violation of `no_data_dependencies`.
+library;
+
+import 'package:clean_archt_lint_example/core/app_exemple.dart';
+import 'package:clean_archt_lint_example/data/models/product_model.dart'; // ⚠️ WARNING: Presentation should not import Data directly
+
+class BadProductController {
+  Future<ProductModel> loadProduct(String id) async {
+    BadGetProduct();
+    // Presentation should not know data implementations
+    // Should use only core entities and use cases
+    return const ProductModel(id: '1', name: 'Product', price: 99.99);
   }
 }

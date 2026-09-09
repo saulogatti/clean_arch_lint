@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="main library API docs, for the Dart programming language.">
+  <title>main library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">clean_arch_lint</a></li>
+    <li class="self-crumb">main.dart</li>
+  </ol>
+  <div class="self-name">main</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="main&#47;main-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">main</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Analyzer plugin that enforces Flutter Clean Architecture layer boundaries.</p>
+<p>Isolation is checked by inspecting <code>import</code> directives (AST), not by
+code generation. One <a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule-class.html">MultiAnalysisRule</a> covers every layer so the analyzer
+walks each file once.</p>
+<p>Layers (<code>lib/{layer}/</code> or <code>lib/src/{layer}/</code>):</p>
+<ul>
+<li><strong>domain</strong>: innermost; may import only other domain files (Dart SDK is
+allowed; Flutter and third-party packages are not)</li>
+<li><strong>core</strong>: must not import <code>screens</code> or <code>presentation</code></li>
+<li><strong>data</strong>: must not import <code>screens</code> or <code>presentation</code></li>
+<li><strong>presentation</strong>: must not import <code>data</code></li>
+<li><strong>screens</strong>: must not import <code>data</code></li>
+</ul>
+<h2 id="diagnostics">Diagnostics</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>When it fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>no_data_dependencies</code></td>
+<td><code>presentation</code>/<code>screens</code> import <code>data</code>, or <code>data</code>/<code>core</code> import UI layers</td>
+</tr>
+<tr>
+<td><code>no_screens_dependencies</code></td>
+<td><code>data</code>/<code>core</code> import <code>screens</code> or <code>presentation</code></td>
+</tr>
+<tr>
+<td><code>domain_only_depends_on_itself</code></td>
+<td><code>domain</code> imports anything outside <code>domain</code></td>
+</tr>
+</tbody>
+</table>
+<p>Lint rules from analyzer plugins are <strong>disabled by default</strong>. Enable them
+in the top-level <code>plugins</code> section of <code>analysis_options.yaml</code>.</p>
+<p>Local checkout:</p>
+<pre class="language-yaml"><code class="language-yaml">plugins:
+  clean_arch_lint:
+    path: ../clean_arch_lint
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
+</code></pre>
+<p>Published package:</p>
+<pre class="language-yaml"><code class="language-yaml">plugins:
+  clean_arch_lint:
+    version: ^1.3.0
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
+</code></pre>
+<p>Use <code>error</code> instead of <code>true</code> to raise severity. Suppress with
+<code>// ignore: clean_arch_lint/no_data_dependencies</code>.</p>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="CleanArchitectureLintPlugin">
+  <span class="name "><a href="../main/CleanArchitectureLintPlugin-class.html">CleanArchitectureLintPlugin</a></span> 
+
+</dt>
+<dd>
+  Registers <a href="../main/NoScreensDependenciesRule-class.html">NoScreensDependenciesRule</a> with the analysis server.
+</dd>
+
+          <dt id="NoScreensDependenciesRule">
+  <span class="name "><a href="../main/NoScreensDependenciesRule-class.html">NoScreensDependenciesRule</a></span> 
+
+</dt>
+<dd>
+  Single <a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule-class.html">MultiAnalysisRule</a> that enforces import boundaries for every layer.
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+
+    <section class="summary offset-anchor" id="properties">
+      <h2>Properties</h2>
+      <dl class="properties">
+          <dt id="plugin" class="property">
+  <span class="name"><a href="../main/plugin.html">plugin</a></span>
+  <span class="signature">&#8594; <a href="../main/CleanArchitectureLintPlugin-class.html">CleanArchitectureLintPlugin</a></span>
+  
+
+</dt>
+<dd>
+  Plugin instance loaded by the Dart Analysis Server.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">clean_arch_lint</a></li>
+    <li class="self-crumb">main.dart</li>
+</ol>
+
+    <h5><span class="package-name">clean_arch_lint</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="../main/">main</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>main library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    clean_arch_lint
+      1.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

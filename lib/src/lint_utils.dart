@@ -1,6 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:analyzer/error/error.dart';
 
-//domain so pode ter ele mesmo
+/// Reported when `domain` imports a file outside `lib/**/domain/`.
+///
+/// Dart SDK imports (`dart:async`, …) are not resolved as project files, so they
+/// are allowed. Flutter and third-party packages are not.
 const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
   LintNames.domainOnlyDependsOnItself,
   'Domain should only depend on itself. Domain should not depend on data or presentation.',
@@ -8,7 +13,9 @@ const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
   severity: .WARNING,
   uniqueName: 'domain_only_depends_on_itself',
 );
-//presentation ou screens nao pode ter dependencias de data
+
+/// Reported when `presentation` (or `data`/`core` targeting presentation) breaks
+/// the inward-only dependency rule.
 const LintCodeArchitecture noDataDependenciesCodeInPresentation = LintCodeArchitecture(
   LintNames.noDataDependencies,
   'No data dependencies in presentation. Presentation should not depend on data.',
@@ -16,6 +23,9 @@ const LintCodeArchitecture noDataDependenciesCodeInPresentation = LintCodeArchit
   severity: .WARNING,
   uniqueName: 'no_data_dependencies_in_presentation',
 );
+
+/// Reported when `screens` (or `data`/`core` targeting screens) breaks the
+/// inward-only dependency rule.
 const LintCodeArchitecture noDataDependenciesCodeInScreens = LintCodeArchitecture(
   LintNames.noDataDependencies,
   'No data dependencies in screens. Screens should not depend on data.',
@@ -23,7 +33,9 @@ const LintCodeArchitecture noDataDependenciesCodeInScreens = LintCodeArchitectur
   severity: .WARNING,
   uniqueName: 'no_data_dependencies_in_screens',
 );
-//presentation ou screens nao pode ter dependencias de data
+
+/// Grouped under [LintNames.noScreensDependencies]: presentation must not depend
+/// on data; it may depend on screens or domain.
 const LintCodeArchitecture noPresentationDependenciesCode = LintCodeArchitecture(
   LintNames.noScreensDependencies,
   'Presentation should not depend on data. Presentation should only depend on screens or domain.',
@@ -31,7 +43,9 @@ const LintCodeArchitecture noPresentationDependenciesCode = LintCodeArchitecture
   severity: .WARNING,
   uniqueName: 'no_presentation_dependencies',
 );
-//presentation ou screens nao pode ter dependencias de data
+
+/// Grouped under [LintNames.noScreensDependencies]: data must not depend on
+/// screens or presentation.
 const LintCodeArchitecture noScreensDependenciesCode = LintCodeArchitecture(
   LintNames.noScreensDependencies,
   'Data should not depend on screens or presentation.',
@@ -40,9 +54,18 @@ const LintCodeArchitecture noScreensDependenciesCode = LintCodeArchitecture(
   uniqueName: 'no_screens_dependencies_data_or_presentation',
 );
 
-/// A custom lint code for the architecture rules.
-// name pode ser repetido, mas uniqueName nao pode ser repetido. posso usar name para agrupar os lint codes. (ex: data (pode apenas nao pode ter dependencias de presentation) e core tambem pode ter dependencias de data e domain, mas nao de presentation, domain so pode ter ele mesmo, presentation ou screens nao pode ter dependencias de data)
+/// Lint code whose [LintCode.name] can be shared across variants.
+///
+/// [LintCode.name] is what users enable in `plugins.*.diagnostics` and suppress
+/// with `// ignore`. [LintCode.uniqueName] must stay unique per variant so the
+/// analyzer can tell messages apart.
+///
+/// Grouping today:
+/// - [LintNames.noDataDependencies]: presentation/screens must not import data
+/// - [LintNames.noScreensDependencies]: data/core must not import UI layers
+/// - [LintNames.domainOnlyDependsOnItself]: domain imports only domain
 final class LintCodeArchitecture extends LintCode {
+  /// Creates an architecture diagnostic.
   const LintCodeArchitecture(
     super.name,
     super.problemMessage, {
@@ -52,10 +75,16 @@ final class LintCodeArchitecture extends LintCode {
   });
 }
 
+/// Diagnostic names enabled under `plugins.clean_arch_lint.diagnostics`.
 abstract final class LintNames {
   const LintNames._();
+
+  /// Presentation and screens must not import data.
   static const String noDataDependencies = 'no_data_dependencies';
+
+  /// Domain may import only other domain files.
   static const String domainOnlyDependsOnItself = 'domain_only_depends_on_itself';
 
+  /// Data and core must not import screens or presentation.
   static const String noScreensDependencies = 'no_screens_dependencies';
 }

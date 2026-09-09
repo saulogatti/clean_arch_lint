@@ -1,411 +1,220 @@
 # Usage Guide - clean_arch_lint
 
-This guide shows how to use `clean_arch_lint` in your Flutter/Dart projects.
+How to use `clean_arch_lint` in a Flutter/Dart project.
 
 ## Installation
 
-### 1. Add dependencies to your project
+This package is an **analyzer plugin** (`analysis_server_plugin`), not `custom_lint`. Requires Dart SDK >= 3.13.
 
-In your Flutter app's `pubspec.yaml` file:
+### 1. Enable the plugin
+
+In the **root** `analysis_options.yaml` (plugins are not inherited from nested options files unless you `include` a file that already lists them):
 
 ```yaml
-dev_dependencies:
-  custom_lint: ^0.8.1
+plugins:
   clean_arch_lint:
-    path: ../clean_arch_lint  # Adjust the path as needed
-    # Or, when published:
-    # clean_arch_lint: ^1.0.0
+    version: ^1.3.0
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
 ```
 
-### 2. Configure the analyzer
-
-In your `analysis_options.yaml` file:
+Local checkout:
 
 ```yaml
-analyzer:
-  plugins:
-    - custom_lint
+plugins:
+  clean_arch_lint:
+    path: ../clean_arch_lint
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
 ```
 
-### 3. Run the lint
+Restart the Dart Analysis Server after any change to `plugins`.
+
+### 2. Run analysis
 
 ```bash
-# Single execution
-dart run custom_lint
-
-# Watch mode (re-executes when saving files)
-dart run custom_lint --watch
+dart analyze
+# or
+flutter analyze
 ```
 
 ---
 
-## Layer Structure
+## Layer structure
 
-The lint supports two folder structures:
+Two folder layouts are detected automatically.
 
-### Structure 1: Direct (recommended for simple projects)
+### Direct (simple projects)
+
 ```
 lib/
- ├─ core/          # Pure business logic
- │   ├─ entities/
- │   └─ usecases/
- ├─ domain/        # Innermost layer (only itself + Dart SDK)
- │   ├─ entities/
- │   └─ usecases/
- ├─ data/          # Technical implementations
- │   ├─ models/
- │   ├─ datasources/
- │   └─ repositories/
- └─ presentation/  # User interface
-     ├─ pages/
-     ├─ widgets/
-     └─ controllers/
+ ├─ core/
+ ├─ domain/
+ ├─ data/
+ ├─ presentation/
+ └─ screens/
 ```
 
-### Structure 2: With `src/` (common in larger projects)
+### With `src/` (larger projects)
+
 ```
 lib/
  └─ src/
-     ├─ core/          # Pure business logic
-     │   ├─ entities/
-     │   └─ usecases/
-     ├─ domain/        # Innermost layer (only itself + Dart SDK)
-     │   ├─ entities/
-     │   └─ usecases/
-     ├─ data/          # Technical implementations
-     │   ├─ models/
-     │   ├─ datasources/
-     │   └─ repositories/
-     └─ presentation/  # User interface
-         ├─ pages/
-         ├─ widgets/
-         └─ controllers/
+     ├─ core/
+     ├─ domain/
+     ├─ data/
+     ├─ presentation/
+     └─ screens/
 ```
-
-**Note:** The lint automatically detects which structure you're using. Both are fully supported!
 
 ---
 
-## Lint Rules
+## Diagnostics
 
-### 1. core_no_flutter (ERROR)
+All codes are WARNING lints. They stay off until listed under `plugins.clean_arch_lint.diagnostics`.
 
-**What it does:** Prohibits Flutter imports in the `core` layer.
+### 1. `no_data_dependencies`
 
-**Blocks:**
-- `package:flutter/*`
-- `package:flutter_test/*`
-- `dart:ui`
+**What it does:** Stops UI from depending on infrastructure, and infrastructure from depending on UI.
 
-**Why:** The core should be completely independent of UI, allowing:
-- Pure unit tests (without depending on Flutter)
-- Logic reusability on other platforms
-- Clear separation of concerns
+**Typical violations:**
 
-**Violation example:**
+- `presentation/**` or `screens/**` importing `data`
+- `data/**` or `core/**` importing `presentation` or `screens`
+
+**Why:** Presentation and screens should talk to domain/core contracts. Data must not know about widgets.
+
 ```dart
-// ❌ Wrong - core/entities/user.dart
+// ❌ presentation/pages/product_page.dart
+import 'package:my_app/data/models/product_model.dart';
+```
+
+```dart
+// ✅ presentation depends on a domain/core type
+import 'package:my_app/domain/entities/product.dart';
+```
+
+---
+
+### 2. `no_screens_dependencies`
+
+**What it does:** Stops `data` (and `core`) from importing `screens` or `presentation`.
+
+**Why:** Infrastructure must not instantiate UI.
+
+```dart
+// ❌ data/repositories/product_repository_impl.dart
+import 'package:my_app/presentation/pages/product_page.dart';
+```
+
+---
+
+### 3. `domain_only_depends_on_itself`
+
+**What it does:** Domain may import only other domain files.
+
+**Allows:** `lib/domain/**`, `lib/src/domain/**`, Dart SDK (`dart:async`, `dart:convert`, …).
+
+**Blocks:** `data`, `core`, `presentation`, `screens`, `package:flutter/*`, `dart:ui`, third-party packages.
+
+```dart
+// ❌ domain/usecases/get_product.dart
+import 'package:my_app/data/models/product_model.dart';
 import 'package:flutter/material.dart';
-
-class User {
-  final Color favoriteColor;  // Color is from Flutter!
-}
 ```
 
-**Solution:**
 ```dart
-// ✅ Correct - core/entities/user.dart
-class User {
-  final int favoriteColorValue;  // Use int (0xFFRRGGBB)
-}
-```
-
----
-
-### 2. core_no_data_or_presentation (ERROR)
-
-**What it does:** Prohibits `core` from importing `data` or `presentation`.
-
-**Why:** The core is the innermost layer. Dependencies should point **inward**, never outward.
-
-**Violation example:**
-```dart
-// ❌ Wrong - core/usecases/get_user.dart
-import '../../data/repositories/user_repository_impl.dart';
-
-class GetUser {
-  final UserRepositoryImpl repository;  // Imports implementation!
-}
-```
-
-**Solution:**
-```dart
-// ✅ Correct - core/usecases/get_user.dart
-abstract class UserRepository {
-  Future<User?> getUser(String id);
-}
-
-class GetUser {
-  final UserRepository repository;  // Uses abstraction!
-
-  const GetUser(this.repository);
-
-  Future<User?> call(String id) => repository.getUser(id);
-}
-```
-
----
-
-### 3. data_no_presentation (ERROR)
-
-**What it does:** Prohibits the `data` layer from importing `presentation`.
-
-**Why:** Data is infrastructure, should not know about the UI.
-
-**Violation example:**
-```dart
-// ❌ Wrong - data/repositories/user_repository_impl.dart
-import '../../presentation/controllers/user_controller.dart';
-
-class UserRepositoryImpl {
-  void notifyUI() {
-    UserController.instance.update();  // Coupling with UI!
-  }
-}
-```
-
-**Solution:**
-```dart
-// ✅ Correct - Use callbacks or streams
-class UserRepositoryImpl {
-  final void Function()? onDataChanged;
-
-  UserRepositoryImpl({this.onDataChanged});
-
-  void notifyListeners() {
-    onDataChanged?.call();
-  }
-}
-```
-
----
-
-### 4. presentation_no_data (WARNING)
-
-**What it does:** Discourages `presentation` from directly importing `data`.
-
-**Severity:** WARNING (configurable to ERROR)
-
-**Why:** The UI should depend only on abstractions (core). Implementations should be injected via DI.
-
-**Violation example:**
-```dart
-// ⚠️ WARNING - presentation/pages/user_page.dart
-import '../../data/repositories/user_repository_impl.dart';
-
-class UserPage {
-  final repository = UserRepositoryImpl();  // Directly instantiates!
-}
-```
-
-**Solution:**
-```dart
-// ✅ Correct
-import '../../core/usecases/get_user.dart';
-
-class UserPage {
-  final GetUser getUser;  // Receives abstraction!
-
-  const UserPage({required this.getUser});
-}
-
-// In DI file (e.g., lib/core/di/injection.dart):
-void setupDependencies() {
-  getIt.registerFactory<GetUser>(
-    () => GetUser(UserRepositoryImpl()),
-  );
-}
-```
-
----
-
-### 5. domain_only (WARNING)
-
-**What it does:** Requires the `domain` layer to import only other domain files.
-
-**Severity:** WARNING (configurable to ERROR)
-
-**Allows:**
-- `lib/domain/**` and `lib/src/domain/**`
-- Dart SDK (`dart:async`, `dart:convert`, `dart:core`, ...) except `dart:ui`
-
-**Blocks:**
-- other layers (`data`, `core`, `presentation`)
-- Flutter (`package:flutter/*`, `package:flutter_test/*`, `dart:ui`)
-- third-party packages
-
-**Why:** Domain is the innermost layer. Other layers import domain; domain must not know UI, infrastructure, or external libraries.
-
-**Violation example:**
-```dart
-// ⚠️ WARNING - domain/usecases/get_user.dart
-import 'package:my_app/data/repositories/user_repository_impl.dart';
-import 'package:flutter/material.dart';
-
-class GetUser {
-  final UserRepositoryImpl repository;  // Data implementation in domain!
-}
-```
-
-**Solution:**
-```dart
-// ✅ Correct - domain/usecases/get_user.dart
+// ✅
 import 'dart:async';
-import 'package:my_app/domain/entities/user.dart';
-import 'package:my_app/domain/contracts/user_repository.dart';
-
-class GetUser {
-  final UserRepository repository;  // Domain contract only
-
-  GetUser(this.repository);
-
-  Future<User?> call(String id) => repository.getUser(id);
-}
+import 'package:my_app/domain/entities/product.dart';
 ```
 
 ---
 
-## Advanced Configuration
+## Advanced configuration
 
-### Make presentation_no_data an ERROR
-
-In `analysis_options.yaml`:
+### Make a diagnostic an error
 
 ```yaml
-custom_lint:
-  rules:
-    - presentation_no_data:
-        severity: error
+plugins:
+  clean_arch_lint:
+    version: ^1.3.0
+    diagnostics:
+      no_data_dependencies: error
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
 ```
 
-### Ignore specific files
-
-If you need to ignore a rule in a specific file:
+### Ignore a line or a file
 
 ```dart
-// ignore_for_file: core_no_flutter
-import 'package:flutter/material.dart';
+// ignore: clean_arch_lint/no_data_dependencies
+import '../data/models/product_model.dart';
 ```
-
-Or ignore just one line:
 
 ```dart
-// ignore: core_no_data_or_presentation
-import '../data/models/user_model.dart';
+// ignore_for_file: clean_arch_lint/domain_only_depends_on_itself
 ```
 
-**Attention:** Use `ignore` only in exceptional and documented cases!
+Use `ignore` only in documented exceptions.
 
 ---
 
-## Correct Dependency Flow
-
-```
-┌─────────────┐
-│Presentation │  ← User interacts
-└──────┬──────┘
-       │ depends on
-       ↓
-┌─────────────┐
-│    Core     │  ← Usecases and Entities
-└──────┬──────┘
-       ↑ implements
-       │
-┌─────────────┐
-│    Data     │  ← Repositories, APIs, DB
-└─────────────┘
-```
-
-**Golden rule:** Dependencies always point inward (toward the core).
-
----
-
-## CI/CD Integration
-
-### GitHub Actions
+## CI/CD
 
 ```yaml
-name: Lint
+name: Analyze
 
 on: [push, pull_request]
 
 jobs:
-  lint:
+  analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
 
       - name: Install dependencies
         run: dart pub get
 
-      - name: Run custom lint
-        run: dart run custom_lint
+      - name: Analyze
+        run: dart analyze
 ```
+
+`dart analyze` / `flutter analyze` load the plugin. Do **not** run `dart run custom_lint`.
 
 ---
 
 ## Troubleshooting
 
-### "Plugin custom_lint not found"
+### Plugin not loading
 
-Run:
-```bash
-dart pub get
-```
+1. Plugin is listed in the **root** `analysis_options.yaml` under `plugins:` (not under `analyzer.plugins`).
+2. Lint diagnostics are explicitly `true` (or `error`).
+3. Dart Analysis Server was restarted after the `plugins` change.
+4. SDK is >= 3.13.
 
-### "No lint issues found" but there are violations
+### "No issues" but the import is illegal
 
-1. Check if `analysis_options.yaml` is configured
-2. Make sure files are in `lib/core/`, `lib/domain/`, `lib/data/` or `lib/presentation/` (or the `lib/src/{layer}/` variants)
-3. Run `dart run custom_lint --watch` to see in real-time
-
-### Lint not detecting relative imports
-
-The lint supports both package and relative imports:
-- `package:my_app/data/models/user.dart`
-- `../data/models/user.dart`
-
-If an import is not being detected, check if the path is correct.
+1. File lives under `lib/{layer}/` or `lib/src/{layer}/`.
+2. The matching diagnostic is enabled.
+3. Relative and `package:` imports of the **same** package are both resolved; `dart:` imports are ignored by the resolver (allowed).
 
 ---
 
-## Best Practices
+## Examples
 
-1. **Run lint frequently** - Preferably in watch mode
-2. **Configure in CI** - Don't let violations reach main
-3. **Educate the team** - Explain the why behind the rules
-4. **Use DI** - Dependency injection is essential for Clean Architecture
-5. **Abstract in core** - Every business rule should be in core
+See `example/`:
 
----
+- Valid files under `core/`, `domain/`, `data/`, `presentation/`, `screens/`
+- Violations in `bad_example_*.dart`
 
-## Practical Examples
-
-See the `example/` directory for complete examples of:
-- ✅ Correct structure
-- ❌ Violations of each rule
-- 🔧 How to fix each type of error
-
-Run:
 ```bash
 cd example
-dart run clean_archt_lint_example.dart
+dart pub get
+dart analyze
 ```
-
----
-
-## Support
-
-Problems or questions? Open an issue in the repository:
-https://github.com/saulogatti/clean_arch_lint/issues

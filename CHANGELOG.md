@@ -1,3 +1,16 @@
+## Unreleased
+
+- **Breaking: one `MultiAnalysisRule` instead of five rule classes**
+  - Removed `CoreNoFlutter`, `CoreNoDataOrPresentation`, `DataNoPresentation`, `PresentationNoData`, `DomainOnly`
+  - Removed `NoImportVisitor` / `OnlyImportVisitor`; one import visitor covers all layers
+  - Diagnostics: `no_data_dependencies`, `no_screens_dependencies`, `domain_only_depends_on_itself`
+- **Breaking: `analysis_server_plugin` replaces `custom_lint`**
+  - Enable via the top-level `plugins` section in `analysis_options.yaml`
+  - Run `dart analyze` / `flutter analyze` (not `dart run custom_lint`)
+  - Lint diagnostics are off until listed under `plugins.clean_arch_lint.diagnostics`
+- Added `screens` as a first-class layer alongside `core`, `domain`, `data`, `presentation`
+- Documentation (README, USAGE, RULES, CONTRIBUTING, library dartdoc) updated to the simplified plugin
+
 ## 1.3.0
 - **Feature: DomainOnly rule**
   - New lint rule to warn when domain depends on anything other than itself

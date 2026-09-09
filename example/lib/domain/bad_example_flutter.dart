@@ -1,17 +1,13 @@
-// VIOLATION EXAMPLE: domain_only
-// This file demonstrates the warning that will be reported
-// when domain tries to import Flutter or a third-party package.
+import 'package:flutter/material.dart'; // ❌ domain_only_depends_on_itself
 
-// ignore_for_file: unused_import
+/// ❌ BAD EXAMPLE: Domain importing Flutter.
+///
+/// Violation of `domain_only_depends_on_itself`.
+class BadProductWidget extends StatelessWidget {
+  const BadProductWidget({super.key});
 
-import 'package:flutter/material.dart';
-
-// ⚠️ WARNING: Domain cannot import third-party packages
-// import 'package:path/path.dart';
-
-/// ⚠️ WARNING: Domain should only depend on itself.
-class BadExampleFlutter {
-  void someMethod() {
-    // Attempting to use Flutter in domain
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

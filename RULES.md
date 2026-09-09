@@ -1,47 +1,58 @@
 # Rules
 
-## CoreNoFlutter
+Architecture checks live in one class: [NoScreensDependenciesRule](lib/src/rules/no_screens_dependencies_rule.dart). Users enable **diagnostic names**, not the old per-layer rule classes.
+
+## no_data_dependencies
 
 ### Description
 
-Core cannot depend on Flutter. If a file in the core layer imports Flutter,
-it will be reported.
+`presentation` and `screens` must not import `data`. The same code is also used when `data` or `core` import those UI layers.
 
 ### Example
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:my_app/data/models/product_model.dart';
 ```
 
-## DomainOnly
+## no_screens_dependencies
 
 ### Description
 
-Domain can only depend on itself and on the Dart SDK (except `dart:ui`).
-Any import of `data`, `core`, `presentation`, Flutter, or a third-party
-package is reported.
+`data` (and `core`) must not import `screens` or `presentation`.
 
-Other layers import Domain; Domain does not import them.
+### Example
+
+```dart
+import 'package:my_app/presentation/pages/product_page.dart';
+import 'package:my_app/screens/home/home_screen.dart';
+```
+
+## domain_only_depends_on_itself
+
+### Description
+
+Domain may import only other domain files and the Dart SDK. Flutter, `dart:ui`, other layers, and third-party packages are reported.
 
 ### Allowed
 
 ```dart
 import 'dart:async';
-import 'package:my_app/domain/entities/user.dart';
+import 'package:my_app/domain/entities/product.dart';
 ```
 
 ### Reported
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:my_app/data/models/user_model.dart';
+import 'package:my_app/data/models/product_model.dart';
 import 'package:equatable/equatable.dart';
 ```
 
 ----
 
-* Clean Architecture reminders:
-    * Core must not import Flutter.
-    * Data must not import presentation.
-    * Presentation must not import data; depend on core/domain contracts and inject implementations.
-    * Domain may only import itself and Dart SDK (`dart:ui` is forbidden). Other layers import Domain.
+Reminders:
+
+- Domain is inward-only.
+- Data and core must not know about UI (`presentation`, `screens`).
+- Presentation and screens must not import data implementations; depend on domain/core and inject implementations.
+- Flutter-in-core (`core_no_flutter`) is **not** a separate rule anymore.

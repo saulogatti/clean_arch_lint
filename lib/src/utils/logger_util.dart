@@ -1,7 +1,7 @@
 import 'package:analyzer/instrumentation/file_instrumentation.dart';
 import 'package:analyzer/instrumentation/instrumentation.dart';
 
-class LoggerUtil {
+final class LoggerUtil {
   LoggerUtil({required String fileName}) {
     instrumentationLogAdapter = InstrumentationLogAdapter(
       FileInstrumentationLogger('$fileName.log'),
