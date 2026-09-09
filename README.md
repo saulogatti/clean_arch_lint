@@ -13,6 +13,7 @@ Ensure the structure below is automatically respected:
 ```
 lib/
  ├─ core/
+ ├─ domain/
  ├─ data/
  └─ presentation/
 ```
@@ -33,6 +34,16 @@ Contains:
 - usecases
 - contracts (interfaces)
 - business rules
+
+### domain
+
+Innermost layer. Other layers import domain; domain imports only itself (plus Dart SDK, except `dart:ui`).
+
+Contains:
+
+- entities
+- usecases
+- contracts (interfaces)
 
 ### data
 
@@ -100,6 +111,25 @@ Reason:
 ⚠️ By default, `presentation` **should not depend directly on `data`**.
 
 ✔️ Usecases and contracts should come from `core`.
+
+This rule can be configured to **ERROR**.
+
+---
+
+### 5️⃣ domain\_only (WARNING configurable)
+
+⚠️ By default, `domain` **must only depend on itself**.
+
+Allows:
+
+- other files in `lib/domain/` or `lib/src/domain/`
+- Dart SDK (`dart:async`, `dart:convert`, `dart:core`, ...) except `dart:ui`
+
+Blocks:
+
+- `data`, `core`, `presentation`
+- `package:flutter/*`, `package:flutter_test/*`, `dart:ui`
+- third-party packages (`package:equatable`, ...)
 
 This rule can be configured to **ERROR**.
 
@@ -230,11 +260,12 @@ No `build_runner`. No `source_gen`.
 
 ## 🏁 Quick Summary
 
-| Layer        | Can depend on      |
-| ------------ | ------------------ |
-| core         | core only          |
-| data         | core, data         |
-| presentation | core, presentation |
+| Layer        | Can depend on                                      |
+| ------------ | -------------------------------------------------- |
+| domain       | domain + Dart SDK (except `dart:ui`)               |
+| core         | core only (no Flutter)                             |
+| data         | core, data                                         |
+| presentation | core, presentation                                 |
 
 If it goes beyond that, the lint alerts.
 
@@ -248,6 +279,7 @@ The lint automatically supports two folder structures:
 ```
 lib/
  ├─ core/
+ ├─ domain/
  ├─ data/
  └─ presentation/
 ```
@@ -257,6 +289,7 @@ lib/
 lib/
  └─ src/
      ├─ core/
+     ├─ domain/
      ├─ data/
      └─ presentation/
 ```

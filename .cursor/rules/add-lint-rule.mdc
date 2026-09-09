@@ -1,0 +1,40 @@
+---
+description: Checklist for adding a new Clean Architecture lint rule
+globs: lib/src/rules/**/*.dart
+alwaysApply: false
+---
+
+# Adding a lint rule
+
+Use `AnalysisRule` + `registerNodeProcessors`. Report with `rule.reportAtNode(node)`.
+Do not use `custom_lint_builder` or `DartLintRule`.
+
+## Visitor
+
+- **Blocklist** — `NoImportVisitor(exportLayer, importLayer)`: layer A must not import layer B (`presentation_no_data`, `data_no_presentation`).
+- **Allowlist** — `OnlyImportVisitor(layer)`: layer may import only itself + Dart SDK except `dart:ui` (`domain_only`).
+- Dedicated visitor only when neither fits (`core_no_flutter`).
+
+Reuse `isInLayer`, `importsFromLayer`, `resolveImport`, `isFlutterImport`.
+Use the full file path (`context.currentUnit?.file.path`), not `shortName`.
+
+## After the rule class
+
+1. `registry.registerWarningRule(MyRule())` and export in `lib/main.dart`
+2. Enable in `example/analysis_options.yaml`
+3. Examples in `example/lib/{layer}/` and `example/lib/src/{layer}/`
+4. Tests for any new `import_resolver` behavior
+5. Dartdoc on the rule (severity, violation, fix, yaml config)
+6. README.md, USAGE.md, CHANGELOG.md
+
+```dart
+class DomainOnly extends AnalysisRule {
+  @override
+  void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
+    registry.addImportDirective(
+      this,
+      OnlyImportVisitor(rule: this, context: context, layer: 'domain'),
+    );
+  }
+}
+```

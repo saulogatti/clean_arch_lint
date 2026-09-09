@@ -4,6 +4,7 @@
 /// static analysis (AST), preventing unwanted dependencies between:
 ///
 /// - **core**: pure business logic, without UI or infrastructure dependencies
+/// - **domain**: innermost layer; only depends on itself
 /// - **data**: technical implementations and infrastructure (APIs, database)
 /// - **presentation**: user interface and visual components
 ///
@@ -13,6 +14,7 @@
 /// - [CoreNoDataOrPresentation]: Prevents core from depending on data or presentation
 /// - [DataNoPresentation]: Prevents data from depending on presentation
 /// - [PresentationNoData]: Warns when presentation directly depends on data
+/// - [DomainOnly]: Warns when domain depends on anything other than itself
 ///
 /// ## Usage example
 ///
@@ -29,6 +31,7 @@
 ///     - core_no_data_or_presentation
 ///     - data_no_presentation
 ///     - presentation_no_data
+///     - domain_only
 /// ```
 ///
 /// To customize a rule's severity:
@@ -47,12 +50,14 @@ import 'package:analysis_server_plugin/registry.dart';
 import 'package:clean_arch_lint/src/rules/always_use_package_imports.dart';
 import 'package:clean_arch_lint/src/rules/core_no_flutter.dart';
 import 'package:clean_arch_lint/src/rules/data_no_presentation.dart';
+import 'package:clean_arch_lint/src/rules/domain_only.dart';
 import 'package:clean_arch_lint/src/rules/presentation_no_data.dart' show PresentationNoData;
 
 export 'src/rules/always_use_package_imports.dart' show AlwaysUsePackageImports;
 // export 'src/rules/core_no_data_or_presentation.dart' show CoreNoDataOrPresentation;
 export 'src/rules/core_no_flutter.dart' show CoreNoFlutter;
 export 'src/rules/data_no_presentation.dart' show DataNoPresentation;
+export 'src/rules/domain_only.dart' show DomainOnly;
 export 'src/rules/presentation_no_data.dart' show PresentationNoData;
 
 /// Creates and returns the lint plugin instance for Clean Architecture.
@@ -67,6 +72,7 @@ export 'src/rules/presentation_no_data.dart' show PresentationNoData;
 /// - [CoreNoDataOrPresentation]: Prevents core from depending on data or presentation
 /// - [DataNoPresentation]: Prevents data from depending on presentation
 /// - [PresentationNoData]: Warns when presentation directly depends on data
+/// - [DomainOnly]: Warns when domain depends on anything other than itself
 final plugin = CleanArchitectureLintPlugin();
 
 class CleanArchitectureLintPlugin extends Plugin {
@@ -87,5 +93,6 @@ class CleanArchitectureLintPlugin extends Plugin {
     registry.registerWarningRule(PresentationNoData());
     registry.registerWarningRule(DataNoPresentation());
     registry.registerWarningRule(CoreNoFlutter());
+    registry.registerWarningRule(DomainOnly());
   }
 }

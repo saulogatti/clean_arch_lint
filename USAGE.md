@@ -49,6 +49,9 @@ lib/
  ├─ core/          # Pure business logic
  │   ├─ entities/
  │   └─ usecases/
+ ├─ domain/        # Innermost layer (only itself + Dart SDK)
+ │   ├─ entities/
+ │   └─ usecases/
  ├─ data/          # Technical implementations
  │   ├─ models/
  │   ├─ datasources/
@@ -64,6 +67,9 @@ lib/
 lib/
  └─ src/
      ├─ core/          # Pure business logic
+     │   ├─ entities/
+     │   └─ usecases/
+     ├─ domain/        # Innermost layer (only itself + Dart SDK)
      │   ├─ entities/
      │   └─ usecases/
      ├─ data/          # Technical implementations
@@ -141,9 +147,9 @@ abstract class UserRepository {
 
 class GetUser {
   final UserRepository repository;  // Uses abstraction!
-  
+
   const GetUser(this.repository);
-  
+
   Future<User?> call(String id) => repository.getUser(id);
 }
 ```
@@ -173,9 +179,9 @@ class UserRepositoryImpl {
 // ✅ Correct - Use callbacks or streams
 class UserRepositoryImpl {
   final void Function()? onDataChanged;
-  
+
   UserRepositoryImpl({this.onDataChanged});
-  
+
   void notifyListeners() {
     onDataChanged?.call();
   }
@@ -209,7 +215,7 @@ import '../../core/usecases/get_user.dart';
 
 class UserPage {
   final GetUser getUser;  // Receives abstraction!
-  
+
   const UserPage({required this.getUser});
 }
 
@@ -218,6 +224,52 @@ void setupDependencies() {
   getIt.registerFactory<GetUser>(
     () => GetUser(UserRepositoryImpl()),
   );
+}
+```
+
+---
+
+### 5. domain_only (WARNING)
+
+**What it does:** Requires the `domain` layer to import only other domain files.
+
+**Severity:** WARNING (configurable to ERROR)
+
+**Allows:**
+- `lib/domain/**` and `lib/src/domain/**`
+- Dart SDK (`dart:async`, `dart:convert`, `dart:core`, ...) except `dart:ui`
+
+**Blocks:**
+- other layers (`data`, `core`, `presentation`)
+- Flutter (`package:flutter/*`, `package:flutter_test/*`, `dart:ui`)
+- third-party packages
+
+**Why:** Domain is the innermost layer. Other layers import domain; domain must not know UI, infrastructure, or external libraries.
+
+**Violation example:**
+```dart
+// ⚠️ WARNING - domain/usecases/get_user.dart
+import 'package:my_app/data/repositories/user_repository_impl.dart';
+import 'package:flutter/material.dart';
+
+class GetUser {
+  final UserRepositoryImpl repository;  // Data implementation in domain!
+}
+```
+
+**Solution:**
+```dart
+// ✅ Correct - domain/usecases/get_user.dart
+import 'dart:async';
+import 'package:my_app/domain/entities/user.dart';
+import 'package:my_app/domain/contracts/user_repository.dart';
+
+class GetUser {
+  final UserRepository repository;  // Domain contract only
+
+  GetUser(this.repository);
+
+  Future<User?> call(String id) => repository.getUser(id);
 }
 ```
 
@@ -293,10 +345,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
-      
+
       - name: Install dependencies
         run: dart pub get
-      
+
       - name: Run custom lint
         run: dart run custom_lint
 ```
@@ -315,7 +367,7 @@ dart pub get
 ### "No lint issues found" but there are violations
 
 1. Check if `analysis_options.yaml` is configured
-2. Make sure files are in `lib/core/`, `lib/data/` or `lib/presentation/`
+2. Make sure files are in `lib/core/`, `lib/domain/`, `lib/data/` or `lib/presentation/` (or the `lib/src/{layer}/` variants)
 3. Run `dart run custom_lint --watch` to see in real-time
 
 ### Lint not detecting relative imports

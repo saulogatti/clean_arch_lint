@@ -13,37 +13,39 @@ The plugin enforces a 3-layer architecture with dependency rules:
 ```
 lib/
  ├─ core/          → Pure business logic (no UI, no infrastructure)
+ ├─ domain/        → Innermost layer (only itself + Dart SDK, except dart:ui)
  ├─ data/          → Technical implementations (repos, APIs, DB)
  └─ presentation/  → User interface (widgets, pages, controllers)
 ```
 
-**Dependency Flow**: `presentation` → `core` ← `data`  
-**Rule**: Dependencies always point inward (toward core), never outward.
+**Dependency Flow**: `presentation` → `core` / `domain` ← `data`
+**Rule**: Dependencies always point inward, never outward.
 
 ### Key Components
 
-1. **Plugin Entry** ([lib/clean_arch_lint.dart](../lib/clean_arch_lint.dart))
-   - Registers all lint rules via `PluginBase`
-   - Returns `List<LintRule>` from `getLintRules()`
+1. **Plugin Entry** ([lib/main.dart](../lib/main.dart))
+   - Registers all lint rules via `Plugin.register`
+   - Calls `registry.registerWarningRule(...)` for each rule
 
 2. **Lint Rules** ([lib/src/rules/](../lib/src/rules/))
-   - Each rule extends `DartLintRule` from `custom_lint_builder`
+   - Each rule extends `AnalysisRule` from `package:analyzer`
    - Uses Analyzer's AST API to inspect imports
-   - Reports violations via `ErrorReporter.atNode()`
+   - Reports violations via `rule.reportAtNode(node)`
 
 3. **Import Resolver** ([lib/src/utils/import_resolver.dart](../lib/src/utils/import_resolver.dart))
    - Shared utilities for analyzing import directives
    - Handles both package imports (`package:my_app/...`) and relative imports (`../data/...`)
    - Key functions: `isInLayer()`, `importsFromLayer()`, `isFlutterImport()`
 
-## The Four Rules
+## The Rules
 
 | Rule | Severity | What It Blocks |
 |------|----------|----------------|
-| `core_no_flutter` | ERROR | Flutter/UI imports in `core/` |
-| `core_no_data_or_presentation` | ERROR | `core/` importing `data/` or `presentation/` |
-| `data_no_presentation` | ERROR | `data/` importing `presentation/` |
+| `core_no_flutter` | WARNING | Flutter/UI imports in `core/` |
+| `core_no_data_or_presentation` | — | Not registered (orphaned file) |
+| `data_no_presentation` | WARNING | `data/` importing `presentation/` |
 | `presentation_no_data` | WARNING* | `presentation/` importing `data/` directly |
+| `domain_only` | WARNING* | `domain/` importing anything except itself and Dart SDK (no `dart:ui`) |
 
 *Configurable to ERROR via `analysis_options.yaml`
 
@@ -66,40 +68,40 @@ dart run custom_lint --watch
 
 ### Adding a New Rule
 
-1. Create `lib/src/rules/my_new_rule.dart` extending `DartLintRule`
-2. Register in `lib/clean_arch_lint.dart` → `getLintRules()`
-3. Add tests in `test/` that verify both violations and correct usage
-4. Update README.md and USAGE.md with rule documentation
-5. Add examples in `example/lib/` showing violations
+1. Create `lib/src/rules/my_new_rule.dart` extending `AnalysisRule`
+2. Reuse `NoImportVisitor` (blocklist) or `OnlyImportVisitor` (allowlist) when they fit
+3. Register in `lib/main.dart` → `registerWarningRule(MyRule())`
+4. Add tests in `test/` and examples in `example/lib/`
+5. Update README.md and USAGE.md with rule documentation
 
 ### Key Pattern: Rule Implementation
 
 ```dart
-class MyRule extends DartLintRule {
+class MyRule extends AnalysisRule {
+  MyRule() : super(name: 'my_rule', description: 'Warns when ...');
+
   static const _code = LintCode(
-    name: 'my_rule',
-    problemMessage: 'What went wrong',
+    'my_rule',
+    'What went wrong',
     correctionMessage: 'How to fix it',
-    errorSeverity: ErrorSeverity.ERROR,  // or WARNING
+    severity: .WARNING,
   );
 
-  const MyRule() : super(code: _code);
+  @override
+  DiagnosticCode get diagnosticCode => _code;
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    ErrorReporter reporter,
-    CustomLintContext context,
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    context.registry.addImportDirective((node) {
-      final filePath = resolver.path;
-      final uri = node.uri.stringValue;
-      
-      // Use import_resolver.dart utilities:
-      if (isInLayer(filePath, 'core') && isFlutterImport(uri)) {
-        reporter.atNode(node, _code);
-      }
-    });
+    final visitor = NoImportVisitor(
+      rule: this,
+      context: context,
+      exportLayer: 'presentation',
+      importLayer: 'data',
+    );
+    registry.addImportDirective(this, visitor);
   }
 }
 ```
@@ -135,14 +137,14 @@ class MyRule extends DartLintRule {
 
 2. **Layer Detection**: Files must be in `lib/{layer}/` structure. Don't hardcode assumptions about depth.
 
-3. **Third-Party Packages**: Only analyze imports within the current package. Ignore `package:` imports from other packages unless they're Flutter.
+3. **Third-Party Packages**: `NoImportVisitor` only reports the target layer (other `package:` imports are ignored). `OnlyImportVisitor` reports every non-layer import, including third-party packages and Flutter.
 
 4. **Testing**: Always test both the positive case (violation detected) and negative case (correct code passes).
 
 ## Dependencies
 
-- `analyzer` ^8.4.0 - Dart's static analysis engine
-- `custom_lint_builder` ^0.8.1 - Framework for creating custom lints
+- `analyzer` ^14.3.0 - Dart's static analysis engine
+- `analysis_server_plugin` ^0.3.22 - Plugin registration (`Plugin`, `PluginRegistry`)
 - `path` ^1.9.0 - Cross-platform path manipulation
 
 No code generation (`build_runner`) or annotations needed.

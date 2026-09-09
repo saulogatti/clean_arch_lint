@@ -12,6 +12,7 @@ plugins:
       core_no_flutter: true
       data_no_presentation: false
       presentation_no_data: false # enable to see the error, default is warning
+      domain_only: true
       teste_meu: false # disable to not see the warning. Default is true.
 
 

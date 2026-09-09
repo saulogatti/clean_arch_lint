@@ -1,3 +1,11 @@
+## 1.3.0
+- **Feature: DomainOnly rule**
+  - New lint rule to warn when domain depends on anything other than itself
+  - Allows Dart SDK imports except `dart:ui`; blocks other layers, Flutter, and third-party packages
+  - Added `OnlyImportVisitor` (allowlist) alongside the existing `NoImportVisitor` (blocklist)
+  - Added example files for `/lib/domain/` and `/lib/src/domain/`
+  - Updated documentation (README, USAGE, RULES) to reflect the new rule
+
 ## 1.2.0
 - **Feature: PresentationNoData rule**
   - New lint rule to warn when presentation directly depends on data

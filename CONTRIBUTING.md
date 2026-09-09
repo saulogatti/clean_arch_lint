@@ -57,7 +57,7 @@ Thank you for considering contributing to clean_arch_lint! 🎉
    git add .
    git commit -m "feat: add new feature X"
    ```
-   
+
    Use [Conventional Commits](https://www.conventionalcommits.org/):
    - `feat:` for new features
    - `fix:` for bug fixes
@@ -80,13 +80,15 @@ Thank you for considering contributing to clean_arch_lint! 🎉
 ```
 clean_arch_lint/
 ├── lib/
-│   ├── clean_arch_lint.dart       # Plugin entry point
+│   ├── main.dart                    # Plugin entry point
 │   └── src/
 │       ├── rules/                   # Lint rules
 │       │   ├── core_no_flutter.dart
-│       │   ├── core_no_data_or_presentation.dart
 │       │   ├── data_no_presentation.dart
-│       │   └── presentation_no_data.dart
+│       │   ├── domain_only.dart
+│       │   ├── presentation_no_data.dart
+│       │   ├── no_import_visitor.dart   # Blocklist: layer A must not import layer B
+│       │   └── only_import_visitor.dart # Allowlist: layer may only import itself
 │       └── utils/
 │           └── import_resolver.dart # Import resolution utilities
 ├── example/                         # Usage example
@@ -96,57 +98,67 @@ clean_arch_lint/
 
 ## Adding a New Lint Rule
 
-1. **Create the rule file** in `lib/src/rules/`:
+Rules extend `AnalysisRule` from `package:analyzer` and register a visitor on
+`ImportDirective`. Do **not** use `custom_lint_builder` / `DartLintRule`.
+
+1. **Choose the visitor**
+   - **Blocklist** (`NoImportVisitor`): files in layer A must not import layer B.
+     Used by `presentation_no_data` and `data_no_presentation`.
+   - **Allowlist** (`OnlyImportVisitor`): files in layer A may only import that
+     layer plus Dart SDK (except `dart:ui`). Used by `domain_only`.
+   - Write a dedicated visitor only when neither fit (see `core_no_flutter`).
+
+2. **Create the rule file** in `lib/src/rules/`:
+
    ```dart
-   // lib/src/rules/my_rule.dart
-   import 'package:analyzer/error/error.dart';
-   import 'package:analyzer/error/listener.dart';
-   import 'package:custom_lint_builder/custom_lint_builder.dart';
-   
-   class MyRule extends DartLintRule {
-     const MyRule() : super(code: _code);
-     
+   class MyRule extends AnalysisRule {
+     MyRule()
+       : super(name: 'my_rule', description: 'Warns when ...');
+
      static const _code = LintCode(
-       name: 'my_rule',
-       problemMessage: 'Problem description',
+       'my_rule',
+       'Problem description',
        correctionMessage: 'How to fix',
-       errorSeverity: ErrorSeverity.WARNING,
+       severity: .WARNING,
      );
-     
+
      @override
-     void run(
-       CustomLintResolver resolver,
-       ErrorReporter reporter,
-       CustomLintContext context,
+     DiagnosticCode get diagnosticCode => _code;
+
+     @override
+     void registerNodeProcessors(
+       RuleVisitorRegistry registry,
+       RuleContext context,
      ) {
-       // Rule implementation
+       final visitor = NoImportVisitor(
+         rule: this,
+         context: context,
+         exportLayer: 'presentation',
+         importLayer: 'data',
+       );
+       registry.addImportDirective(this, visitor);
      }
    }
    ```
 
-2. **Register the rule** in `lib/clean_arch_lint.dart`:
+   Report violations with `rule.reportAtNode(node)`. Reuse
+   `isInLayer()`, `importsFromLayer()`, `resolveImport()`, and
+   `isFlutterImport()` from `import_resolver.dart`.
+
+3. **Register** in `lib/main.dart`:
+
    ```dart
-   import 'src/rules/my_rule.dart';
-   
-   class _CleanArchitectureLintPlugin extends PluginBase {
-     @override
-     List<LintRule> getLintRules(CustomLintConfigs configs) => [
-           // ... other rules
-           const MyRule(),
-         ];
-   }
+   registry.registerWarningRule(MyRule());
    ```
 
-3. **Add tests** in `test/`:
-   ```dart
-   test('my_rule detects violations correctly', () {
-     // Test here
-   });
-   ```
+   Also export the rule from `lib/main.dart`.
 
-4. **Document** in README.md and USAGE.md
+4. **Add tests** in `test/` for any new `import_resolver` behavior, and
+   example files in `example/lib/` (and `example/lib/src/` when the layer
+   supports both folder layouts).
 
-5. **Add example** in `example/`
+5. **Document** in README.md, USAGE.md, and CHANGELOG.md. Add `///` dartdoc
+   on the rule class (severity, examples, `analysis_options.yaml` config).
 
 ## Testing Locally
 
@@ -195,8 +207,8 @@ Example:
 ```dart
 import 'dart:async';
 
+import 'package:analyzer/analysis_rule/analysis_rule.dart';
 import 'package:analyzer/error/error.dart';
-import 'package:custom_lint_builder/custom_lint_builder.dart';
 
 import '../utils/import_resolver.dart';
 ```
