@@ -1,79 +1,77 @@
-/// Custom lint plugin for enforcing Flutter Clean Architecture rules.
+/// Analyzer plugin that enforces Flutter Clean Architecture layer boundaries.
 ///
-/// This plugin ensures proper isolation between layers through
-/// static analysis (AST), preventing unwanted dependencies between:
+/// Isolation is checked by inspecting `import` directives (AST), not by
+/// code generation. One [MultiAnalysisRule] covers every layer so the analyzer
+/// walks each file once.
 ///
-/// - **core**: pure business logic, without UI or infrastructure dependencies
-/// - **data**: technical implementations and infrastructure (APIs, database)
-/// - **presentation**: user interface and visual components
+/// Layers (`lib/{layer}/` or `lib/src/{layer}/`):
 ///
-/// ## Implemented rules
+/// - **domain**: innermost; may import only other domain files (Dart SDK is
+///   allowed; Flutter and third-party packages are not)
+/// - **core**: must not import `screens` or `presentation`
+/// - **data**: must not import `screens` or `presentation`
+/// - **presentation**: must not import `data`
+/// - **screens**: must not import `data`
 ///
-/// - [CoreNoFlutter]: Prevents core layer from importing Flutter/UI
-/// - [CoreNoDataOrPresentation]: Prevents core from depending on data or presentation
-/// - [DataNoPresentation]: Prevents data from depending on presentation
-/// - [PresentationNoData]: Warns when presentation directly depends on data
+/// ## Diagnostics
 ///
-/// ## Usage example
+/// | Code | When it fires |
+/// | --- | --- |
+/// | `no_data_dependencies` | `presentation`/`screens` import `data`, or `data`/`core` import UI layers |
+/// | `no_screens_dependencies` | `data`/`core` import `screens` or `presentation` |
+/// | `domain_only_depends_on_itself` | `domain` imports anything outside `domain` |
 ///
-/// Add to `analysis_options.yaml`:
+/// Lint rules from analyzer plugins are **disabled by default**. Enable them
+/// in the top-level `plugins` section of `analysis_options.yaml`.
 ///
-/// ```yaml
-/// analyzer:
-///   plugins:
-///     - custom_lint
-///
-/// custom_lint:
-///   rules:
-///     - core_no_flutter
-///     - core_no_data_or_presentation
-///     - data_no_presentation
-///     - presentation_no_data
-/// ```
-///
-/// To customize a rule's severity:
+/// Local checkout:
 ///
 /// ```yaml
-/// analyzer:
-///   errors:
-///     presentation_no_data: error  # Transforms WARNING into ERROR
+/// plugins:
+///   clean_arch_lint:
+///     path: ../clean_arch_lint
+///     diagnostics:
+///       no_data_dependencies: true
+///       domain_only_depends_on_itself: true
+///       no_screens_dependencies: true
 /// ```
+///
+/// Published package:
+///
+/// ```yaml
+/// plugins:
+///   clean_arch_lint:
+///     version: ^1.3.0
+///     diagnostics:
+///       no_data_dependencies: true
+///       domain_only_depends_on_itself: true
+///       no_screens_dependencies: true
+/// ```
+///
+/// Use `error` instead of `true` to raise severity. Suppress with
+/// `// ignore: clean_arch_lint/no_data_dependencies`.
 library;
 
-import 'package:custom_lint_builder/custom_lint_builder.dart';
+import 'dart:async';
 
-import 'src/rules/core_no_data_or_presentation.dart'
-    show CoreNoDataOrPresentation;
-import 'src/rules/core_no_flutter.dart' show CoreNoFlutter;
-import 'src/rules/data_no_presentation.dart' show DataNoPresentation;
-import 'src/rules/presentation_no_data.dart' show PresentationNoData;
+import 'package:analysis_server_plugin/plugin.dart';
+import 'package:analysis_server_plugin/registry.dart';
+import 'package:clean_arch_lint/src/rules/no_screens_dependencies_rule.dart';
 
-export 'src/rules/core_no_data_or_presentation.dart'
-    show CoreNoDataOrPresentation;
-export 'src/rules/core_no_flutter.dart' show CoreNoFlutter;
-export 'src/rules/data_no_presentation.dart' show DataNoPresentation;
-export 'src/rules/presentation_no_data.dart' show PresentationNoData;
+export 'src/rules/no_screens_dependencies_rule.dart' show NoScreensDependenciesRule;
 
-/// Creates and returns the lint plugin instance for Clean Architecture.
+/// Plugin instance loaded by the Dart Analysis Server.
 ///
-/// This function is automatically called by the `custom_lint_builder`
-/// framework during analyzer initialization. Should not be called manually.
-///
-/// Returns a [PluginBase] that registers all implemented lint rules.
-/// /// ## Implemented rules
-///
-/// - [CoreNoFlutter]: Prevents core layer from importing Flutter/UI
-/// - [CoreNoDataOrPresentation]: Prevents core from depending on data or presentation
-/// - [DataNoPresentation]: Prevents data from depending on presentation
-/// - [PresentationNoData]: Warns when presentation directly depends on data
-PluginBase createPlugin() => _CleanArchitectureLintPlugin();
+/// The server looks for this top-level `plugin` in `lib/main.dart`.
+final plugin = CleanArchitectureLintPlugin();
 
-class _CleanArchitectureLintPlugin extends PluginBase {
+/// Registers [NoScreensDependenciesRule] with the analysis server.
+class CleanArchitectureLintPlugin extends Plugin {
   @override
-  List<LintRule> getLintRules(CustomLintConfigs configs) => [
-        const CoreNoFlutter(),
-        const CoreNoDataOrPresentation(),
-        const DataNoPresentation(),
-        const PresentationNoData(),
-      ];
+  String get name => 'Flutter Clean Architecture Lint Plugin';
+
+  @override
+  FutureOr<void> register(PluginRegistry registry) {
+    registry.registerLintRule(NoScreensDependenciesRule());
+  }
 }

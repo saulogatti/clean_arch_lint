@@ -1,3 +1,21 @@
+## 2.0.0
+
+- **Breaking changes:**
+  - Removed `CoreNoFlutter`, `CoreNoDataOrPresentation`, `DataNoPresentation`, `PresentationNoData`, `DomainOnly`
+  - Removed `NoImportVisitor` / `OnlyImportVisitor`; one import visitor covers all layers
+  - Diagnostics: `no_data_dependencies`, `no_screens_dependencies`, `domain_only_depends_on_itself`
+  - Enable via the top-level `plugins` section in `analysis_options.yaml`
+  - Run `dart analyze` / `flutter analyze` (not `dart run custom_lint`)
+  - Lint diagnostics are off until listed under `plugins.clean_arch_lint.diagnostics`
+  - Added `screens` as a first-class layer alongside `core`, `domain`, `data`, `presentation`
+  - Documentation (README, USAGE, RULES, CONTRIBUTING, library dartdoc) updated to the simplified plugin
+- **New features:**
+  - New lint rule to warn when screens depend on data
+  - Can be configured to ERROR via `analysis_options.yaml`
+  - Added comprehensive tests for the rule
+  - Added example files demonstrating the rule
+  - Updated documentation (README and USAGE) to reflect the new rule
+
 ## 1.1.0
 
 - **Feature: Flexible folder structure support**

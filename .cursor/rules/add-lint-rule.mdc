@@ -1,0 +1,35 @@
+---
+description: Checklist for adding a new Clean Architecture lint rule
+globs: lib/src/rules/**/*.dart
+alwaysApply: false
+---
+
+# Adding a lint rule
+
+Use `AnalysisRule` / `MultiAnalysisRule` + `registerNodeProcessors`. Report with `rule.reportAtNode(node, diagnosticCode: ...)`.
+Do not use `custom_lint_builder` or `DartLintRule`.
+
+## Prefer the existing rule
+
+Architecture import checks belong in `NoScreensDependenciesRule` (`MultiAnalysisRule`) so each file still has one `ImportDirective` visitor. Add a `LintCodeArchitecture` in `lint_utils.dart` and include it in `diagnosticCodes`.
+
+A new rule class is only justified when the check cannot share that visitor.
+
+Reuse `isInLayer`, `importsFromLayer`, `resolveImport`.
+Use the full file path (`context.currentUnit?.file.path`), not `shortName`.
+
+## After changing diagnostics
+
+1. `registry.registerLintRule(...)` and export from `lib/main.dart` if you added a class
+2. Enable the diagnostic name in `example/analysis_options.yaml` under `plugins.clean_arch_lint.diagnostics`
+3. Examples in `example/lib/{layer}/`
+4. Tests for any new `import_resolver` behavior
+5. Dartdoc on the rule / `LintCode` (severity, violation, yaml)
+6. README.md, USAGE.md, RULES.md, CHANGELOG.md
+
+```dart
+@override
+FutureOr<void> register(PluginRegistry registry) {
+  registry.registerLintRule(NoScreensDependenciesRule());
+}
+```

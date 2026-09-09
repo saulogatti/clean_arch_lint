@@ -1,70 +1,55 @@
 # clean_arch_lint Usage Example
 
-This example demonstrates how to use `clean_arch_lint` to ensure clean architecture in Flutter/Dart projects.
+This example enables the plugin via `analysis_options.yaml` and contains both valid layer files and intentional violations.
 
 ## Structure
 
 ```
 lib/
  ├─ core/
- │   ├─ entities/
- │   │   └─ user.dart
- │   └─ usecases/
- │       └─ get_user.dart
+ │   ├─ app_exemple.dart          # violation: core → data
+ │   └─ entities/product.dart
+ ├─ domain/
+ │   ├─ bad_example_data.dart     # violation: domain → data
+ │   ├─ bad_example_flutter.dart  # violation: domain → Flutter
+ │   ├─ entities/product.dart
+ │   └─ usecases/get_product.dart
  ├─ data/
- │   ├─ models/
- │   │   └─ user_model.dart
- │   └─ repositories/
- │       └─ user_repository_impl.dart
- └─ presentation/
-     └─ pages/
-         └─ user_page.dart
+ │   ├─ bad_example_in_data.dart  # violation: data → presentation
+ │   └─ models/product_model.dart
+ ├─ presentation/
+ │   ├─ bad_example_data.dart     # violation: presentation → data
+ │   └─ pages/product_page.dart
+ └─ screens/
+     └─ home/home_screen.dart    # violation: screens → data
 ```
 
-## How to Test the Lints
+## How to see the diagnostics
 
-1. Run the example to see the correct structure:
-   ```bash
-   dart run clean_archt_lint_example.dart
-   ```
+1. Confirm `example/analysis_options.yaml` lists the plugin and enables:
 
-2. To see the lints in action, uncomment the imports in the files:
-   - `lib/core/bad_example_flutter.dart` - Demonstrates `core_no_flutter`
-   - `lib/core/bad_example_data.dart` - Demonstrates `core_no_data_or_presentation`
-   - `lib/data/bad_example_presentation.dart` - Demonstrates `data_no_presentation`
-   - `lib/presentation/bad_example_data.dart` - Demonstrates `presentation_no_data`
+   - `no_data_dependencies`
+   - `domain_only_depends_on_itself`
+   - `no_screens_dependencies`
 
-3. Run custom_lint:
-   ```bash
-   dart run custom_lint
-   ```
+2. From this directory:
 
-## Rules Demonstrated
-
-### ✅ Allowed imports
-
-- **core** → core
-- **data** → core, data
-- **presentation** → core, presentation
-
-### ❌ Prohibited imports
-
-- **core** → Flutter/UI (ERROR)
-- **core** → data, presentation (ERROR)
-- **data** → presentation (ERROR)
-- **presentation** → data (WARNING configurable to ERROR)
-
-## Correct Architecture
-
-```dart
-// Dependency Injection
-final GetUser getUser = UserRepositoryImpl();
-
-// Presentation receives only the contract from core
-final userPage = UserPage(getUser: getUser);
-
-// Uses the usecase
-await userPage.loadUser('1');
+```bash
+dart pub get
+dart analyze
 ```
 
-Presentation depends only on the abstraction (GetUser from core), and the implementation (UserRepositoryImpl from data) is injected via DI.
+Restart the Dart Analysis Server after changing `plugins`.
+
+## What should be reported
+
+| File | Diagnostic |
+| --- | --- |
+| `domain/bad_example_data.dart` | `domain_only_depends_on_itself` |
+| `domain/bad_example_flutter.dart` | `domain_only_depends_on_itself` |
+| `data/bad_example_in_data.dart` | `no_data_dependencies` / `no_screens_dependencies` |
+| `presentation/bad_example_data.dart` | `no_data_dependencies` |
+| `screens/home/home_screen.dart` | `no_data_dependencies` |
+| `core/app_exemple.dart` | leftover from the old core→data rule; not a dedicated check anymore |
+
+Allowed examples: `domain/entities`, `domain/usecases`, `core/entities`, `data/models` (imports core), `presentation/pages` (imports core + Flutter).

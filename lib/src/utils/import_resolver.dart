@@ -6,55 +6,117 @@
 library;
 
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:clean_arch_lint/src/utils/resolved_import.dart';
 import 'package:path/path.dart' as p;
 
-/// Represents a resolved import with information about its location.
+/// Extracts the package name from an import URI.
 ///
-/// Contains both the normalized file path and the original URI,
-/// allowing tracking of the import's origin during static analysis.
+/// Analyzes the [uri] and returns the package name if it's a package import
+/// (format `package:package_name/...`).
 ///
-/// ## Example
+/// Returns `null` if the URI is not a valid package import or if it's
+/// malformed.
+///
+/// ## Examples
 ///
 /// ```dart
-/// final resolved = ResolvedImport(
-///   resolvedPath: '/project/lib/core/entities/user.dart',
-///   originalUri: 'package:my_app/core/entities/user.dart',
-/// );
+/// extractPackageName('package:flutter/material.dart');      // Returns: 'flutter'
+/// extractPackageName('package:my_app/core/user.dart');      // Returns: 'my_app'
+/// extractPackageName('dart:core');                          // Returns: null
+/// extractPackageName('../relative/path.dart');              // Returns: null
+/// extractPackageName('./local/file.dart');                  // Returns: null
 /// ```
-class ResolvedImport {
-  /// Normalized and absolute path of the imported file.
-  ///
-  /// Uses `/` as directory separator regardless of operating system.
-  final String resolvedPath;
+String? extractPackageName(String uri) {
+  if (!uri.startsWith('package:')) {
+    return null;
+  }
 
-  /// Original URI from the import directive, without modifications.
-  ///
-  /// Can be a package import (`package:...`), relative import (`../...`),
-  /// or dart import (`dart:...`).
-  final String originalUri;
+  final parts = uri.split('/');
+  if (parts.isEmpty) return null;
 
-  /// Creates an instance of [ResolvedImport].
-  const ResolvedImport({
-    required this.resolvedPath,
-    required this.originalUri,
-  });
+  return parts.first.substring('package:'.length);
 }
 
-/// Normalizes a file path to use `/` as separator.
+/// Extracts the project root path from a file path.
 ///
-/// Resolves path segments (like `.` and `..`) and ensures compatibility
-/// between Windows, macOS, and Linux, converting backslashes (`\`) to
-/// forward slashes (`/`).
+/// Analyzes the [filePath] and returns the path to the directory containing `lib/`.
+/// This is typically the Dart/Flutter project root directory.
 ///
-/// ## Example
+/// If the `lib/` directory is not found in the path, returns the parent
+/// directory of the file as a fallback.
+///
+/// ## Examples
 ///
 /// ```dart
-/// normalizePath('lib\\core\\user.dart'); // Returns: 'lib/core/user.dart'
-/// normalizePath('lib/core/user.dart');   // Returns: 'lib/core/user.dart'
-/// normalizePath('lib/core/../data/user.dart'); // Returns: 'lib/data/user.dart'
+/// extractProjectRoot('/home/user/project/lib/core/user.dart');
+/// // Returns: '/home/user/project'
+///
+/// extractProjectRoot('/project/lib/data/models/user_model.dart');
+/// // Returns: '/project'
+///
+/// extractProjectRoot('/project/test/widget_test.dart');
+/// // Returns: '/project/test' (fallback - directory containing the file)
 /// ```
-String normalizePath(String path) {
-  return p.normalize(path).replaceAll(r'\', '/');
+String extractProjectRoot(String filePath) {
+  final segments = filePath.split('/');
+  final libIndex = segments.lastIndexOf('lib');
+
+  if (libIndex >= 0) {
+    return segments.sublist(0, libIndex).join('/');
+  }
+
+  // Fallback: returns parent directory
+  return segments.sublist(0, segments.length - 1).join('/');
+}
+
+/// Checks if an import points to a specific layer.
+///
+/// Analyzes the resolved path of an import to determine if it references
+/// a file within the layer specified by [layerName].
+///
+/// The [resolvedPath] should be a normalized path (obtained from [resolveImport]),
+/// and [layerName] should be one of: `core`, `domain`, `data`, `presentation`,
+/// or `screens`.
+///
+/// Returns `true` if the import points to the specified layer, `false` otherwise.
+///
+/// ## Examples
+///
+/// ```dart
+/// importsFromLayer('/project/lib/core/entities/user.dart', 'core');         // true
+/// importsFromLayer('/project/lib/src/core/entities/user.dart', 'core');     // true
+/// importsFromLayer('/project/lib/data/models/user.dart', 'data');           // true
+/// importsFromLayer('/project/lib/core/entities/user.dart', 'data');         // false
+/// ```
+bool importsFromLayer(String resolvedPath, String layerName) {
+  return resolvedPath.contains('lib/$layerName/') || resolvedPath.contains('lib/src/$layerName/');
+}
+
+/// Checks if an import is from a Flutter package or related.
+///
+/// Detects imports from Flutter and UI libraries that should not be
+/// used in the core layer. Includes:
+///
+/// - Flutter packages: `package:flutter/...`
+/// - Flutter test packages: `package:flutter_test/...`
+/// - dart:ui library (used internally by Flutter)
+///
+/// Returns `true` if the [uri] is from Flutter/UI, `false` otherwise.
+///
+/// ## Examples
+///
+/// ```dart
+/// isFlutterImport('package:flutter/material.dart');      // true
+/// isFlutterImport('package:flutter/widgets.dart');       // true
+/// isFlutterImport('package:flutter_test/flutter_test.dart'); // true
+/// isFlutterImport('dart:ui');                            // true
+/// isFlutterImport('dart:core');                          // false
+/// isFlutterImport('package:my_app/core/user.dart');     // false
+/// ```
+bool isFlutterImport(String uri) {
+  return uri.startsWith('package:flutter/') ||
+      uri.startsWith('package:flutter_test/') ||
+      uri == 'dart:ui';
 }
 
 /// Checks if a file is within a specific layer.
@@ -65,7 +127,7 @@ String normalizePath(String path) {
 ///
 /// The [filePath] should be an absolute or relative path that contains the
 /// structure `/lib/{layer}/` or `/lib/src/{layer}/`. The [layerName] should be
-/// one of the valid layers: 'core', 'data', or 'presentation'.
+/// one of: `core`, `domain`, `data`, `presentation`, or `screens`.
 ///
 /// Returns `true` if the file is in the specified layer, `false` otherwise.
 ///
@@ -85,6 +147,23 @@ bool isInLayer(String filePath, String layerName) {
       normalized.endsWith('/lib/$layerName') ||
       normalized.contains('/lib/src/$layerName/') ||
       normalized.endsWith('/lib/src/$layerName');
+}
+
+/// Normalizes a file path to use `/` as separator.
+///
+/// Resolves path segments (like `.` and `..`) and ensures compatibility
+/// between Windows, macOS, and Linux, converting backslashes (`\`) to
+/// forward slashes (`/`).
+///
+/// ## Example
+///
+/// ```dart
+/// normalizePath('lib\\core\\user.dart'); // Returns: 'lib/core/user.dart'
+/// normalizePath('lib/core/user.dart');   // Returns: 'lib/core/user.dart'
+/// normalizePath('lib/core/../data/user.dart'); // Returns: 'lib/data/user.dart'
+/// ```
+String normalizePath(String path) {
+  return p.normalize(path).replaceAll(r'\', '/');
 }
 
 /// Resolves an import to its normalized absolute path.
@@ -153,140 +232,21 @@ ResolvedImport? resolveImport(
   if (packageName != null && uri.startsWith('package:$packageName/')) {
     final relativePath = uri.substring('package:$packageName/'.length);
     final resolvedPath = normalizePath(p.join(projectRoot, 'lib', relativePath));
-    return ResolvedImport(
-      resolvedPath: resolvedPath,
-      originalUri: uri,
-    );
+    return ResolvedImport(resolvedPath: resolvedPath, originalUri: uri);
   }
 
   // If it's a relative import
   if (uri.startsWith('./') || uri.startsWith('../')) {
     final currentDir = p.dirname(currentFilePath);
     final resolvedPath = normalizePath(p.normalize(p.join(currentDir, uri)));
-    return ResolvedImport(
-      resolvedPath: resolvedPath,
-      originalUri: uri,
-    );
+    return ResolvedImport(resolvedPath: resolvedPath, originalUri: uri);
   }
 
   // Third-party imports (e.g., package:flutter/material.dart)
   // Returns the import as is for validation
   if (uri.startsWith('package:')) {
-    return ResolvedImport(
-      resolvedPath: uri,
-      originalUri: uri,
-    );
+    return ResolvedImport(resolvedPath: uri, originalUri: uri);
   }
 
   return null;
-}
-
-/// Checks if an import points to a specific layer.
-///
-/// Analyzes the resolved path of an import to determine if it references
-/// a file within the layer specified by [layerName].
-///
-/// The [resolvedPath] should be a normalized path (obtained from [resolveImport]),
-/// and [layerName] should be one of the valid layers: 'core', 'data', or 'presentation'.
-///
-/// Returns `true` if the import points to the specified layer, `false` otherwise.
-///
-/// ## Examples
-///
-/// ```dart
-/// importsFromLayer('/project/lib/core/entities/user.dart', 'core');         // true
-/// importsFromLayer('/project/lib/src/core/entities/user.dart', 'core');     // true
-/// importsFromLayer('/project/lib/data/models/user.dart', 'data');           // true
-/// importsFromLayer('/project/lib/core/entities/user.dart', 'data');         // false
-/// ```
-bool importsFromLayer(String resolvedPath, String layerName) {
-  return resolvedPath.contains('/lib/$layerName/') ||
-      resolvedPath.contains('/lib/src/$layerName/');
-}
-
-/// Checks if an import is from a Flutter package or related.
-///
-/// Detects imports from Flutter and UI libraries that should not be
-/// used in the core layer. Includes:
-///
-/// - Flutter packages: `package:flutter/...`
-/// - Flutter test packages: `package:flutter_test/...`
-/// - dart:ui library (used internally by Flutter)
-///
-/// Returns `true` if the [uri] is from Flutter/UI, `false` otherwise.
-///
-/// ## Examples
-///
-/// ```dart
-/// isFlutterImport('package:flutter/material.dart');      // true
-/// isFlutterImport('package:flutter/widgets.dart');       // true
-/// isFlutterImport('package:flutter_test/flutter_test.dart'); // true
-/// isFlutterImport('dart:ui');                            // true
-/// isFlutterImport('dart:core');                          // false
-/// isFlutterImport('package:my_app/core/user.dart');     // false
-/// ```
-bool isFlutterImport(String uri) {
-  return uri.startsWith('package:flutter/') ||
-      uri.startsWith('package:flutter_test/') ||
-      uri == 'dart:ui';
-}
-
-/// Extracts the project root path from a file path.
-///
-/// Analyzes the [filePath] and returns the path to the directory containing `lib/`.
-/// This is typically the Dart/Flutter project root directory.
-///
-/// If the `lib/` directory is not found in the path, returns the parent
-/// directory of the file as a fallback.
-///
-/// ## Examples
-///
-/// ```dart
-/// extractProjectRoot('/home/user/project/lib/core/user.dart');
-/// // Returns: '/home/user/project'
-///
-/// extractProjectRoot('/project/lib/data/models/user_model.dart');
-/// // Returns: '/project'
-///
-/// extractProjectRoot('/project/test/widget_test.dart');
-/// // Returns: '/project/test' (fallback - directory containing the file)
-/// ```
-String extractProjectRoot(String filePath) {
-  final segments = filePath.split('/');
-  final libIndex = segments.lastIndexOf('lib');
-  
-  if (libIndex >= 0) {
-    return segments.sublist(0, libIndex).join('/');
-  }
-  
-  // Fallback: returns parent directory
-  return segments.sublist(0, segments.length - 1).join('/');
-}
-
-/// Extracts the package name from an import URI.
-///
-/// Analyzes the [uri] and returns the package name if it's a package import
-/// (format `package:package_name/...`).
-///
-/// Returns `null` if the URI is not a valid package import or if it's
-/// malformed.
-///
-/// ## Examples
-///
-/// ```dart
-/// extractPackageName('package:flutter/material.dart');      // Returns: 'flutter'
-/// extractPackageName('package:my_app/core/user.dart');      // Returns: 'my_app'
-/// extractPackageName('dart:core');                          // Returns: null
-/// extractPackageName('../relative/path.dart');              // Returns: null
-/// extractPackageName('./local/file.dart');                  // Returns: null
-/// ```
-String? extractPackageName(String uri) {
-  if (!uri.startsWith('package:')) {
-    return null;
-  }
-  
-  final parts = uri.split('/');
-  if (parts.isEmpty) return null;
-  
-  return parts.first.substring('package:'.length);
 }

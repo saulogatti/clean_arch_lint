@@ -1,268 +1,193 @@
 # clean_arch_lint
 
-Custom lint for **Flutter Clean Architecture**, focused on **enforcing layers** using static analysis (AST) with `custom_lint`.
+Analyzer plugin for **Flutter Clean Architecture**. It inspects `import` directives (AST) and reports layer violations in the IDE and via `dart analyze` / `flutter analyze`.
 
-This package acts as an **architecture guardian**: if a layer depends on something it shouldn't, the error shows up immediately.
+A single [MultiAnalysisRule](lib/src/rules/no_screens_dependencies_rule.dart) covers every layer, so the analyzer walks each file once.
 
 ---
 
-## 🎯 Objective
+## Objective
 
-Ensure the structure below is automatically respected:
+Keep this structure honest:
 
 ```
 lib/
  ├─ core/
+ ├─ domain/
  ├─ data/
- └─ presentation/
+ ├─ presentation/
+ └─ screens/
 ```
 
-No PR discussions. No "it was unintentional". The lint solves it.
+`lib/src/{layer}/` is also detected. No extra configuration.
 
 ---
 
-## 🧱 Layer Concepts
+## Layers
+
+### domain
+
+Innermost layer. Other layers may import domain; domain imports only itself (plus Dart SDK). Flutter, `dart:ui`, and third-party packages are reported.
+
+Contains: entities, usecases, contracts.
 
 ### core
 
-Pure layer, without Flutter and without infrastructure.
+Shared application code. Must not import `screens` or `presentation`.
 
-Contains:
-
-- entities
-- usecases
-- contracts (interfaces)
-- business rules
+Contains: entities, usecases, contracts, business rules.
 
 ### data
 
-Technical implementations.
+Infrastructure. Must not import `screens` or `presentation`.
 
-Contains:
-
-- datasources
-- models / DTOs
-- mappers
-- repository implementations (`Impl`)
+Contains: datasources, models / DTOs, mappers, repository implementations.
 
 ### presentation
 
-User interface.
+UI that is not a screen entrypoint. Must not import `data`.
 
-Contains:
+Contains: widgets, pages, bloc / cubit, viewmodels.
 
-- widgets
-- pages
-- bloc / cubit
-- viewmodels / controllers
+### screens
 
----
+Screen-level UI. Must not import `data`.
 
-## 🚨 Lint Rules
-
-### 1️⃣ core\_no\_flutter (ERROR)
-
-❌ Prohibits Flutter imports in `core`.
-
-Blocks:
-
-- `package:flutter/*`
-- `dart:ui`
-- `package:flutter_test/*`
-
-Reason: Core must be completely independent of UI.
+Contains: screens / routes that compose presentation and domain.
 
 ---
 
-### 2️⃣ core\_no\_data\_or\_presentation (ERROR)
+## Diagnostics
 
-❌ Prohibits `core` from depending on `data` or `presentation`.
+All of them are **WARNING** lint rules. Analyzer plugins disable lints until you turn them on.
 
-Clean Architecture golden rule:
+| Code | Blocks |
+| --- | --- |
+| `no_data_dependencies` | `presentation` or `screens` importing `data`; also `data`/`core` importing those UI layers |
+| `no_screens_dependencies` | `data` or `core` importing `screens` or `presentation` |
+| `domain_only_depends_on_itself` | `domain` importing anything outside `domain` |
 
-> Dependencies always point inward.
-
----
-
-### 3️⃣ data\_no\_presentation (ERROR)
-
-❌ `data` cannot import anything from `presentation`.
-
-Reason:
-
-- Avoids coupling infrastructure with UI
-- Ensures testability
+`core_no_flutter`, `core_no_data_or_presentation`, `data_no_presentation`, `presentation_no_data`, and `domain_only` no longer exist as separate rules.
 
 ---
 
-### 4️⃣ presentation\_no\_data (WARNING configurable)
+## Installation
 
-⚠️ By default, `presentation` **should not depend directly on `data`**.
+Requires Dart SDK **>= 3.13** (Flutter 3.38+). This is an `analysis_server_plugin`, not `custom_lint`.
 
-✔️ Usecases and contracts should come from `core`.
+### 1) Enable the plugin
 
-This rule can be configured to **ERROR**.
-
----
-
-## 📦 Installation
-
-### 1) Add dependencies to your Flutter app
+Published:
 
 ```yaml
-dev_dependencies:
-  custom_lint: ^0.8.1
+plugins:
+  clean_arch_lint:
+    version: ^1.3.0
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
+```
+
+Local path (see `example/analysis_options.yaml`):
+
+```yaml
+plugins:
   clean_arch_lint:
     path: ../clean_arch_lint
-    # Or, when published:
-    # clean_arch_lint: ^1.0.0
+    diagnostics:
+      no_data_dependencies: true
+      domain_only_depends_on_itself: true
+      no_screens_dependencies: true
 ```
 
-> Adjust the `path` according to your repository structure.
+Restart the Dart Analysis Server after changing the `plugins` section.
 
----
-
-### 2) Enable the plugin in `analysis_options.yaml`
-
-```yaml
-analyzer:
-  plugins:
-    - custom_lint
-```
-
----
-
-## ▶️ How to Run
+### 2) Run analysis
 
 ```bash
-# Single execution
-dart run custom_lint
-
-# Watch mode (re-executes when saving files)
-dart run custom_lint --watch
+dart analyze
+# or
+flutter analyze
 ```
 
-In VSCode / Android Studio:
-
-- Errors appear automatically in the editor
-- Works in real-time as you type
+Diagnostics also appear in VS Code / Android Studio while you type.
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
-### Make `presentation_no_data` an ERROR
+### Raise severity
 
 ```yaml
-custom_lint:
-  rules:
-    - presentation_no_data:
-        severity: error
+plugins:
+  clean_arch_lint:
+    version: ^1.3.0
+    diagnostics:
+      no_data_dependencies: error
+      domain_only_depends_on_itself: error
+      no_screens_dependencies: error
 ```
 
----
-
-### Ignore specific paths (example)
-
-```yaml
-custom_lint:
-  rules:
-    - core_no_flutter:
-        ignore:
-          - lib/core/di/**
-```
-
-Useful for very specific cases like DI bootstrap.
-
----
-
-## ✅ Examples
-
-### Allowed import
+### Suppress one line or a file
 
 ```dart
-import 'package:my_app/core/usecases/get_user.dart';
-```
+// ignore: clean_arch_lint/no_data_dependencies
+import 'package:my_app/data/models/product_model.dart';
 
-### Prohibited import (core → flutter)
-
-```dart
-import 'package:flutter/material.dart'; // ❌ error
-```
-
-### Prohibited import (presentation → data)
-
-```dart
-import 'package:my_app/data/user_repository_impl.dart'; // ⚠️ or ❌
+// ignore_for_file: clean_arch_lint/domain_only_depends_on_itself
 ```
 
 ---
 
-## 🧠 Recommended Best Practices
+## Examples
 
-- Interfaces always in `core`
-- Implementations always in `data`
-- UI depends only on abstractions
-- Dependency injection resolves the rest
+Allowed:
+
+```dart
+import 'package:my_app/domain/entities/product.dart';
+import 'package:my_app/core/entities/product.dart';
+```
+
+Forbidden (`presentation` → `data`):
+
+```dart
+import 'package:my_app/data/models/product_model.dart'; // no_data_dependencies
+```
+
+Forbidden (`domain` → Flutter):
+
+```dart
+import 'package:flutter/material.dart'; // domain_only_depends_on_itself
+```
 
 ---
 
-## ❌ What This Lint Does NOT Do
+## Dependency flow
+
+| Layer        | Must not import                         |
+| ------------ | --------------------------------------- |
+| domain       | anything outside domain (except Dart SDK) |
+| core         | screens, presentation                   |
+| data         | screens, presentation                   |
+| presentation | data                                    |
+| screens      | data                                    |
+
+---
+
+## What this plugin does not do
 
 - Does not generate code
-- Does not automatically fix
+- Does not auto-fix imports
 - Does not replace code review
 
-It only points out the error before it becomes technical debt.
-
 ---
 
-## 🧩 Technical Stack
+## Stack
 
-- Dart SDK >= 3.0
-- analyzer
-- custom\_lint\_builder
-- path
+- Dart SDK >= 3.13
+- `analysis_server_plugin`
+- `analyzer`
+- `path`
 
-No `build_runner`. No `source_gen`.
-
----
-
-## 🏁 Quick Summary
-
-| Layer        | Can depend on      |
-| ------------ | ------------------ |
-| core         | core only          |
-| data         | core, data         |
-| presentation | core, presentation |
-
-If it goes beyond that, the lint alerts.
-
----
-
-## 📁 Supported Structures
-
-The lint automatically supports two folder structures:
-
-### Structure 1: Direct (simple projects)
-```
-lib/
- ├─ core/
- ├─ data/
- └─ presentation/
-```
-
-### Structure 2: With `src/` (larger projects)
-```
-lib/
- └─ src/
-     ├─ core/
-     ├─ data/
-     └─ presentation/
-```
-
-**No additional configuration needed** - the lint automatically detects which structure you're using!
-
----
-
-Clean architecture is not an opinion. It's a contract.
+No `custom_lint`, `build_runner`, or `source_gen`.

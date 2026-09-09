@@ -2,169 +2,103 @@
 
 ## Project Overview
 
-This is a **custom_lint plugin** for enforcing Clean Architecture layer boundaries in Flutter/Dart projects through static analysis. It prevents architectural violations at compile time by analyzing the AST (Abstract Syntax Tree).
+This is an **analyzer plugin** (`analysis_server_plugin`) that enforces Clean Architecture layer boundaries in Flutter/Dart projects by inspecting `import` directives. It is **not** a `custom_lint` plugin.
+
+Requires Dart SDK >= 3.13. Diagnostics show up in the IDE and in `dart analyze` / `flutter analyze`.
 
 ## Architecture
 
-### Core Concept: Layer Enforcement
-
-The plugin enforces a 3-layer architecture with dependency rules:
-
 ```
 lib/
- ├─ core/          → Pure business logic (no UI, no infrastructure)
- ├─ data/          → Technical implementations (repos, APIs, DB)
- └─ presentation/  → User interface (widgets, pages, controllers)
+ ├─ core/          → must not import screens or presentation
+ ├─ domain/        → only itself + Dart SDK
+ ├─ data/          → must not import screens or presentation
+ ├─ presentation/  → must not import data
+ └─ screens/      → must not import data
 ```
 
-**Dependency Flow**: `presentation` → `core` ← `data`  
-**Rule**: Dependencies always point inward (toward core), never outward.
+`lib/src/{layer}/` is detected the same way.
+
+**Rule:** UI must not depend on data implementations; data/core must not depend on UI; domain is inward-only.
 
 ### Key Components
 
-1. **Plugin Entry** ([lib/clean_arch_lint.dart](../lib/clean_arch_lint.dart))
-   - Registers all lint rules via `PluginBase`
-   - Returns `List<LintRule>` from `getLintRules()`
+1. **Plugin entry** ([lib/main.dart](../lib/main.dart))
+   - Top-level `plugin` loaded by the analysis server
+   - `CleanArchitectureLintPlugin.register` calls `registry.registerLintRule(...)`
 
-2. **Lint Rules** ([lib/src/rules/](../lib/src/rules/))
-   - Each rule extends `DartLintRule` from `custom_lint_builder`
-   - Uses Analyzer's AST API to inspect imports
-   - Reports violations via `ErrorReporter.atNode()`
+2. **Rule** ([lib/src/rules/no_screens_dependencies_rule.dart](../lib/src/rules/no_screens_dependencies_rule.dart))
+   - One `MultiAnalysisRule` + one `_Visitor` on `ImportDirective`
+   - Former classes (`CoreNoFlutter`, `DataNoPresentation`, `DomainOnly`, `PresentationNoData`, `NoImportVisitor`, `OnlyImportVisitor`) were removed
 
-3. **Import Resolver** ([lib/src/utils/import_resolver.dart](../lib/src/utils/import_resolver.dart))
-   - Shared utilities for analyzing import directives
-   - Handles both package imports (`package:my_app/...`) and relative imports (`../data/...`)
-   - Key functions: `isInLayer()`, `importsFromLayer()`, `isFlutterImport()`
+3. **Codes** ([lib/src/lint_utils.dart](../lib/src/lint_utils.dart))
+   - Shared `LintCode.name` values users enable in yaml
+   - Unique `uniqueName` per message variant
 
-## The Four Rules
+4. **Import resolver** ([lib/src/utils/import_resolver.dart](../lib/src/utils/import_resolver.dart))
+   - `isInLayer()`, `importsFromLayer()`, `resolveImport()`, `isFlutterImport()`
 
-| Rule | Severity | What It Blocks |
-|------|----------|----------------|
-| `core_no_flutter` | ERROR | Flutter/UI imports in `core/` |
-| `core_no_data_or_presentation` | ERROR | `core/` importing `data/` or `presentation/` |
-| `data_no_presentation` | ERROR | `data/` importing `presentation/` |
-| `presentation_no_data` | WARNING* | `presentation/` importing `data/` directly |
+## Diagnostics
 
-*Configurable to ERROR via `analysis_options.yaml`
+| Code | Severity | Typical trigger |
+|------|----------|-----------------|
+| `no_data_dependencies` | WARNING* | presentation/screens → data; data/core → UI |
+| `no_screens_dependencies` | WARNING* | data/core → screens/presentation |
+| `domain_only_depends_on_itself` | WARNING* | domain imports anything but domain |
+
+\*Lints are **off until enabled** under `plugins.clean_arch_lint.diagnostics`. Use `error` instead of `true` to raise severity.
 
 ## Development Workflows
 
-### Testing Your Changes
-
 ```bash
-# Run unit tests
 dart test
 
-# Test with the example project
 cd example
 dart pub get
-dart run custom_lint
-
-# Watch mode for real-time testing
-dart run custom_lint --watch
+dart analyze
 ```
 
-### Adding a New Rule
+Do not run `dart run custom_lint`.
 
-1. Create `lib/src/rules/my_new_rule.dart` extending `DartLintRule`
-2. Register in `lib/clean_arch_lint.dart` → `getLintRules()`
-3. Add tests in `test/` that verify both violations and correct usage
-4. Update README.md and USAGE.md with rule documentation
-5. Add examples in `example/lib/` showing violations
+### Adding a check
 
-### Key Pattern: Rule Implementation
-
-```dart
-class MyRule extends DartLintRule {
-  static const _code = LintCode(
-    name: 'my_rule',
-    problemMessage: 'What went wrong',
-    correctionMessage: 'How to fix it',
-    errorSeverity: ErrorSeverity.ERROR,  // or WARNING
-  );
-
-  const MyRule() : super(code: _code);
-
-  @override
-  void run(
-    CustomLintResolver resolver,
-    ErrorReporter reporter,
-    CustomLintContext context,
-  ) {
-    context.registry.addImportDirective((node) {
-      final filePath = resolver.path;
-      final uri = node.uri.stringValue;
-      
-      // Use import_resolver.dart utilities:
-      if (isInLayer(filePath, 'core') && isFlutterImport(uri)) {
-        reporter.atNode(node, _code);
-      }
-    });
-  }
-}
-```
+1. Prefer a new `LintCodeArchitecture` on `NoScreensDependenciesRule` (keeps one visitor per file)
+2. Enable the name in `example/analysis_options.yaml`
+3. Add examples in `example/lib/`
+4. Update README.md, USAGE.md, RULES.md, CHANGELOG.md
+5. Dartdoc on public APIs
 
 ## Project-Specific Conventions
 
-### Import Order (Enforced by analysis_options.yaml)
-1. `dart:` imports
-2. `package:` imports
-3. Relative imports
+### Import order
+
+1. `dart:`
+2. `package:`
+3. Relative
 4. Alphabetical within each group
 
-### Path Handling
-- Always use `/` separators (normalized via `normalizePath()`)
-- Supports Windows, macOS, Linux through `package:path`
-- Layer detection via pattern: `/lib/{layer_name}/`
+### Path handling
 
-### Error Messages
-- `problemMessage`: What the user did wrong
-- `correctionMessage`: How to fix it (actionable advice)
-- Keep messages concise but clear
-
-## Important Files
-
-- [USAGE.md](../USAGE.md) - User-facing documentation with examples
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Full contributor guide
-- [example/](../example/) - Demonstrates all violations and correct patterns
-- `.github/instructions/dartcode.instructions.md` - Dart coding standards
+- Normalize with `normalizePath()` (`/` separators)
+- Layers: `/lib/{layer}/` and `/lib/src/{layer}/`
 
 ## Common Gotchas
 
-1. **Import Resolution**: The resolver needs to handle both package URIs and relative paths. Use `resolveImport()` from `import_resolver.dart`.
-
-2. **Layer Detection**: Files must be in `lib/{layer}/` structure. Don't hardcode assumptions about depth.
-
-3. **Third-Party Packages**: Only analyze imports within the current package. Ignore `package:` imports from other packages unless they're Flutter.
-
-4. **Testing**: Always test both the positive case (violation detected) and negative case (correct code passes).
+1. `resolveImport()` needs the **full** current file path and a real project root. `shortName` is not a path.
+2. `dart:` imports return `null` (treated as allowed). Other `package:` URIs that are not the current package keep the URI as `resolvedPath`.
+3. Lint rules registered with `registerLintRule` are disabled by default.
+4. After changing `plugins` in yaml, restart the analysis server.
 
 ## Dependencies
 
-- `analyzer` ^8.4.0 - Dart's static analysis engine
-- `custom_lint_builder` ^0.8.1 - Framework for creating custom lints
-- `path` ^1.9.0 - Cross-platform path manipulation
-
-No code generation (`build_runner`) or annotations needed.
+- `analyzer` ^14.3.0
+- `analysis_server_plugin` ^0.3.22
+- `path` ^1.9.1
 
 ## When Making Changes
 
-1. Check existing rules in `lib/src/rules/` for patterns
-2. Reuse utilities from `import_resolver.dart` - don't duplicate logic
-3. Add comprehensive tests covering edge cases
-4. Update documentation (README, USAGE) in sync with code
-5. Run `dart run custom_lint` in example/ to verify behavior
-6. Follow Conventional Commits for commit messages
-7. **Document your code** before finishing:
-   - Add `///` doc comments to all public APIs
-   - Include code examples in comments when helpful
-   - Explain the "why" behind non-obvious decisions
-   - Update [CHANGELOG.md](../CHANGELOG.md) with your changes
-
-## Questions to Ask Yourself
-
-- Does this preserve the unidirectional dependency flow?
-- Are error messages actionable for developers?
-- Does it handle both package and relative imports?
-- Are there edge cases in path resolution (Windows, nested structures)?
-- Is the severity appropriate (ERROR vs WARNING)?
+1. Match the single-rule visitor; do not resurrect per-layer rule classes without a reason
+2. Reuse `import_resolver.dart`
+3. Keep documentation in sync (README, USAGE, RULES, library dartdoc)
+4. Verify with `dart analyze` in `example/`
+5. Conventional Commits; update CHANGELOG.md
