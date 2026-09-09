@@ -60,10 +60,7 @@ import 'package:clean_arch_lint/src/rules/no_screens_dependencies_rule.dart';
 
 export 'src/rules/no_screens_dependencies_rule.dart' show NoScreensDependenciesRule;
 
-/// Plugin instance loaded by the Dart Analysis Server.
-///
-/// The server looks for this top-level `plugin` in `lib/main.dart`.
-final plugin = CleanArchitectureLintPlugin();
+
 
 /// Registers [NoScreensDependenciesRule] with the analysis server.
 class CleanArchitectureLintPlugin extends Plugin {
