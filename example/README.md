@@ -1,6 +1,6 @@
 # clean_arch_lint Usage Example
 
-This example enables the plugin via `analysis_options.yaml` and contains a small working feature (load and show a product) split across the layers, plus one intentional violation per layer.
+This example enables the plugin via `analysis_options.yaml` and contains a small working feature (load and show a product) split across the layers, plus one intentional violation per layer and two suppressed with `// ignore`.
 
 ## Naming convention
 
@@ -30,7 +30,8 @@ lib/
  │   ├─ usecases/get_product_use_case.dart       # GetProductUseCase
  │   ├─ bad_example_data.dart                    # ❌ domain → data
  │   ├─ bad_example_flutter.dart                 # ❌ domain → Flutter
- │   └─ bad_example_dart_io.dart                 # ❌ domain → dart:io
+ │   ├─ bad_example_dart_io.dart                 # ❌ domain → dart:io
+ │   └─ ignored_example_dart_developer.dart      # 🔕 domain → dart:developer, ignore_for_file
  ├─ data/
  │   ├─ models/product_model.dart                # ProductModel (fromJson, toEntity)
  │   ├─ datasources/product_remote_data_source.dart  # ProductRemoteDataSource
@@ -39,7 +40,8 @@ lib/
  ├─ presentation/
  │   ├─ view_models/product_view_model.dart      # ProductViewModel
  │   ├─ pages/product_page.dart                  # ProductPage
- │   └─ bad_example_data.dart                    # ❌ presentation → data
+ │   ├─ bad_example_data.dart                    # ❌ presentation → data
+ │   └─ ignored_example_data.dart                # 🔕 presentation → data, ignore on one line
  └─ screens/
      ├─ home/home_screen.dart                    # HomeScreen
      └─ bad_example_data.dart                    # ❌ screens → data (relative import)
@@ -77,3 +79,14 @@ Exactly one warning per `bad_example_*.dart` file, and nothing else:
 | `domain/bad_example_dart_io.dart` | `domain_only_depends_on_itself` |
 | `presentation/bad_example_data.dart` | `no_data_dependencies` |
 | `screens/bad_example_data.dart` | `no_data_dependencies` |
+
+## Suppressed violations
+
+The `ignored_example_*.dart` files contain real violations silenced with an ignore comment, so they report nothing:
+
+| File | Comment |
+| --- | --- |
+| `domain/ignored_example_dart_developer.dart` | `// ignore_for_file: clean_arch_lint/domain_only_depends_on_itself` |
+| `presentation/ignored_example_data.dart` | `// ignore: clean_arch_lint/no_data_dependencies` (above the import) |
+
+Remove the comment and the corresponding warning appears.
