@@ -188,6 +188,5 @@ import 'package:flutter/material.dart'; // domain_only_depends_on_itself
 - Dart SDK >= 3.13
 - `analysis_server_plugin`
 - `analyzer`
-- `path`
 
 No `custom_lint`, `build_runner`, or `source_gen`.

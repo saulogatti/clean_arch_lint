@@ -1,15 +1,13 @@
-/// ❌ BAD EXAMPLE: Core importing Data.
+/// Core importing Data: allowed, no diagnostic.
 ///
-/// Current rule does not have a dedicated "core must not import data" check
-/// (that was `core_no_data_or_presentation`). Core is only blocked from
-/// importing `screens` / `presentation`.
+/// Core is only blocked from importing `screens` / `presentation`
+/// (`no_screens_dependencies`). Prefer depending on domain contracts anyway.
 library;
 
-import 'package:clean_archt_lint_example/data/models/product_model.dart'; // ❌ ERROR: Core cannot import Data
+import 'package:clean_archt_lint_example/data/models/product_model.dart'; // allowed
 
 class BadGetProduct {
   ProductModel call(String id) {
-    // Core should not know data implementations
     return const ProductModel(id: '1', name: 'Product', price: 99.99);
   }
 }

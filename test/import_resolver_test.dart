@@ -44,16 +44,6 @@ void main() {
       expect(isPureDartLibrary(Uri.parse('package:my_app/core/user.dart')), isFalse);
     });
 
-    test('isFlutterImport should detect Flutter-related imports', () {
-      expect(isFlutterImport('package:flutter/material.dart'), isTrue);
-      expect(isFlutterImport('package:flutter/widgets.dart'), isTrue);
-      expect(isFlutterImport('package:flutter_test/flutter_test.dart'), isTrue);
-      expect(isFlutterImport('dart:ui'), isTrue);
-
-      expect(isFlutterImport('dart:core'), isFalse);
-      expect(isFlutterImport('package:my_app/core/user.dart'), isFalse);
-    });
-
     test('packageNameOf should extract the package name from a package URI', () {
       expect(packageNameOf(Uri.parse('package:flutter/material.dart')), equals('flutter'));
       expect(packageNameOf(Uri.parse('package:my_app/core/user.dart')), equals('my_app'));

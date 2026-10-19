@@ -93,30 +93,3 @@ Uri? importedUriOf(ImportDirective node) {
   final uri = node.libraryImport?.uri;
   return uri is DirectiveUriWithSource ? uri.source.uri : null;
 }
-
-/// Checks if an import is from a Flutter package or related.
-///
-/// Detects imports from Flutter and UI libraries that should not be
-/// used in the core layer. Includes:
-///
-/// - Flutter packages: `package:flutter/...`
-/// - Flutter test packages: `package:flutter_test/...`
-/// - dart:ui library (used internally by Flutter)
-///
-/// Returns `true` if the [uri] is from Flutter/UI, `false` otherwise.
-///
-/// ## Examples
-///
-/// ```dart
-/// isFlutterImport('package:flutter/material.dart');      // true
-/// isFlutterImport('package:flutter/widgets.dart');       // true
-/// isFlutterImport('package:flutter_test/flutter_test.dart'); // true
-/// isFlutterImport('dart:ui');                            // true
-/// isFlutterImport('dart:core');                          // false
-/// isFlutterImport('package:my_app/core/user.dart');     // false
-/// ```
-bool isFlutterImport(String uri) {
-  return uri.startsWith('package:flutter/') ||
-      uri.startsWith('package:flutter_test/') ||
-      uri == 'dart:ui';
-}

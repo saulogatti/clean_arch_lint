@@ -1,5 +1,7 @@
 ## Unreleased
 
+- **Removed:** unused `isFlutterImport`, debug `LoggerUtil` and the `path` dependency.
+
 - **Tests:** rule tests with `analyzer_testing` for all three diagnostics (replacing placeholder tests).
 
 - **Fix:** `domain_only_depends_on_itself` now allows only pure Dart libraries
