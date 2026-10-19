@@ -1,28 +1,51 @@
 # clean_arch_lint Usage Example
 
-This example enables the plugin via `analysis_options.yaml` and contains both valid layer files and intentional violations.
+This example enables the plugin via `analysis_options.yaml` and contains a small working feature (load and show a product) split across the layers, plus one intentional violation per layer.
+
+## Naming convention
+
+Every class name ends with a suffix that belongs to exactly one layer, so the name alone tells where a type lives and which way it may depend:
+
+| Layer | Suffixes | Example |
+| --- | --- | --- |
+| `domain` | `Entity`, `RepositoryContract`, `UseCase` | `ProductEntity` |
+| `data` | `Model`, `DataSource`, `RepositoryImpl` | `ProductModel` |
+| `presentation` | `ViewModel`, `Page` | `ProductPage` |
+| `screens` | `Screen` | `HomeScreen` |
+| `core` | `Util` | `PriceFormatterUtil` |
+
+Seeing `ProductModel` imported in a `...UseCase`, or `...RepositoryImpl` in a `...Page`, is a violation you can spot before the analyzer reports it.
 
 ## Structure
 
 ```
 lib/
+ ├─ main.dart                                   # composition root (outside the layers)
  ├─ core/
- │   ├─ app_exemple.dart          # violation: core → data
- │   └─ entities/product.dart
+ │   ├─ utils/price_formatter_util.dart          # PriceFormatterUtil
+ │   └─ bad_example_presentation.dart            # ❌ core → presentation
  ├─ domain/
- │   ├─ bad_example_data.dart     # violation: domain → data
- │   ├─ bad_example_flutter.dart  # violation: domain → Flutter
- │   ├─ entities/product.dart
- │   └─ usecases/get_product.dart
+ │   ├─ entities/product_entity.dart             # ProductEntity
+ │   ├─ repositories/product_repository_contract.dart  # ProductRepositoryContract
+ │   ├─ usecases/get_product_use_case.dart       # GetProductUseCase
+ │   ├─ bad_example_data.dart                    # ❌ domain → data
+ │   ├─ bad_example_flutter.dart                 # ❌ domain → Flutter
+ │   └─ bad_example_dart_io.dart                 # ❌ domain → dart:io
  ├─ data/
- │   ├─ bad_example_in_data.dart  # violation: data → presentation
- │   └─ models/product_model.dart
+ │   ├─ models/product_model.dart                # ProductModel (fromJson, toEntity)
+ │   ├─ datasources/product_remote_data_source.dart  # ProductRemoteDataSource
+ │   ├─ repositories/product_repository_impl.dart     # ProductRepositoryImpl
+ │   └─ bad_example_in_data.dart                 # ❌ data → presentation
  ├─ presentation/
- │   ├─ bad_example_data.dart     # violation: presentation → data
- │   └─ pages/product_page.dart
+ │   ├─ view_models/product_view_model.dart      # ProductViewModel
+ │   ├─ pages/product_page.dart                  # ProductPage
+ │   └─ bad_example_data.dart                    # ❌ presentation → data
  └─ screens/
-     └─ home/home_screen.dart    # violation: screens → data
+     ├─ home/home_screen.dart                    # HomeScreen
+     └─ bad_example_data.dart                    # ❌ screens → data
 ```
+
+Flow: `HomeScreen` → `ProductViewModel` → `GetProductUseCase` → `ProductRepositoryContract`, implemented by `ProductRepositoryImpl`, which turns the `ProductModel` from `ProductRemoteDataSource` into a `ProductEntity`. Only `lib/main.dart` knows the `data` implementations and wires them in.
 
 ## How to see the diagnostics
 
@@ -32,7 +55,7 @@ lib/
    - `domain_only_depends_on_itself`
    - `no_screens_dependencies`
 
-2. From this directory:
+2. From this directory (not a subdirectory, see the troubleshooting note in `USAGE.md`):
 
 ```bash
 dart pub get
@@ -43,13 +66,14 @@ Restart the Dart Analysis Server after changing `plugins`.
 
 ## What should be reported
 
+Exactly one warning per `bad_example_*.dart` file, and nothing else:
+
 | File | Diagnostic |
 | --- | --- |
+| `core/bad_example_presentation.dart` | `no_screens_dependencies` |
+| `data/bad_example_in_data.dart` | `no_screens_dependencies` |
 | `domain/bad_example_data.dart` | `domain_only_depends_on_itself` |
 | `domain/bad_example_flutter.dart` | `domain_only_depends_on_itself` |
-| `data/bad_example_in_data.dart` | `no_data_dependencies` / `no_screens_dependencies` |
+| `domain/bad_example_dart_io.dart` | `domain_only_depends_on_itself` |
 | `presentation/bad_example_data.dart` | `no_data_dependencies` |
-| `screens/home/home_screen.dart` | `no_data_dependencies` |
-| `core/app_exemple.dart` | leftover from the old core→data rule; not a dedicated check anymore |
-
-Allowed examples: `domain/entities`, `domain/usecases`, `core/entities`, `data/models` (imports core), `presentation/pages` (imports core + Flutter).
+| `screens/bad_example_data.dart` | `no_data_dependencies` |

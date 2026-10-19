@@ -94,7 +94,7 @@ import 'package:my_app/data/models/product_model.dart';
 
 ```dart
 // ✅ presentation depends on a domain/core type
-import 'package:my_app/domain/entities/product.dart';
+import 'package:my_app/domain/entities/product_entity.dart';
 ```
 
 ---
@@ -121,7 +121,7 @@ import 'package:my_app/presentation/pages/product_page.dart';
 **Blocks:** `data`, `core`, `presentation`, `screens`, `package:flutter/*`, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, `dart:ffi`, …), third-party packages.
 
 ```dart
-// ❌ domain/usecases/get_product.dart
+// ❌ domain/usecases/get_product_use_case.dart
 import 'package:my_app/data/models/product_model.dart';
 import 'package:flutter/material.dart';
 ```
@@ -129,7 +129,7 @@ import 'package:flutter/material.dart';
 ```dart
 // ✅
 import 'dart:async';
-import 'package:my_app/domain/entities/product.dart';
+import 'package:my_app/domain/entities/product_entity.dart';
 ```
 
 ---
