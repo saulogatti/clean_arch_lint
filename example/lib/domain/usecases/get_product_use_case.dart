@@ -9,5 +9,5 @@ class GetProductUseCase {
 
   final ProductRepositoryContract _repository;
 
-  Future<ProductEntity?> call(String id) => _repository.findById(id);
+  Future<ProductEntity?> call(String id) async => _repository.findById(id);
 }

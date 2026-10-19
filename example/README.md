@@ -23,10 +23,10 @@ lib/
  ├─ main.dart                                   # composition root (outside the layers)
  ├─ core/
  │   ├─ utils/price_formatter_util.dart          # PriceFormatterUtil
- │   └─ bad_example_presentation.dart            # ❌ core → presentation
+ │   └─ bad_example_screens.dart                 # ❌ core → screens
  ├─ domain/
  │   ├─ entities/product_entity.dart             # ProductEntity
- │   ├─ repositories/product_repository_contract.dart  # ProductRepositoryContract
+ │   ├─ repositories/product_repository_contract.dart  # ProductRepositoryContract (uses dart:async)
  │   ├─ usecases/get_product_use_case.dart       # GetProductUseCase
  │   ├─ bad_example_data.dart                    # ❌ domain → data
  │   ├─ bad_example_flutter.dart                 # ❌ domain → Flutter
@@ -35,14 +35,14 @@ lib/
  │   ├─ models/product_model.dart                # ProductModel (fromJson, toEntity)
  │   ├─ datasources/product_remote_data_source.dart  # ProductRemoteDataSource
  │   ├─ repositories/product_repository_impl.dart     # ProductRepositoryImpl
- │   └─ bad_example_in_data.dart                 # ❌ data → presentation
+ │   └─ bad_example_presentation.dart            # ❌ data → presentation
  ├─ presentation/
  │   ├─ view_models/product_view_model.dart      # ProductViewModel
  │   ├─ pages/product_page.dart                  # ProductPage
  │   └─ bad_example_data.dart                    # ❌ presentation → data
  └─ screens/
      ├─ home/home_screen.dart                    # HomeScreen
-     └─ bad_example_data.dart                    # ❌ screens → data
+     └─ bad_example_data.dart                    # ❌ screens → data (relative import)
 ```
 
 Flow: `HomeScreen` → `ProductViewModel` → `GetProductUseCase` → `ProductRepositoryContract`, implemented by `ProductRepositoryImpl`, which turns the `ProductModel` from `ProductRemoteDataSource` into a `ProductEntity`. Only `lib/main.dart` knows the `data` implementations and wires them in.
@@ -70,8 +70,8 @@ Exactly one warning per `bad_example_*.dart` file, and nothing else:
 
 | File | Diagnostic |
 | --- | --- |
-| `core/bad_example_presentation.dart` | `no_screens_dependencies` |
-| `data/bad_example_in_data.dart` | `no_screens_dependencies` |
+| `core/bad_example_screens.dart` | `no_screens_dependencies` |
+| `data/bad_example_presentation.dart` | `no_screens_dependencies` |
 | `domain/bad_example_data.dart` | `domain_only_depends_on_itself` |
 | `domain/bad_example_flutter.dart` | `domain_only_depends_on_itself` |
 | `domain/bad_example_dart_io.dart` | `domain_only_depends_on_itself` |
