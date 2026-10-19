@@ -116,9 +116,9 @@ import 'package:my_app/presentation/pages/product_page.dart';
 
 **What it does:** Domain may import only other domain files.
 
-**Allows:** `lib/domain/**`, `lib/src/domain/**`, Dart SDK (`dart:async`, `dart:convert`, …).
+**Allows:** `lib/domain/**`, `lib/src/domain/**`, and the pure Dart libraries `dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`.
 
-**Blocks:** `data`, `core`, `presentation`, `screens`, `package:flutter/*`, `dart:ui`, third-party packages.
+**Blocks:** `data`, `core`, `presentation`, `screens`, `package:flutter/*`, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, `dart:ffi`, …), third-party packages.
 
 ```dart
 // ❌ domain/usecases/get_product.dart
@@ -201,7 +201,7 @@ jobs:
 
 1. File lives under `lib/{layer}/` or `lib/src/{layer}/`.
 2. The matching diagnostic is enabled.
-3. Relative and `package:` imports of the **same** package are both resolved; `dart:` imports are ignored by the resolver (allowed).
+3. Relative and `package:` imports of the **same** package are both resolved. Pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`) are allowed in every layer; other `dart:` libraries are only reported in `domain`.
 
 ---
 

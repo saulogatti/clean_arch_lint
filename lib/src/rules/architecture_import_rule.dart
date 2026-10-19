@@ -23,7 +23,8 @@ abstract class ArchitectureImportRule extends MultiAnalysisRule {
   ///
   /// [importedLayer] is `null` for libraries outside this package's layers
   /// (other packages, or files of this package outside a layer directory).
-  /// Dart SDK imports never reach this method.
+  /// Libraries in [pureDartLibraries] never reach this method; other `dart:`
+  /// libraries arrive with a `null` [importedLayer].
   DiagnosticCode? diagnosticCodeFor(
     ArchitectureLayer currentLayer,
     ArchitectureLayer? importedLayer,
@@ -45,8 +46,8 @@ class _Visitor(final ArchitectureImportRule rule, final RuleContext context)
     if (currentLayer == null) return;
 
     final importedUri = importedUriOf(node);
-    // Dart SDK libraries are allowed in every layer.
-    if (importedUri == null || importedUri.isScheme('dart')) return;
+    // Pure Dart libraries are allowed in every layer.
+    if (importedUri == null || isPureDartLibrary(importedUri)) return;
 
     // Only libraries of the same package belong to this project's layers.
     final importedLayer = packageNameOf(importedUri) == packageNameOf(currentUri)

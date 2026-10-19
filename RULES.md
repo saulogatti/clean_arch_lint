@@ -31,7 +31,7 @@ import 'package:my_app/screens/home/home_screen.dart';
 
 ### Description
 
-Domain may import only other domain files and the Dart SDK. Flutter, `dart:ui`, other layers, and third-party packages are reported.
+Domain may import only other domain files and the pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`). Flutter, other `dart:` libraries (`dart:ui`, `dart:io`, …), other layers, and third-party packages are reported.
 
 ### Allowed
 
@@ -46,6 +46,8 @@ import 'package:my_app/domain/entities/product.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/data/models/product_model.dart';
 import 'package:equatable/equatable.dart';
+import 'dart:io';
+import 'dart:ui';
 ```
 
 ----

@@ -1,5 +1,10 @@
 ## Unreleased
 
+- **Fix:** `domain_only_depends_on_itself` now allows only pure Dart libraries
+  (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`).
+  `dart:ui`, `dart:io`, `dart:html`, `dart:ffi` and other SDK libraries are reported in `domain`
+  (previously every `dart:` import was allowed, despite the docs saying `dart:ui` was reported).
+
 - **Fix:** `no_screens_dependencies` now fires. `data`/`core` importing `screens` or `presentation`
   is reported under `no_screens_dependencies` (previously under `no_data_dependencies`, which left
   `no_screens_dependencies` without any diagnostic). `no_data_dependencies` now covers only

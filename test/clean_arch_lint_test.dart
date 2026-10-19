@@ -34,6 +34,16 @@ void main() {
       expect(layerOf(Uri.parse('file:///project/test/data/user_test.dart')), isNull);
     });
 
+    test('isPureDartLibrary should allow only platform-independent SDK libraries', () {
+      for (final library in ['core', 'async', 'collection', 'convert', 'math', 'typed_data']) {
+        expect(isPureDartLibrary(Uri.parse('dart:$library')), isTrue, reason: 'dart:$library');
+      }
+      for (final library in ['ui', 'io', 'html', 'ffi', 'isolate', 'js_interop']) {
+        expect(isPureDartLibrary(Uri.parse('dart:$library')), isFalse, reason: 'dart:$library');
+      }
+      expect(isPureDartLibrary(Uri.parse('package:my_app/core/user.dart')), isFalse);
+    });
+
     test('isFlutterImport should detect Flutter-related imports', () {
       expect(isFlutterImport('package:flutter/material.dart'), isTrue);
       expect(isFlutterImport('package:flutter/widgets.dart'), isTrue);
