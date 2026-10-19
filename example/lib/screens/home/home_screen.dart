@@ -1,5 +1,5 @@
-import 'package:clean_archt_lint_example/presentation/pages/product_page.dart';
-import 'package:clean_archt_lint_example/presentation/view_models/product_view_model.dart';
+import 'package:clean_arch_lint_example/presentation/pages/product_page.dart';
+import 'package:clean_arch_lint_example/presentation/view_models/product_view_model.dart';
 import 'package:flutter/material.dart';
 
 /// ✅ Screen: route-level widget that composes presentation pieces. It gets

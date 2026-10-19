@@ -1,5 +1,5 @@
-name: clean_archt_lint_example
-description: Exemplo de uso do clean_arch_lint package.
+name: clean_arch_lint_example
+description: Example app for the clean_arch_lint analyzer plugin.
 version: 1.0.0
 publish_to: none
 
