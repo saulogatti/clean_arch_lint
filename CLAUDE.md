@@ -47,11 +47,6 @@ presentation and screens must not import data.
 - `test/import_resolver_test.dart` — unit tests of the pure URI helpers.
 - `analyzer_testing` pins an exact `analyzer` version; bump them together.
 
-### Behavior that differs from the docs (verify before relying on README/RULES.md)
-
-- `isFlutterImport` exists and is tested but is not used by the rule.
-- `LoggerUtil` (`lib/src/utils/logger_util.dart`) writes a `<name>.log` file in the analysis server's working directory (that's where `example/*.log` come from). It's debug scaffolding.
-
 ## Adding or changing a check (from `.cursor/rules/add-lint-rule.mdc` and CONTRIBUTING)
 
 - Use `AnalysisRule` / `MultiAnalysisRule` + `registerNodeProcessors`, report with `rule.reportAtNode(node, diagnosticCode: ...)`. Never `custom_lint_builder` / `DartLintRule`.

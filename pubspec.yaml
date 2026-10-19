@@ -12,8 +12,6 @@ dependencies:
   analysis_server_plugin: ^0.3.22
   analyzer: ^14.3.0
 
-  path: ^1.9.1
-
 dev_dependencies:
   analyzer_testing: ^0.4.3
   lints: ^6.1.0

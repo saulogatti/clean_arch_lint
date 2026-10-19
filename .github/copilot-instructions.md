@@ -38,7 +38,7 @@ lib/
    - Unique `uniqueName` per message variant
 
 4. **Import resolver** ([lib/src/utils/import_resolver.dart](../lib/src/utils/import_resolver.dart))
-   - `layerOf()`, `packageNameOf()`, `importedUriOf()`, `isFlutterImport()`
+   - `layerOf()`, `packageNameOf()`, `importedUriOf()`, `isPureDartLibrary()`
    - Layers come from the analyzer's canonical `package:` URIs, not file paths
 
 ## Diagnostics
@@ -96,7 +96,6 @@ Do not run `dart run custom_lint`.
 
 - `analyzer` ^14.3.0
 - `analysis_server_plugin` ^0.3.22
-- `path` ^1.9.1
 
 ## When Making Changes
 
