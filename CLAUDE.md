@@ -24,6 +24,8 @@ dart format lib test                                  # never `dart format .` (f
 cd example; dart pub get; dart analyze
 ```
 
+Run `dart analyze` on the package root (or on single files) when checking plugin diagnostics: analyzing a directory such as `dart analyze lib` silently skips analyzer plugins (built-in lints still run). This is a Dart SDK limitation (dart-lang/sdk#62710), not a bug in this plugin.
+
 Requires Dart SDK >= 3.13 — the code uses primary constructors (`class _Visitor(final ArchitectureImportRule rule, ...)`)
 and dot shorthands (`severity: .WARNING`). After editing plugin code or the `plugins:` section, the Dart Analysis
 Server must be restarted for the IDE/example to pick up changes. `docs/` is generated `dart doc` output; don't edit it.
