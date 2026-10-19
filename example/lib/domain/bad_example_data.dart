@@ -4,6 +4,6 @@
 /// `ProductEntity`, never with the API-shaped `ProductModel`.
 library;
 
-import 'package:clean_archt_lint_example/data/models/product_model.dart'; // ❌ domain_only_depends_on_itself
+import 'package:clean_arch_lint_example/data/models/product_model.dart'; // ❌ domain_only_depends_on_itself
 
 Type badDomainDependency() => ProductModel;

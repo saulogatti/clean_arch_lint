@@ -1,5 +1,5 @@
-import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
-import 'package:clean_archt_lint_example/domain/usecases/get_product_use_case.dart';
+import 'package:clean_arch_lint_example/domain/entities/product_entity.dart';
+import 'package:clean_arch_lint_example/domain/usecases/get_product_use_case.dart';
 import 'package:flutter/foundation.dart';
 
 /// ✅ View model: UI state built from domain use cases only. It never sees
