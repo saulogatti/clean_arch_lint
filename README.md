@@ -142,11 +142,13 @@ import 'package:my_app/data/models/product_model.dart';
 
 ## Examples
 
+See [example/](example/) for a working feature split across all layers, with one intentional violation per layer and a naming convention that makes the layer of each class obvious from its suffix (`ProductEntity`, `ProductModel`, `ProductRepositoryImpl`, `ProductPage`, ...).
+
 Allowed:
 
 ```dart
-import 'package:my_app/domain/entities/product.dart';
-import 'package:my_app/core/entities/product.dart';
+import 'package:my_app/domain/entities/product_entity.dart';
+import 'package:my_app/core/utils/price_formatter_util.dart';
 ```
 
 Forbidden (`presentation` → `data`):

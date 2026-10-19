@@ -1,29 +1,33 @@
-/// Product model in data layer with /lib/src/data/ structure
-///
-/// Example of valid file in /lib/src/data/ structure
-library;
-import 'package:clean_archt_lint_example/core/entities/product.dart';
+import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
 
-class ProductModel extends Product {
+/// ✅ Data model: the product in the API format. Field names and units follow
+/// the API, and [toEntity] converts it before it leaves the `data` layer.
+///
+/// Suffix `Model` → lives in `data`.
+class ProductModel {
   const ProductModel({
-    required super.id,
-    required super.name,
-    required super.price,
+    required this.id,
+    required this.productName,
+    required this.priceCents,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
       id: json['id'] as String,
-      name: json['name'] as String,
-      price: (json['price'] as num).toDouble(),
+      productName: json['product_name'] as String,
+      priceCents: json['price_cents'] as int,
     );
   }
 
+  final String id;
+  final String productName;
+  final int priceCents;
+
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'price': price,
-    };
+    return {'id': id, 'product_name': productName, 'price_cents': priceCents};
+  }
+
+  ProductEntity toEntity() {
+    return ProductEntity(id: id, name: productName, price: priceCents / 100);
   }
 }

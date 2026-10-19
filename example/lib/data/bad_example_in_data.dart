@@ -1,15 +1,8 @@
 /// ❌ BAD EXAMPLE: Data importing Presentation.
 ///
-/// Violation of `no_screens_dependencies` / `no_data_dependencies`.
+/// Violation of `no_screens_dependencies`: data must not know about UI.
 library;
 
-import 'package:clean_archt_lint_example/core/entities/product.dart';
-import 'package:clean_archt_lint_example/presentation/pages/product_page.dart'; // ❌ ERROR: Data cannot import Presentation
+import 'package:clean_archt_lint_example/presentation/view_models/product_view_model.dart'; // ❌ no_screens_dependencies
 
-class BadProductRepository {
-  ProductPage getProductPage(String id) {
-    // Data should not know the presentation layer
-    final product = Product(id: id, name: 'Product', price: 99.99);
-    return ProductPage(product: product);
-  }
-}
+Type badDataDependency() => ProductViewModel;

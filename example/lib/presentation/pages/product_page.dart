@@ -1,27 +1,23 @@
-import 'package:clean_archt_lint_example/core/entities/product.dart';
+import 'package:clean_archt_lint_example/core/utils/price_formatter_util.dart';
+import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 
-/// Product page in presentation layer with /lib/src/presentation/ structure
+/// ✅ Page: widget that renders a domain entity, with help from `core`.
 ///
-/// Example of valid file in /lib/src/presentation/ structure
+/// Suffix `Page` → lives in `presentation`.
 class ProductPage extends StatelessWidget {
-  final Product product;
-
   const ProductPage({super.key, required this.product});
+
+  final ProductEntity product;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(product.name)),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Product: ${product.name}'),
-            Text('Price: \$${product.price}'),
-          ],
-        ),
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(product.name),
+        Text(const PriceFormatterUtil().format(product.price)),
+      ],
     );
   }
 }

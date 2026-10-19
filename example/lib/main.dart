@@ -1,36 +1,27 @@
+import 'package:clean_archt_lint_example/data/datasources/product_remote_data_source.dart';
+import 'package:clean_archt_lint_example/data/repositories/product_repository_impl.dart';
+import 'package:clean_archt_lint_example/domain/usecases/get_product_use_case.dart';
+import 'package:clean_archt_lint_example/presentation/view_models/product_view_model.dart';
+import 'package:clean_archt_lint_example/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 
-void main(List<String> args) {
-  runApp(const MyApp());
-}
-
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
-
-  @override
-  State<HomeView> createState() => _HomeViewState();
+/// Composition root: wires `data` implementations into the domain contracts.
+///
+/// `lib/main.dart` is outside every layer directory, so it may import all of
+/// them. This is the only place that knows [ProductRepositoryImpl].
+void main() {
+  final repository = ProductRepositoryImpl(ProductRemoteDataSource());
+  final viewModel = ProductViewModel(GetProductUseCase(repository));
+  runApp(MyApp(viewModel: viewModel));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: HomeView(),
-    );
-  }
-}
+  const MyApp({super.key, required this.viewModel});
 
-class _HomeViewState extends State<HomeView> {
+  final ProductViewModel viewModel;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Clean Arch Lint Example'),
-      ),
-      body: const Center(
-        child: Text('Hello, Clean Arch Lint!'),
-      ),
-    );
+    return MaterialApp(home: HomeScreen(viewModel: viewModel));
   }
 }

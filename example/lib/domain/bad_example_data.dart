@@ -1,17 +1,9 @@
 /// ❌ BAD EXAMPLE: Domain importing Data.
 ///
-/// Violation of `domain_only_depends_on_itself`.
+/// Violation of `domain_only_depends_on_itself`: the domain must work with
+/// `ProductEntity`, never with the API-shaped `ProductModel`.
 library;
 
-import 'package:clean_archt_lint_example/data/models/product_model.dart';
-import 'package:clean_archt_lint_example/domain/entities/product.dart';
+import 'package:clean_archt_lint_example/data/models/product_model.dart'; // ❌ domain_only_depends_on_itself
 
-class BadExampleData {
-  ProductModel getProduct(String id) {
-    return ProductModel(id: id, name: 'Product', price: 99.99);
-  }
-
-  Product getProductEntity(String id) {
-    return Product(id: id, name: 'Product', price: 99.99);
-  }
-}
+Type badDomainDependency() => ProductModel;

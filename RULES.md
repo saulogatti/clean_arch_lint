@@ -37,7 +37,7 @@ Domain may import only other domain files and the pure Dart libraries (`dart:cor
 
 ```dart
 import 'dart:async';
-import 'package:my_app/domain/entities/product.dart';
+import 'package:my_app/domain/entities/product_entity.dart';
 ```
 
 ### Reported
