@@ -1,5 +1,7 @@
 ## Unreleased
 
+- **Tests:** rule tests with `analyzer_testing` for all three diagnostics (replacing placeholder tests).
+
 - **Fix:** `domain_only_depends_on_itself` now allows only pure Dart libraries
   (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`).
   `dart:ui`, `dart:io`, `dart:html`, `dart:ffi` and other SDK libraries are reported in `domain`
