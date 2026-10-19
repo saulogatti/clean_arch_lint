@@ -60,11 +60,11 @@
     </ol>
   </div>
 <span class="returntype">void</span>
-<span class="name ">registerNodeProcessors</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="registerNodeProcessors-param-registry"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_rule_visitor_registry/RuleVisitorRegistry-class.html">RuleVisitorRegistry</a></span> <span class="parameter-name">registry</span>, </span></li>
-<li><span class="parameter" id="registerNodeProcessors-param-context"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_rule_context/RuleContext-class.html">RuleContext</a></span> <span class="parameter-name">context</span></span></li>
+<span class="name ">registerNodeProcessors</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="registerNodeProcessors-param-registry"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_visitor_registry/RuleVisitorRegistry-class.html">RuleVisitorRegistry</a></span> <span class="parameter-name">registry</span>, </span></li>
+<li><span class="parameter" id="registerNodeProcessors-param-context"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_context/RuleContext-class.html">RuleContext</a></span> <span class="parameter-name">context</span></span></li>
 </ol>)
 
-      <div class="features"><span class="feature">override</span></div>
+      <div class="features"><span class="feature">inherited</span></div>
 
     </section>
     
@@ -80,9 +80,7 @@ that is not available from the AST nodes or their associated elements.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
-  final visitor = _Visitor(this, context);
-
-  registry.addImportDirective(this, visitor);
+  registry.addImportDirective(this, _Visitor(this, context));
 }</code></pre>
 </section>
 
@@ -111,7 +109,7 @@ void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
 <footer>
   <span class="no-break">
     clean_arch_lint
-      2.0.1
+      3.0.0
   </span>
   
 </footer>

@@ -58,7 +58,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates the architecture boundary rule.</p>
+  <p>Creates the rule.</p>
 </section>
 
 
@@ -68,9 +68,7 @@
   <pre class="language-dart"><code class="language-dart">NoScreensDependenciesRule()
   : super(
       name: LintNames.noScreensDependencies,
-      description:
-          &#39;Enforces Clean Architecture import boundaries across core, &#39;
-          &#39;domain, data, presentation, and screens.&#39;,
+      description: &#39;Data and core must not import screens or presentation.&#39;,
     );</code></pre>
 </section>
 
@@ -99,7 +97,7 @@
 <footer>
   <span class="no-break">
     clean_arch_lint
-      2.0.1
+      3.0.0
   </span>
   
 </footer>
