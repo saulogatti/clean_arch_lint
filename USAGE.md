@@ -202,6 +202,7 @@ jobs:
 1. File lives under `lib/{layer}/` or `lib/src/{layer}/`.
 2. The matching diagnostic is enabled.
 3. Relative and `package:` imports of the **same** package are both resolved. Pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`) are allowed in every layer; other `dart:` libraries are only reported in `domain`.
+4. You are analyzing the package root, a single file, or several files — not a directory. `dart analyze lib` or `dart analyze lib/presentation` silently skips analyzer plugins (only built-in lints run), a Dart SDK limitation tracked in [dart-lang/sdk#62710](https://github.com/dart-lang/sdk/issues/62710). Run `dart analyze` (or `flutter analyze`) from the package root instead.
 
 ---
 

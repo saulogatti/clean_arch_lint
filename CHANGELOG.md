@@ -1,5 +1,7 @@
 ## Unreleased
 
+- **Docs:** troubleshooting note — `dart analyze <directory>` skips analyzer plugins (dart-lang/sdk#62710); analyze the package root.
+
 - **Removed:** unused `isFlutterImport`, debug `LoggerUtil` and the `path` dependency.
 
 - **Tests:** rule tests with `analyzer_testing` for all three diagnostics (replacing placeholder tests).
