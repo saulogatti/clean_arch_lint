@@ -27,7 +27,7 @@ lib/
 
 ### domain
 
-Innermost layer. Other layers may import domain; domain imports only itself (plus Dart SDK). Flutter, `dart:ui`, and third-party packages are reported.
+Innermost layer. Other layers may import domain; domain imports only itself plus the pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`). Flutter, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, …), and third-party packages are reported.
 
 Contains: entities, usecases, contracts.
 
@@ -167,7 +167,7 @@ import 'package:flutter/material.dart'; // domain_only_depends_on_itself
 
 | Layer        | Must not import                         |
 | ------------ | --------------------------------------- |
-| domain       | anything outside domain (except Dart SDK) |
+| domain       | anything outside domain (except pure Dart libraries) |
 | core         | screens, presentation                   |
 | data         | screens, presentation                   |
 | presentation | data                                    |

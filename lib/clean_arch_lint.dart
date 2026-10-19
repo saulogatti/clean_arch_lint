@@ -7,8 +7,9 @@
 ///
 /// Layers (`lib/{layer}/` or `lib/src/{layer}/`):
 ///
-/// - **domain**: innermost; may import only other domain files (Dart SDK is
-///   allowed; Flutter and third-party packages are not)
+/// - **domain**: innermost; may import only other domain files and pure Dart
+///   libraries (`dart:core`, `dart:async`, ...); `dart:ui`, `dart:io`, Flutter
+///   and third-party packages are not allowed
 /// - **core**: must not import `screens` or `presentation`
 /// - **data**: must not import `screens` or `presentation`
 /// - **presentation**: must not import `data`

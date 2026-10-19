@@ -4,8 +4,8 @@ import 'package:analyzer/error/error.dart';
 
 /// Reported when `domain` imports a file outside `lib/**/domain/`.
 ///
-/// Dart SDK imports (`dart:async`, …) are not resolved as project files, so they
-/// are allowed. Flutter and third-party packages are not.
+/// Only pure Dart libraries (`dart:async`, `dart:core`, ...) are allowed;
+/// `dart:ui`, `dart:io`, Flutter and third-party packages are not.
 const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
   LintNames.domainOnlyDependsOnItself,
   'Domain should only depend on itself. Domain should not depend on data or presentation.',

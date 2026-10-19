@@ -55,6 +55,32 @@ String? packageNameOf(Uri uri) {
   return uri.pathSegments.first;
 }
 
+/// Dart SDK libraries that are plain language support, with no UI, I/O or
+/// platform access.
+///
+/// These are allowed in every layer, including `domain`. Any other `dart:`
+/// library (`dart:ui`, `dart:io`, `dart:html`, `dart:ffi`, ...) is treated as
+/// an import from outside the project's layers, so `domain` reports it.
+const Set<String> pureDartLibraries = {
+  'async',
+  'collection',
+  'convert',
+  'core',
+  'math',
+  'typed_data',
+};
+
+/// Whether [uri] is one of the [pureDartLibraries].
+///
+/// ## Examples
+///
+/// ```dart
+/// isPureDartLibrary(Uri.parse('dart:async')); // true
+/// isPureDartLibrary(Uri.parse('dart:ui'));    // false
+/// isPureDartLibrary(Uri.parse('dart:io'));    // false
+/// ```
+bool isPureDartLibrary(Uri uri) => uri.isScheme('dart') && pureDartLibraries.contains(uri.path);
+
 /// Returns the canonical URI of the library imported by [node].
 ///
 /// Relative imports are resolved by the analyzer, so

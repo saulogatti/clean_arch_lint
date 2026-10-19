@@ -11,7 +11,7 @@ Requires Dart SDK >= 3.13. Diagnostics show up in the IDE and in `dart analyze` 
 ```
 lib/
  ├─ core/          → must not import screens or presentation
- ├─ domain/        → only itself + Dart SDK
+ ├─ domain/        → only itself + pure Dart libraries (dart:core, async, collection, convert, math, typed_data)
  ├─ data/          → must not import screens or presentation
  ├─ presentation/  → must not import data
  └─ screens/      → must not import data
@@ -88,7 +88,7 @@ Do not run `dart run custom_lint`.
 ## Common Gotchas
 
 1. `importedUriOf()` needs a resolved AST; relative imports are already canonicalized by the analyzer.
-2. `dart:` imports are allowed everywhere. Imports from other packages have no layer, so domain reports them and the other layers ignore them.
+2. Pure Dart libraries (`pureDartLibraries`) are allowed everywhere. Other `dart:` libraries and imports from other packages have no layer, so domain reports them and the other layers ignore them.
 3. Lint rules registered with `registerLintRule` are disabled by default.
 4. After changing `plugins` in yaml, restart the analysis server.
 
