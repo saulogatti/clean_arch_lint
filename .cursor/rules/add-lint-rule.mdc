@@ -9,18 +9,18 @@ alwaysApply: false
 Use `AnalysisRule` / `MultiAnalysisRule` + `registerNodeProcessors`. Report with `rule.reportAtNode(node, diagnosticCode: ...)`.
 Do not use `custom_lint_builder` or `DartLintRule`.
 
-## Prefer the existing rule
+## One rule per diagnostic name
 
-Architecture import checks belong in `NoScreensDependenciesRule` (`MultiAnalysisRule`) so each file still has one `ImportDirective` visitor. Add a `LintCodeArchitecture` in `lint_utils.dart` and include it in `diagnosticCodes`.
+Each user-facing diagnostic name is one rule class extending `ArchitectureImportRule`, and the rule's `name` must equal that diagnostic name: the analyzer only runs a rule when the diagnostic named after `rule.name` is enabled, so sharing one rule across names makes them depend on each other. Subclasses only implement `diagnosticCodeFor(currentLayer, importedLayer)`; the base class resolves the layers.
 
-A new rule class is only justified when the check cannot share that visitor.
+A new message variant of an existing diagnostic is a new `LintCodeArchitecture` (same name, unique `uniqueName`) listed in that rule's `diagnosticCodes`.
 
-Reuse `isInLayer`, `importsFromLayer`, `resolveImport`.
-Use the full file path (`context.currentUnit?.file.path`), not `shortName`.
+Reuse `layerOf`, `packageNameOf`, `importedUriOf`.
+Work with the analyzer's resolved URIs (`node.libraryImport`, `context.currentUnit?.unit.declaredFragment?.source.uri`), not file-system paths.
 
 ## After changing diagnostics
 
-1. `registry.registerLintRule(...)` and export from `lib/main.dart` if you added a class
+1. `registry.registerLintRule(...)` and export from `lib/clean_arch_lint.dart` if you added a class
 2. Enable the diagnostic name in `example/analysis_options.yaml` under `plugins.clean_arch_lint.diagnostics`
 3. Examples in `example/lib/{layer}/`
 4. Tests for any new `import_resolver` behavior
@@ -30,6 +30,8 @@ Use the full file path (`context.currentUnit?.file.path`), not `shortName`.
 ```dart
 @override
 FutureOr<void> register(PluginRegistry registry) {
+  registry.registerLintRule(NoDataDependenciesRule());
   registry.registerLintRule(NoScreensDependenciesRule());
+  registry.registerLintRule(DomainOnlyDependsOnItselfRule());
 }
 ```

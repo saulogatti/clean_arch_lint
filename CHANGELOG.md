@@ -1,3 +1,26 @@
+## Unreleased
+
+- **Fix:** `no_screens_dependencies` now fires. `data`/`core` importing `screens` or `presentation`
+  is reported under `no_screens_dependencies` (previously under `no_data_dependencies`, which left
+  `no_screens_dependencies` without any diagnostic). `no_data_dependencies` now covers only
+  `presentation`/`screens` importing `data`. Projects that enabled only `no_data_dependencies`
+  must also enable `no_screens_dependencies` to keep the data/core → UI check.
+- **Fix:** each diagnostic can be enabled or disabled independently. Previously one
+  `MultiAnalysisRule` named `no_screens_dependencies` served all three, and the analyzer only runs a
+  rule when the diagnostic matching its name is enabled, so turning off `no_screens_dependencies`
+  silenced every check. Now `NoDataDependenciesRule`, `NoScreensDependenciesRule` and
+  `DomainOnlyDependsOnItselfRule` are registered separately on top of a shared
+  `ArchitectureImportRule`.
+- **Removed:** unused `noPresentationDependenciesCode`.
+
+- **Changed:** layers are detected from the analyzer's resolved library URIs
+  (`ImportDirective.libraryImport` / `LibraryFragment.source.uri`) instead of file-system paths.
+  Relative and `package:` imports resolve identically, and imports from other packages are no
+  longer mistaken for the project's own layers.
+- **Removed:** `ResolvedImport` and the path helpers `resolveImport`, `isInLayer`,
+  `importsFromLayer`, `normalizePath`, `extractPackageName`, `extractProjectRoot`
+  (replaced by `layerOf`, `packageNameOf`, `importedUriOf`).
+
 ## 2.0.1
 
 - **Fix:** missing main file

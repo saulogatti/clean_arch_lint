@@ -14,8 +14,7 @@ const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
   uniqueName: 'domain_only_depends_on_itself',
 );
 
-/// Reported when `presentation` (or `data`/`core` targeting presentation) breaks
-/// the inward-only dependency rule.
+/// Reported when `presentation` imports `data`.
 const LintCodeArchitecture noDataDependenciesCodeInPresentation = LintCodeArchitecture(
   LintNames.noDataDependencies,
   'No data dependencies in presentation. Presentation should not depend on data.',
@@ -24,8 +23,7 @@ const LintCodeArchitecture noDataDependenciesCodeInPresentation = LintCodeArchit
   uniqueName: 'no_data_dependencies_in_presentation',
 );
 
-/// Reported when `screens` (or `data`/`core` targeting screens) breaks the
-/// inward-only dependency rule.
+/// Reported when `screens` imports `data`.
 const LintCodeArchitecture noDataDependenciesCodeInScreens = LintCodeArchitecture(
   LintNames.noDataDependencies,
   'No data dependencies in screens. Screens should not depend on data.',
@@ -34,22 +32,11 @@ const LintCodeArchitecture noDataDependenciesCodeInScreens = LintCodeArchitectur
   uniqueName: 'no_data_dependencies_in_screens',
 );
 
-/// Grouped under [LintNames.noScreensDependencies]: presentation must not depend
-/// on data; it may depend on screens or domain.
-const LintCodeArchitecture noPresentationDependenciesCode = LintCodeArchitecture(
-  LintNames.noScreensDependencies,
-  'Presentation should not depend on data. Presentation should only depend on screens or domain.',
-  correctionMessage: 'Presentation should not depend on data',
-  severity: .WARNING,
-  uniqueName: 'no_presentation_dependencies',
-);
-
-/// Grouped under [LintNames.noScreensDependencies]: data must not depend on
-/// screens or presentation.
+/// Reported when `data` or `core` imports `screens` or `presentation`.
 const LintCodeArchitecture noScreensDependenciesCode = LintCodeArchitecture(
   LintNames.noScreensDependencies,
-  'Data should not depend on screens or presentation.',
-  correctionMessage: 'Data should not depend on screens or presentation',
+  'Data and core should not depend on screens or presentation.',
+  correctionMessage: 'Depend on domain or core contracts instead of UI code',
   severity: .WARNING,
   uniqueName: 'no_screens_dependencies_data_or_presentation',
 );
