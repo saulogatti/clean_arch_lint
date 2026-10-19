@@ -1,5 +1,5 @@
-import 'package:clean_archt_lint_example/core/utils/price_formatter_util.dart';
-import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
+import 'package:clean_arch_lint_example/core/utils/price_formatter_util.dart';
+import 'package:clean_arch_lint_example/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 
 /// ✅ Page: widget that renders a domain entity, with help from `core`.

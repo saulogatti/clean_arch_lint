@@ -6,6 +6,6 @@
 library;
 
 // ignore: clean_arch_lint/no_data_dependencies
-import 'package:clean_archt_lint_example/data/models/product_model.dart';
+import 'package:clean_arch_lint_example/data/models/product_model.dart';
 
 Type ignoredPresentationDependency() => ProductModel;

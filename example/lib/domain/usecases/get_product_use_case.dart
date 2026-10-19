@@ -1,5 +1,5 @@
-import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
-import 'package:clean_archt_lint_example/domain/repositories/product_repository_contract.dart';
+import 'package:clean_arch_lint_example/domain/entities/product_entity.dart';
+import 'package:clean_arch_lint_example/domain/repositories/product_repository_contract.dart';
 
 /// ✅ Domain use case: application rule that depends only on domain types.
 ///

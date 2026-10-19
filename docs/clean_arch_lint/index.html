@@ -62,12 +62,14 @@
 <section class="desc markdown">
   <p>Analyzer plugin that enforces Flutter Clean Architecture layer boundaries.</p>
 <p>Isolation is checked by inspecting <code>import</code> directives (AST), not by
-code generation. One <a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule-class.html">MultiAnalysisRule</a> covers every layer so the analyzer
-walks each file once.</p>
+code generation. Each diagnostic is its own rule, so it can be enabled or
+disabled independently; all of them share the layer resolution in
+<code>ArchitectureImportRule</code>.</p>
 <p>Layers (<code>lib/{layer}/</code> or <code>lib/src/{layer}/</code>):</p>
 <ul>
-<li><strong>domain</strong>: innermost; may import only other domain files (Dart SDK is
-allowed; Flutter and third-party packages are not)</li>
+<li><strong>domain</strong>: innermost; may import only other domain files and pure Dart
+libraries (<code>dart:core</code>, <code>dart:async</code>, ...); <code>dart:ui</code>, <code>dart:io</code>, Flutter
+and third-party packages are not allowed</li>
 <li><strong>core</strong>: must not import <code>screens</code> or <code>presentation</code></li>
 <li><strong>data</strong>: must not import <code>screens</code> or <code>presentation</code></li>
 <li><strong>presentation</strong>: must not import <code>data</code></li>
@@ -84,7 +86,7 @@ allowed; Flutter and third-party packages are not)</li>
 <tbody>
 <tr>
 <td><code>no_data_dependencies</code></td>
-<td><code>presentation</code>/<code>screens</code> import <code>data</code>, or <code>data</code>/<code>core</code> import UI layers</td>
+<td><code>presentation</code>/<code>screens</code> import <code>data</code></td>
 </tr>
 <tr>
 <td><code>no_screens_dependencies</code></td>
@@ -110,7 +112,7 @@ in the top-level <code>plugins</code> section of <code>analysis_options.yaml</co
 <p>Published package:</p>
 <pre class="language-yaml"><code class="language-yaml">plugins:
   clean_arch_lint:
-    version: ^1.3.0
+    version: ^3.0.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -129,7 +131,25 @@ in the top-level <code>plugins</code> section of <code>analysis_options.yaml</co
 
 </dt>
 <dd>
-  Registers <a href="../clean_arch_lint/NoScreensDependenciesRule-class.html">NoScreensDependenciesRule</a> with the analysis server.
+  Registers the architecture rules with the analysis server.
+</dd>
+
+          <dt id="DomainOnlyDependsOnItselfRule">
+  <span class="name "><a href="../clean_arch_lint/DomainOnlyDependsOnItselfRule-class.html">DomainOnlyDependsOnItselfRule</a></span> 
+
+</dt>
+<dd>
+  Reports <code>domain</code> importing anything outside <code>domain</code>, except the
+<code>pureDartLibraries</code> (<code>dart:core</code>, <code>dart:async</code>, <code>dart:collection</code>,
+<code>dart:convert</code>, <code>dart:math</code>, <code>dart:typed_data</code>).
+</dd>
+
+          <dt id="NoDataDependenciesRule">
+  <span class="name "><a href="../clean_arch_lint/NoDataDependenciesRule-class.html">NoDataDependenciesRule</a></span> 
+
+</dt>
+<dd>
+  Reports <code>presentation</code> or <code>screens</code> importing <code>data</code>.
 </dd>
 
           <dt id="NoScreensDependenciesRule">
@@ -137,7 +157,7 @@ in the top-level <code>plugins</code> section of <code>analysis_options.yaml</co
 
 </dt>
 <dd>
-  Single <a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule-class.html">MultiAnalysisRule</a> that enforces import boundaries for every layer.
+  Reports <code>data</code> or <code>core</code> importing <code>screens</code> or <code>presentation</code>.
 </dd>
 
       </dl>
@@ -179,7 +199,7 @@ in the top-level <code>plugins</code> section of <code>analysis_options.yaml</co
 <footer>
   <span class="no-break">
     clean_arch_lint
-      2.0.1
+      3.0.0
   </span>
   
 </footer>

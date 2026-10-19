@@ -4,6 +4,6 @@
 /// know about UI.
 library;
 
-import 'package:clean_archt_lint_example/screens/home/home_screen.dart'; // ❌ no_screens_dependencies
+import 'package:clean_arch_lint_example/screens/home/home_screen.dart'; // ❌ no_screens_dependencies
 
 Type badCoreDependency() => HomeScreen;

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
+import 'package:clean_arch_lint_example/domain/entities/product_entity.dart';
 
 /// ✅ Domain contract: declares what the domain needs. The `data` layer
 /// implements it ([ProductRepositoryContract] → `ProductRepositoryImpl`), so

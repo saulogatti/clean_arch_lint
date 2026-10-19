@@ -4,6 +4,6 @@
 /// `GetProductUseCase`, not build `ProductRepositoryImpl` itself.
 library;
 
-import 'package:clean_archt_lint_example/data/repositories/product_repository_impl.dart'; // ❌ no_data_dependencies
+import 'package:clean_arch_lint_example/data/repositories/product_repository_impl.dart'; // ❌ no_data_dependencies
 
 Type badPresentationDependency() => ProductRepositoryImpl;

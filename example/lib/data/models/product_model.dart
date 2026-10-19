@@ -1,4 +1,4 @@
-import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
+import 'package:clean_arch_lint_example/domain/entities/product_entity.dart';
 
 /// ✅ Data model: the product in the API format. Field names and units follow
 /// the API, and [toEntity] converts it before it leaves the `data` layer.

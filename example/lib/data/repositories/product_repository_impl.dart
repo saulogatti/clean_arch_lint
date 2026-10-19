@@ -1,7 +1,7 @@
-import 'package:clean_archt_lint_example/data/datasources/product_remote_data_source.dart';
-import 'package:clean_archt_lint_example/data/models/product_model.dart';
-import 'package:clean_archt_lint_example/domain/entities/product_entity.dart';
-import 'package:clean_archt_lint_example/domain/repositories/product_repository_contract.dart';
+import 'package:clean_arch_lint_example/data/datasources/product_remote_data_source.dart';
+import 'package:clean_arch_lint_example/data/models/product_model.dart';
+import 'package:clean_arch_lint_example/domain/entities/product_entity.dart';
+import 'package:clean_arch_lint_example/domain/repositories/product_repository_contract.dart';
 
 /// ✅ Repository implementation: implements the domain contract and converts
 /// [ProductModel] into [ProductEntity].

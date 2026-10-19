@@ -54,28 +54,11 @@
 
     
 <section class="desc markdown">
-  <p>Single <a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule-class.html">MultiAnalysisRule</a> that enforces import boundaries for every layer.</p>
-<p>Former per-layer rules (<code>core_no_flutter</code>, <code>data_no_presentation</code>,
-<code>presentation_no_data</code>, <code>domain_only</code>, …) were collapsed into this visitor
-so the analyzer registers one processor per <code>ImportDirective</code> instead of
-walking the same file once per rule.</p>
-<p><strong>Severity:</strong> WARNING. Enable diagnostics under
+  <p>Reports <code>data</code> or <code>core</code> importing <code>screens</code> or <code>presentation</code>.</p>
+<p><strong>Severity:</strong> WARNING. Enable <code>no_screens_dependencies</code> under
 <code>plugins.clean_arch_lint.diagnostics</code> (<code>true</code> or <code>error</code>).</p>
-<p><strong>Violation examples:</strong></p>
-<pre class="language-dart"><code class="language-dart">// presentation/pages/product_page.dart
-import 'package:app/data/models/product_model.dart'; // no_data_dependencies
-
-// domain/usecases/get_product.dart
-import 'package:app/data/models/product_model.dart'; // domain_only_depends_on_itself
-</code></pre>
-<p><strong>Config:</strong></p>
-<pre class="language-yaml"><code class="language-yaml">plugins:
-  clean_arch_lint:
-    path: ../clean_arch_lint
-    diagnostics:
-      no_data_dependencies: true
-      domain_only_depends_on_itself: true
-      no_screens_dependencies: true
+<pre class="language-dart"><code class="language-dart">// data/repositories/product_repository_impl.dart
+import 'package:app/presentation/pages/product_page.dart'; // no_screens_dependencies
 </code></pre>
 </section>
 
@@ -87,8 +70,8 @@ import 'package:app/data/models/product_model.dart'; // domain_only_depends_on_i
   <dd>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
-        <li><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule-class.html">AbstractAnalysisRule</a></li>
-        <li><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule-class.html">MultiAnalysisRule</a></li>
+        <li><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule-class.html">AbstractAnalysisRule</a></li>
+        <li><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/MultiAnalysisRule-class.html">MultiAnalysisRule</a></li>
       <li>NoScreensDependenciesRule</li>
     </ul>
   </dd>
@@ -112,7 +95,7 @@ import 'package:app/data/models/product_model.dart'; // domain_only_depends_on_i
           <span class="name"><a href="../clean_arch_lint/NoScreensDependenciesRule/NoScreensDependenciesRule.html">NoScreensDependenciesRule</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          Creates the architecture boundary rule.
+          Creates the rule.
         </dd>
     </dl>
   </section>
@@ -123,7 +106,7 @@ import 'package:app/data/models/product_model.dart'; // domain_only_depends_on_i
     <h2>Properties</h2>
     <dl class="properties">
         <dt id="canUseParsedResult" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/canUseParsedResult.html">canUseParsedResult</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/canUseParsedResult.html">canUseParsedResult</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
@@ -136,7 +119,7 @@ information or if it requires a resolved unit.
 </dd>
 
         <dt id="description" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/description.html">description</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/description.html">description</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   
 
@@ -149,7 +132,7 @@ information or if it requires a resolved unit.
 
         <dt id="diagnosticCodes" class="property">
   <span class="name"><a href="../clean_arch_lint/NoScreensDependenciesRule/diagnosticCodes.html">diagnosticCodes</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.3.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.5.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span>&gt;</span></span>
   
 
 </dt>
@@ -172,7 +155,7 @@ information or if it requires a resolved unit.
 </dd>
 
         <dt id="incompatibleRules" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/incompatibleRules.html">incompatibleRules</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/incompatibleRules.html">incompatibleRules</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   
 
@@ -184,7 +167,7 @@ information or if it requires a resolved unit.
 </dd>
 
         <dt id="name" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/name.html">name</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/name.html">name</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   
 
@@ -196,8 +179,8 @@ information or if it requires a resolved unit.
 </dd>
 
         <dt id="pubspecVisitor" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/pubspecVisitor.html">pubspecVisitor</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_pubspec/PubspecVisitor-class.html">PubspecVisitor</a>?</span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/pubspecVisitor.html">pubspecVisitor</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_pubspec/PubspecVisitor-class.html">PubspecVisitor</a>?</span>
   
 
 </dt>
@@ -208,13 +191,13 @@ information or if it requires a resolved unit.
 </dd>
 
         <dt id="reporter" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/reporter.html">reporter</a></span>
-  <span class="signature">&#8592; <a href="https://pub.dev/documentation/analyzer/14.3.0/error_listener/DiagnosticReporter-class.html">DiagnosticReporter</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/reporter.html">reporter</a></span>
+  <span class="signature">&#8592; <a href="https://pub.dev/documentation/analyzer/14.5.0/error_listener/DiagnosticReporter-class.html">DiagnosticReporter</a></span>
   
 
 </dt>
 <dd class="inherited">
-  Sets the <a href="https://pub.dev/documentation/analyzer/14.3.0/error_listener/DiagnosticReporter-class.html">DiagnosticReporter</a> for the <a href="https://pub.dev/documentation/analyzer/14.3.0/dart_ast_ast/CompilationUnit-class.html">CompilationUnit</a> currently being
+  Sets the <a href="https://pub.dev/documentation/analyzer/14.5.0/error_listener/DiagnosticReporter-class.html">DiagnosticReporter</a> for the <a href="https://pub.dev/documentation/analyzer/14.5.0/dart_ast_ast/CompilationUnit-class.html">CompilationUnit</a> currently being
 visited.
   <div class="features"><span class="feature">no getter</span><span class="feature">inherited</span></div>
 
@@ -233,8 +216,8 @@ visited.
 </dd>
 
         <dt id="state" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/state.html">state</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_rule_state/RuleState-class.html">RuleState</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/state.html">state</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_state/RuleState-class.html">RuleState</a></span>
   
 
 </dt>
@@ -253,6 +236,20 @@ visited.
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="diagnosticCodeFor" class="callable">
+  <span class="name"><a href="../clean_arch_lint/NoScreensDependenciesRule/diagnosticCodeFor.html">diagnosticCodeFor</a></span><span class="signature">(<wbr><span class="parameter" id="diagnosticCodeFor-param-currentLayer"><span class="type-annotation">ArchitectureLayer</span> <span class="parameter-name">currentLayer</span>, </span><span class="parameter" id="diagnosticCodeFor-param-importedLayer"><span class="type-annotation">ArchitectureLayer?</span> <span class="parameter-name">importedLayer</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the code to report when a file in <code>currentLayer</code> imports a
+library in <code>importedLayer</code>, or <code>null</code> when the import is allowed.
+  
+
+</dd>
+
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -266,21 +263,21 @@ visited.
 
 </dd>
 
-        <dt id="registerNodeProcessors" class="callable">
-  <span class="name"><a href="../clean_arch_lint/NoScreensDependenciesRule/registerNodeProcessors.html">registerNodeProcessors</a></span><span class="signature">(<wbr><span class="parameter" id="registerNodeProcessors-param-registry"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_rule_visitor_registry/RuleVisitorRegistry-class.html">RuleVisitorRegistry</a></span> <span class="parameter-name">registry</span>, </span><span class="parameter" id="registerNodeProcessors-param-context"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_rule_context/RuleContext-class.html">RuleContext</a></span> <span class="parameter-name">context</span></span>)
+        <dt id="registerNodeProcessors" class="callable inherited">
+  <span class="name"><a href="../clean_arch_lint/NoScreensDependenciesRule/registerNodeProcessors.html">registerNodeProcessors</a></span><span class="signature">(<wbr><span class="parameter" id="registerNodeProcessors-param-registry"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_visitor_registry/RuleVisitorRegistry-class.html">RuleVisitorRegistry</a></span> <span class="parameter-name">registry</span>, </span><span class="parameter" id="registerNodeProcessors-param-context"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_context/RuleContext-class.html">RuleContext</a></span> <span class="parameter-name">context</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   Registers node processors in the given <code>registry</code>.
-  <div class="features"><span class="feature">override</span></div>
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="registerNodeProcessors2" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/AbstractAnalysisRule/registerNodeProcessors2.html">registerNodeProcessors2</a></span><span class="signature">(<wbr><span class="parameter" id="registerNodeProcessors2-param-registry"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_rule_visitor_registry/RuleVisitorRegistry2-class.html">RuleVisitorRegistry2</a></span> <span class="parameter-name">registry</span>, </span><span class="parameter" id="registerNodeProcessors2-param-context"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_rule_context/RuleContext-class.html">RuleContext</a></span> <span class="parameter-name">context</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/AbstractAnalysisRule/registerNodeProcessors2.html">registerNodeProcessors2</a></span><span class="signature">(<wbr><span class="parameter" id="registerNodeProcessors2-param-registry"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_visitor_registry/RuleVisitorRegistry2-class.html">RuleVisitorRegistry2</a></span> <span class="parameter-name">registry</span>, </span><span class="parameter" id="registerNodeProcessors2-param-context"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_context/RuleContext-class.html">RuleContext</a></span> <span class="parameter-name">context</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -293,8 +290,8 @@ visited.
 </dd>
 
         <dt id="reportAtNode" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtNode.html">reportAtNode</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtNode-param-node"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/dart_ast_ast/AstNode-class.html">AstNode</a>?</span> <span class="parameter-name">node</span>, {</span><span class="parameter" id="reportAtNode-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtNode-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span>, </span><span class="parameter" id="reportAtNode-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a>?</span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtNode.html">reportAtNode</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtNode-param-node"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/dart_ast_ast/AstNode-class.html">AstNode</a>?</span> <span class="parameter-name">node</span>, {</span><span class="parameter" id="reportAtNode-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtNode-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span>, </span><span class="parameter" id="reportAtNode-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a>?</span>
   </span>
   
 
@@ -307,8 +304,8 @@ visited.
 </dd>
 
         <dt id="reportAtOffset" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtOffset.html">reportAtOffset</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtOffset-param-offset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">offset</span>, </span><span class="parameter" id="reportAtOffset-param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span>, {</span><span class="parameter" id="reportAtOffset-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtOffset-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtOffset-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtOffset.html">reportAtOffset</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtOffset-param-offset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">offset</span>, </span><span class="parameter" id="reportAtOffset-param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span>, {</span><span class="parameter" id="reportAtOffset-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtOffset-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtOffset-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a></span>
   </span>
   
 
@@ -321,8 +318,8 @@ and <code>contextMessages</code>.
 </dd>
 
         <dt id="reportAtPubNode" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtPubNode.html">reportAtPubNode</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtPubNode-param-node"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_pubspec/PubspecNode-class.html">PubspecNode</a></span> <span class="parameter-name">node</span>, {</span><span class="parameter" id="reportAtPubNode-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtPubNode-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtPubNode-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span></span> <span class="parameter-name">contextMessages</span> = <span class="default-value">const []</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtPubNode.html">reportAtPubNode</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtPubNode-param-node"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_pubspec/PubspecNode-class.html">PubspecNode</a></span> <span class="parameter-name">node</span>, {</span><span class="parameter" id="reportAtPubNode-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtPubNode-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtPubNode-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span></span> <span class="parameter-name">contextMessages</span> = <span class="default-value">const []</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a></span>
   </span>
   
 
@@ -335,8 +332,8 @@ and <code>contextMessages</code>.
 </dd>
 
         <dt id="reportAtSourceRange" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtSourceRange.html">reportAtSourceRange</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtSourceRange-param-sourceRange"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/source_source_range/SourceRange-class.html">SourceRange</a></span> <span class="parameter-name">sourceRange</span>, {</span><span class="parameter" id="reportAtSourceRange-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtSourceRange-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtSourceRange-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtSourceRange.html">reportAtSourceRange</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtSourceRange-param-sourceRange"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/source_source_range/SourceRange-class.html">SourceRange</a></span> <span class="parameter-name">sourceRange</span>, {</span><span class="parameter" id="reportAtSourceRange-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtSourceRange-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtSourceRange-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a></span>
   </span>
   
 
@@ -349,8 +346,8 @@ and <code>contextMessages</code>.
 </dd>
 
         <dt id="reportAtToken" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.3.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtToken.html">reportAtToken</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtToken-param-token"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/dart_ast_token/Token-class.html">Token</a></span> <span class="parameter-name">token</span>, {</span><span class="parameter" id="reportAtToken-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.3.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtToken-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtToken-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.3.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a>?</span>
+  <span class="name"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_analysis_rule/MultiAnalysisRule/reportAtToken.html">reportAtToken</a></span><span class="signature">(<wbr><span class="parameter" id="reportAtToken-param-token"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/dart_ast_token/Token-class.html">Token</a></span> <span class="parameter-name">token</span>, {</span><span class="parameter" id="reportAtToken-param-diagnosticCode"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/error_error/DiagnosticCode-class.html">DiagnosticCode</a></span> <span class="parameter-name">diagnosticCode</span>, </span><span class="parameter" id="reportAtToken-param-arguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">arguments</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="reportAtToken-param-contextMessages"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/DiagnosticMessage-class.html">DiagnosticMessage</a></span>&gt;</span>?</span> <span class="parameter-name">contextMessages</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/analyzer/14.5.0/diagnostic_diagnostic/Diagnostic-class.html">Diagnostic</a>?</span>
   </span>
   
 
@@ -425,7 +422,7 @@ and <code>contextMessages</code>.
 <footer>
   <span class="no-break">
     clean_arch_lint
-      2.0.1
+      3.0.0
   </span>
   
 </footer>
