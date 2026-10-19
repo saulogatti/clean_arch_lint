@@ -13,7 +13,7 @@ In the **root** `analysis_options.yaml` (plugins are not inherited from nested o
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^1.3.0
+    version: ^3.0.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -141,7 +141,7 @@ import 'package:my_app/domain/entities/product.dart';
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^1.3.0
+    version: ^3.0.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: true

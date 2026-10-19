@@ -82,7 +82,7 @@ Published:
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^1.3.0
+    version: ^3.0.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -122,7 +122,7 @@ Diagnostics also appear in VS Code / Android Studio while you type.
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^1.3.0
+    version: ^3.0.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: error
