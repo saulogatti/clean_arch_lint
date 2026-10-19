@@ -1,8 +1,9 @@
 /// Analyzer plugin that enforces Flutter Clean Architecture layer boundaries.
 ///
 /// Isolation is checked by inspecting `import` directives (AST), not by
-/// code generation. One [MultiAnalysisRule] covers every layer so the analyzer
-/// walks each file once.
+/// code generation. Each diagnostic is its own rule, so it can be enabled or
+/// disabled independently; all of them share the layer resolution in
+/// `ArchitectureImportRule`.
 ///
 /// Layers (`lib/{layer}/` or `lib/src/{layer}/`):
 ///
@@ -17,7 +18,7 @@
 ///
 /// | Code | When it fires |
 /// | --- | --- |
-/// | `no_data_dependencies` | `presentation`/`screens` import `data`, or `data`/`core` import UI layers |
+/// | `no_data_dependencies` | `presentation`/`screens` import `data` |
 /// | `no_screens_dependencies` | `data`/`core` import `screens` or `presentation` |
 /// | `domain_only_depends_on_itself` | `domain` imports anything outside `domain` |
 ///
@@ -56,19 +57,23 @@ import 'dart:async';
 
 import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
+import 'package:clean_arch_lint/src/rules/domain_only_depends_on_itself_rule.dart';
+import 'package:clean_arch_lint/src/rules/no_data_dependencies_rule.dart';
 import 'package:clean_arch_lint/src/rules/no_screens_dependencies_rule.dart';
 
+export 'src/rules/domain_only_depends_on_itself_rule.dart' show DomainOnlyDependsOnItselfRule;
+export 'src/rules/no_data_dependencies_rule.dart' show NoDataDependenciesRule;
 export 'src/rules/no_screens_dependencies_rule.dart' show NoScreensDependenciesRule;
 
-
-
-/// Registers [NoScreensDependenciesRule] with the analysis server.
+/// Registers the architecture rules with the analysis server.
 class CleanArchitectureLintPlugin extends Plugin {
   @override
   String get name => 'Flutter Clean Architecture Lint Plugin';
 
   @override
   FutureOr<void> register(PluginRegistry registry) {
+    registry.registerLintRule(NoDataDependenciesRule());
     registry.registerLintRule(NoScreensDependenciesRule());
+    registry.registerLintRule(DomainOnlyDependsOnItselfRule());
   }
 }

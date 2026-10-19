@@ -70,10 +70,12 @@ clean_arch_lint/
 │   └── src/
 │       ├── lint_utils.dart               # LintCode + LintNames
 │       ├── rules/
+│       │   ├── architecture_import_rule.dart   # shared base + ImportDirective visitor
+│       │   ├── domain_only_depends_on_itself_rule.dart
+│       │   ├── no_data_dependencies_rule.dart
 │       │   └── no_screens_dependencies_rule.dart
 │       └── utils/
-│           ├── import_resolver.dart
-│           └── resolved_import.dart
+│           └── import_resolver.dart
 ├── example/                              # analysis_options + violations
 ├── test/
 └── docs/                                 # generated dart doc (optional)
@@ -83,20 +85,23 @@ clean_arch_lint/
 
 This plugin uses `analysis_server_plugin`. Do **not** use `custom_lint_builder` / `DartLintRule`.
 
-Prefer extending the existing [NoScreensDependenciesRule](lib/src/rules/no_screens_dependencies_rule.dart) (`MultiAnalysisRule`) so each file still has a single `ImportDirective` processor. Add a `LintCodeArchitecture` in `lint_utils.dart` and list it in `diagnosticCodes`.
+Each user-facing diagnostic name is one rule class extending `ArchitectureImportRule`, and the rule's `name` must equal that diagnostic name: the analyzer only runs a rule when the diagnostic named after `rule.name` is enabled, so sharing one rule across names makes them depend on each other. Subclasses only implement `diagnosticCodeFor(currentLayer, importedLayer)`; the base class resolves the layers.
 
-Only add a new `AnalysisRule` / `MultiAnalysisRule` when the check cannot live in that visitor.
+- New message variant of an existing diagnostic: add a `LintCodeArchitecture` with the same `LintNames` name and a unique `uniqueName` in `lint_utils.dart`, and list it in that rule's `diagnosticCodes`.
+- New diagnostic name: add it to `LintNames`, its codes to `lint_utils.dart`, and a new `ArchitectureImportRule` subclass.
 
-1. Register with `registry.registerLintRule(...)` in `lib/main.dart`.
+1. Register with `registry.registerLintRule(...)` in `CleanArchitectureLintPlugin.register` (`lib/clean_arch_lint.dart`) and export the class there.
 2. Enable the diagnostic name in `example/analysis_options.yaml` under `plugins.clean_arch_lint.diagnostics`.
 3. Add example files under `example/lib/{layer}/`.
 4. Tests for any new `import_resolver` behavior.
 5. Dartdoc on public APIs; update README.md, USAGE.md, RULES.md, CHANGELOG.md.
 
-Reuse `isInLayer`, `importsFromLayer`, `resolveImport`. Use the full file path (`context.currentUnit?.file.path`), not `shortName`.
+Reuse `layerOf`, `packageNameOf`, `importedUriOf`. Work with the analyzer's resolved URIs (`node.libraryImport`, `context.currentUnit?.unit.declaredFragment?.source.uri`), not file-system paths.
 
 ```dart
+registry.registerLintRule(NoDataDependenciesRule());
 registry.registerLintRule(NoScreensDependenciesRule());
+registry.registerLintRule(DomainOnlyDependsOnItselfRule());
 ```
 
 ## Testing locally

@@ -79,14 +79,13 @@ All codes are WARNING lints. They stay off until listed under `plugins.clean_arc
 
 ### 1. `no_data_dependencies`
 
-**What it does:** Stops UI from depending on infrastructure, and infrastructure from depending on UI.
+**What it does:** Stops UI (`presentation`, `screens`) from depending on infrastructure (`data`).
 
 **Typical violations:**
 
 - `presentation/**` or `screens/**` importing `data`
-- `data/**` or `core/**` importing `presentation` or `screens`
 
-**Why:** Presentation and screens should talk to domain/core contracts. Data must not know about widgets.
+**Why:** Presentation and screens should talk to domain/core contracts.
 
 ```dart
 // ❌ presentation/pages/product_page.dart

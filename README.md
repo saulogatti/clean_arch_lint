@@ -2,7 +2,7 @@
 
 Analyzer plugin for **Flutter Clean Architecture**. It inspects `import` directives (AST) and reports layer violations in the IDE and via `dart analyze` / `flutter analyze`.
 
-A single [MultiAnalysisRule](lib/src/rules/no_screens_dependencies_rule.dart) covers every layer, so the analyzer walks each file once.
+Each diagnostic is its own rule (see [lib/src/rules](lib/src/rules)), so it can be enabled or disabled independently. All of them share the layer resolution in [ArchitectureImportRule](lib/src/rules/architecture_import_rule.dart).
 
 ---
 
@@ -63,7 +63,7 @@ All of them are **WARNING** lint rules. Analyzer plugins disable lints until you
 
 | Code | Blocks |
 | --- | --- |
-| `no_data_dependencies` | `presentation` or `screens` importing `data`; also `data`/`core` importing those UI layers |
+| `no_data_dependencies` | `presentation` or `screens` importing `data` |
 | `no_screens_dependencies` | `data` or `core` importing `screens` or `presentation` |
 | `domain_only_depends_on_itself` | `domain` importing anything outside `domain` |
 

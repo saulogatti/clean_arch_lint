@@ -27,8 +27,10 @@ lib/
    - Top-level `plugin` loaded by the analysis server
    - `CleanArchitectureLintPlugin.register` calls `registry.registerLintRule(...)`
 
-2. **Rule** ([lib/src/rules/no_screens_dependencies_rule.dart](../lib/src/rules/no_screens_dependencies_rule.dart))
-   - One `MultiAnalysisRule` + one `_Visitor` on `ImportDirective`
+2. **Rules** ([lib/src/rules](../lib/src/rules))
+   - One rule per diagnostic name: `NoDataDependenciesRule`, `NoScreensDependenciesRule`, `DomainOnlyDependsOnItselfRule`
+   - All extend `ArchitectureImportRule`, which owns the `ImportDirective` visitor and resolves layers; subclasses implement `diagnosticCodeFor`
+   - The analyzer runs a rule only when the diagnostic named after `rule.name` is enabled, so each name needs its own rule
    - Former classes (`CoreNoFlutter`, `DataNoPresentation`, `DomainOnly`, `PresentationNoData`, `NoImportVisitor`, `OnlyImportVisitor`) were removed
 
 3. **Codes** ([lib/src/lint_utils.dart](../lib/src/lint_utils.dart))
@@ -36,13 +38,14 @@ lib/
    - Unique `uniqueName` per message variant
 
 4. **Import resolver** ([lib/src/utils/import_resolver.dart](../lib/src/utils/import_resolver.dart))
-   - `isInLayer()`, `importsFromLayer()`, `resolveImport()`, `isFlutterImport()`
+   - `layerOf()`, `packageNameOf()`, `importedUriOf()`, `isFlutterImport()`
+   - Layers come from the analyzer's canonical `package:` URIs, not file paths
 
 ## Diagnostics
 
 | Code | Severity | Typical trigger |
 |------|----------|-----------------|
-| `no_data_dependencies` | WARNING* | presentation/screens → data; data/core → UI |
+| `no_data_dependencies` | WARNING* | presentation/screens → data |
 | `no_screens_dependencies` | WARNING* | data/core → screens/presentation |
 | `domain_only_depends_on_itself` | WARNING* | domain imports anything but domain |
 
@@ -62,7 +65,7 @@ Do not run `dart run custom_lint`.
 
 ### Adding a check
 
-1. Prefer a new `LintCodeArchitecture` on `NoScreensDependenciesRule` (keeps one visitor per file)
+1. New variant of an existing diagnostic: new `LintCodeArchitecture` listed in that rule's `diagnosticCodes`; new diagnostic name: new `ArchitectureImportRule` subclass
 2. Enable the name in `example/analysis_options.yaml`
 3. Add examples in `example/lib/`
 4. Update README.md, USAGE.md, RULES.md, CHANGELOG.md
@@ -77,15 +80,15 @@ Do not run `dart run custom_lint`.
 3. Relative
 4. Alphabetical within each group
 
-### Path handling
+### Layer detection
 
-- Normalize with `normalizePath()` (`/` separators)
-- Layers: `/lib/{layer}/` and `/lib/src/{layer}/`
+- Layers: `package:<pkg>/{layer}/...` and `package:<pkg>/src/{layer}/...` (i.e. `lib/{layer}/` and `lib/src/{layer}/`)
+- Only imports from the same package count as project layers
 
 ## Common Gotchas
 
-1. `resolveImport()` needs the **full** current file path and a real project root. `shortName` is not a path.
-2. `dart:` imports return `null` (treated as allowed). Other `package:` URIs that are not the current package keep the URI as `resolvedPath`.
+1. `importedUriOf()` needs a resolved AST; relative imports are already canonicalized by the analyzer.
+2. `dart:` imports are allowed everywhere. Imports from other packages have no layer, so domain reports them and the other layers ignore them.
 3. Lint rules registered with `registerLintRule` are disabled by default.
 4. After changing `plugins` in yaml, restart the analysis server.
 
@@ -97,7 +100,7 @@ Do not run `dart run custom_lint`.
 
 ## When Making Changes
 
-1. Match the single-rule visitor; do not resurrect per-layer rule classes without a reason
+1. One rule per diagnostic name on top of `ArchitectureImportRule`; do not resurrect the old per-layer rule classes
 2. Reuse `import_resolver.dart`
 3. Keep documentation in sync (README, USAGE, RULES, library dartdoc)
 4. Verify with `dart analyze` in `example/`

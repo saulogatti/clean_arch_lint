@@ -3,54 +3,35 @@ import 'package:test/test.dart';
 
 void main() {
   group('Import Resolver Utils', () {
-    test('normalizePath should normalize paths with forward slashes', () {
-      expect(normalizePath(r'lib\core\user.dart'), equals('lib/core/user.dart'));
-      expect(normalizePath('lib/core/user.dart'), equals('lib/core/user.dart'));
-    });
-
-    test('isInLayer should detect if file is in specified layer', () {
-      // Standard /lib/{layer}/ pattern
-      expect(isInLayer('/project/lib/core/entities/user.dart', 'core'), isTrue);
-      expect(isInLayer('/project/lib/data/models/user.dart', 'data'), isTrue);
-      expect(isInLayer('/project/lib/presentation/pages/home.dart', 'presentation'), isTrue);
-      expect(isInLayer('/project/lib/domain/entities/user.dart', 'domain'), isTrue);
-
-      // /lib/src/{layer}/ pattern
-      expect(isInLayer('/project/lib/src/core/entities/user.dart', 'core'), isTrue);
-      expect(isInLayer('/project/lib/src/data/models/user.dart', 'data'), isTrue);
-      expect(isInLayer('/project/lib/src/presentation/pages/home.dart', 'presentation'), isTrue);
-      expect(isInLayer('/project/lib/src/domain/entities/user.dart', 'domain'), isTrue);
-
-      // Negative cases
-      expect(isInLayer('/project/lib/core/entities/user.dart', 'data'), isFalse);
-      expect(isInLayer('/project/lib/data/models/user.dart', 'presentation'), isFalse);
-      expect(isInLayer('/project/lib/src/core/entities/user.dart', 'data'), isFalse);
-      expect(isInLayer('/project/lib/src/data/models/user.dart', 'presentation'), isFalse);
-      expect(isInLayer('/project/lib/domain/entities/user.dart', 'data'), isFalse);
-      expect(isInLayer('/project/lib/src/domain/entities/user.dart', 'core'), isFalse);
-    });
-
-    test('importsFromLayer should detect imports from specific layer', () {
-      // Standard /lib/{layer}/ pattern
-      expect(importsFromLayer('/project/lib/core/entities/user.dart', 'core'), isTrue);
-      expect(importsFromLayer('/project/lib/data/models/user.dart', 'data'), isTrue);
-      expect(importsFromLayer('/project/lib/presentation/pages/home.dart', 'presentation'), isTrue);
-      expect(importsFromLayer('/project/lib/domain/entities/user.dart', 'domain'), isTrue);
-
-      // /lib/src/{layer}/ pattern
-      expect(importsFromLayer('/project/lib/src/core/entities/user.dart', 'core'), isTrue);
-      expect(importsFromLayer('/project/lib/src/data/models/user.dart', 'data'), isTrue);
+    test('layerOf should detect the layer from lib/{layer}/', () {
+      expect(layerOf(Uri.parse('package:my_app/core/entities/user.dart')), ArchitectureLayer.core);
+      expect(layerOf(Uri.parse('package:my_app/data/models/user.dart')), ArchitectureLayer.data);
       expect(
-        importsFromLayer('/project/lib/src/presentation/pages/home.dart', 'presentation'),
-        isTrue,
+        layerOf(Uri.parse('package:my_app/presentation/pages/home.dart')),
+        ArchitectureLayer.presentation,
       );
-      expect(importsFromLayer('/project/lib/src/domain/entities/user.dart', 'domain'), isTrue);
+      expect(layerOf(Uri.parse('package:my_app/screens/home.dart')), ArchitectureLayer.screens);
+      expect(layerOf(Uri.parse('package:my_app/domain/user.dart')), ArchitectureLayer.domain);
+    });
 
-      // Negative cases
-      expect(importsFromLayer('/project/lib/core/entities/user.dart', 'data'), isFalse);
-      expect(importsFromLayer('/project/lib/src/core/entities/user.dart', 'data'), isFalse);
-      expect(importsFromLayer('/project/lib/domain/entities/user.dart', 'data'), isFalse);
-      expect(importsFromLayer('/project/lib/src/domain/entities/user.dart', 'core'), isFalse);
+    test('layerOf should detect the layer from lib/src/{layer}/', () {
+      expect(
+        layerOf(Uri.parse('package:my_app/src/core/entities/user.dart')),
+        ArchitectureLayer.core,
+      );
+      expect(
+        layerOf(Uri.parse('package:my_app/src/domain/entities/user.dart')),
+        ArchitectureLayer.domain,
+      );
+    });
+
+    test('layerOf should return null outside a layer directory', () {
+      expect(layerOf(Uri.parse('package:my_app/main.dart')), isNull);
+      expect(layerOf(Uri.parse('package:my_app/data.dart')), isNull);
+      expect(layerOf(Uri.parse('package:my_app/src/data.dart')), isNull);
+      expect(layerOf(Uri.parse('package:my_app/widgets/data/button.dart')), isNull);
+      expect(layerOf(Uri.parse('dart:async')), isNull);
+      expect(layerOf(Uri.parse('file:///project/test/data/user_test.dart')), isNull);
     });
 
     test('isFlutterImport should detect Flutter-related imports', () {
@@ -63,19 +44,11 @@ void main() {
       expect(isFlutterImport('package:my_app/core/user.dart'), isFalse);
     });
 
-    test('extractProjectRoot should extract project root path', () {
-      expect(
-        extractProjectRoot('/home/user/project/lib/core/user.dart'),
-        equals('/home/user/project'),
-      );
-      expect(extractProjectRoot('/project/lib/data/models/user_model.dart'), equals('/project'));
-    });
-
-    test('extractPackageName should extract package name from URI', () {
-      expect(extractPackageName('package:flutter/material.dart'), equals('flutter'));
-      expect(extractPackageName('package:my_app/core/user.dart'), equals('my_app'));
-      expect(extractPackageName('dart:core'), isNull);
-      expect(extractPackageName('../relative/path.dart'), isNull);
+    test('packageNameOf should extract the package name from a package URI', () {
+      expect(packageNameOf(Uri.parse('package:flutter/material.dart')), equals('flutter'));
+      expect(packageNameOf(Uri.parse('package:my_app/core/user.dart')), equals('my_app'));
+      expect(packageNameOf(Uri.parse('dart:core')), isNull);
+      expect(packageNameOf(Uri.parse('file:///project/lib/core/user.dart')), isNull);
     });
   });
 

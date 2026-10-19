@@ -1,12 +1,12 @@
 # Rules
 
-Architecture checks live in one class: [NoScreensDependenciesRule](lib/src/rules/no_screens_dependencies_rule.dart). Users enable **diagnostic names**, not the old per-layer rule classes.
+Each diagnostic below is one rule in [lib/src/rules](lib/src/rules) and can be enabled or disabled on its own under `plugins.clean_arch_lint.diagnostics`.
 
 ## no_data_dependencies
 
 ### Description
 
-`presentation` and `screens` must not import `data`. The same code is also used when `data` or `core` import those UI layers.
+`presentation` and `screens` must not import `data`.
 
 ### Example
 
