@@ -93,7 +93,7 @@ Each user-facing diagnostic name is one rule class extending `ArchitectureImport
 1. Register with `registry.registerLintRule(...)` in `CleanArchitectureLintPlugin.register` (`lib/clean_arch_lint.dart`) and export the class there.
 2. Enable the diagnostic name in `example/analysis_options.yaml` under `plugins.clean_arch_lint.diagnostics`.
 3. Add example files under `example/lib/{layer}/`.
-4. Tests for any new `import_resolver` behavior.
+4. Rule tests in `test/rules_test.dart` (`AnalysisRuleTest` from `analyzer_testing`) for every new diagnostic case, plus `test/import_resolver_test.dart` for new resolver behavior.
 5. Dartdoc on public APIs; update README.md, USAGE.md, RULES.md, CHANGELOG.md.
 
 Reuse `layerOf`, `packageNameOf`, `importedUriOf`. Work with the analyzer's resolved URIs (`node.libraryImport`, `context.currentUnit?.unit.declaredFragment?.source.uri`), not file-system paths.
@@ -108,7 +108,10 @@ registry.registerLintRule(DomainOnlyDependsOnItselfRule());
 
 ```bash
 dart test
+dart test test/rules_test.dart --name "test_srcLayout"
 ```
+
+`test/rules_test.dart` runs each rule against an in-memory package named `test` (`lib/{layer}/{layer}_type.dart` per layer) using `AnalysisRuleTest` from `analyzer_testing`; test methods must start with `test_` (`test_reflective_loader`).
 
 ```bash
 cd example

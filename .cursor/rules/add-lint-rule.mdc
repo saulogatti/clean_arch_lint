@@ -23,7 +23,7 @@ Work with the analyzer's resolved URIs (`node.libraryImport`, `context.currentUn
 1. `registry.registerLintRule(...)` and export from `lib/clean_arch_lint.dart` if you added a class
 2. Enable the diagnostic name in `example/analysis_options.yaml` under `plugins.clean_arch_lint.diagnostics`
 3. Examples in `example/lib/{layer}/`
-4. Tests for any new `import_resolver` behavior
+4. Rule tests in `test/rules_test.dart` (`AnalysisRuleTest` from `analyzer_testing`) for every new diagnostic case, plus `test/import_resolver_test.dart` for new resolver behavior
 5. Dartdoc on the rule / `LintCode` (severity, violation, yaml)
 6. README.md, USAGE.md, RULES.md, CHANGELOG.md
 

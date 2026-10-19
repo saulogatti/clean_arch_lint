@@ -54,7 +54,7 @@ lib/
 ## Development Workflows
 
 ```bash
-dart test
+dart test                       # rule tests (analyzer_testing) + resolver tests
 
 cd example
 dart pub get

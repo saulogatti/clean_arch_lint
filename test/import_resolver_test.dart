@@ -61,25 +61,4 @@ void main() {
       expect(packageNameOf(Uri.parse('file:///project/lib/core/user.dart')), isNull);
     });
   });
-
-  group('Layer Dependency Rules', () {
-    test('core and data should not import screens or presentation', () {
-      // Enforced by NoScreensDependenciesRule (no_screens_dependencies /
-      // no_data_dependencies). See example/lib/data/bad_example_in_data.dart.
-      expect(true, isTrue);
-    });
-
-    test('presentation and screens should not import data', () {
-      // Enforced by no_data_dependencies.
-      // See example/lib/presentation/bad_example_data.dart and
-      // example/lib/screens/home/home_screen.dart.
-      expect(true, isTrue);
-    });
-
-    test('domain should only depend on itself', () {
-      // Enforced by domain_only_depends_on_itself.
-      // See example/lib/domain/bad_example_data.dart.
-      expect(true, isTrue);
-    });
-  });
 }
