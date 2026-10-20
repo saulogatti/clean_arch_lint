@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dart-lang/setup-dart@v1
       # `--no-example`: example/ needs Flutter.
       - run: dart pub get --no-example
@@ -42,7 +42,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         with:
           # Milliseconds; the default is 10 minutes.
           timeout: 300000
