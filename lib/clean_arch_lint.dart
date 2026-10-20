@@ -23,6 +23,11 @@
 /// | `no_screens_dependencies` | `data`/`core` import `screens` or `presentation` |
 /// | `domain_only_depends_on_itself` | `domain` imports anything outside `domain`, except pure Dart libraries |
 ///
+/// `allow_third_party_packages_in_domain` is an option, not a check: when
+/// enabled, `domain_only_depends_on_itself` stops reporting third-party
+/// packages (`package:equatable/...`). Flutter SDK packages, `dart:ui`,
+/// `dart:io` and the other layers stay reported. It is off by default.
+///
 /// Lint rules from analyzer plugins are **disabled by default**. Enable them
 /// in the top-level `plugins` section of `analysis_options.yaml`.
 ///
@@ -50,6 +55,9 @@
 ///       no_screens_dependencies: true
 /// ```
 ///
+/// Add `allow_third_party_packages_in_domain: true` to allow third-party
+/// packages in `domain`.
+///
 /// Use `error` instead of `true` to raise severity. Suppress with
 /// `// ignore: clean_arch_lint/no_data_dependencies`.
 library;
@@ -58,10 +66,13 @@ import 'dart:async';
 
 import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
+import 'package:clean_arch_lint/src/rules/allow_third_party_packages_in_domain_rule.dart';
 import 'package:clean_arch_lint/src/rules/domain_only_depends_on_itself_rule.dart';
 import 'package:clean_arch_lint/src/rules/no_data_dependencies_rule.dart';
 import 'package:clean_arch_lint/src/rules/no_screens_dependencies_rule.dart';
 
+export 'src/rules/allow_third_party_packages_in_domain_rule.dart'
+    show AllowThirdPartyPackagesInDomainRule;
 export 'src/rules/domain_only_depends_on_itself_rule.dart' show DomainOnlyDependsOnItselfRule;
 export 'src/rules/no_data_dependencies_rule.dart' show NoDataDependenciesRule;
 export 'src/rules/no_screens_dependencies_rule.dart' show NoScreensDependenciesRule;
@@ -76,5 +87,6 @@ class CleanArchitectureLintPlugin extends Plugin {
     registry.registerLintRule(NoDataDependenciesRule());
     registry.registerLintRule(NoScreensDependenciesRule());
     registry.registerLintRule(DomainOnlyDependsOnItselfRule());
+    registry.registerLintRule(AllowThirdPartyPackagesInDomainRule());
   }
 }

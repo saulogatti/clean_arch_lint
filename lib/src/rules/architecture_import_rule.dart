@@ -30,6 +30,13 @@ abstract class ArchitectureImportRule extends MultiAnalysisRule {
     ArchitectureLayer? importedLayer,
   );
 
+  /// Whether the import of [importedUri] by the library at [currentUri] is
+  /// allowed regardless of layers, so [diagnosticCodeFor] is not asked.
+  ///
+  /// Called while visiting, after every enabled rule ran
+  /// [registerNodeProcessors] for [context].
+  bool isAllowedImport(Uri currentUri, Uri importedUri, RuleContext context) => false;
+
   @override
   void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
     registry.addImportDirective(this, _Visitor(this, context));
@@ -48,6 +55,7 @@ class _Visitor(final ArchitectureImportRule rule, final RuleContext context)
     final importedUri = importedUriOf(node);
     // Pure Dart libraries are allowed in every layer.
     if (importedUri == null || isPureDartLibrary(importedUri)) return;
+    if (rule.isAllowedImport(currentUri, importedUri, context)) return;
 
     // Only libraries of the same package belong to this project's layers.
     final importedLayer = packageNameOf(importedUri) == packageNameOf(currentUri)

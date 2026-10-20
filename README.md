@@ -27,7 +27,7 @@ lib/
 
 ### domain
 
-Innermost layer. Other layers may import domain; domain imports only itself plus the pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`). Flutter, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, …), and third-party packages are reported.
+Innermost layer. Other layers may import domain; domain imports only itself plus the pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`). Flutter, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, …), and third-party packages are reported. Third-party packages can be allowed with [`allow_third_party_packages_in_domain`](#allow-third-party-packages-in-domain).
 
 Contains: entities, usecases, contracts.
 
@@ -66,6 +66,8 @@ All of them are **WARNING** lint rules. Analyzer plugins disable lints until you
 | `no_data_dependencies` | `presentation` or `screens` importing `data` |
 | `no_screens_dependencies` | `data` or `core` importing `screens` or `presentation` |
 | `domain_only_depends_on_itself` | `domain` importing anything outside `domain`, except pure Dart libraries |
+
+`allow_third_party_packages_in_domain` is an option, not a check; see [Configuration](#allow-third-party-packages-in-domain).
 
 `core_no_flutter`, `core_no_data_or_presentation`, `data_no_presentation`, `presentation_no_data`, and `domain_only` no longer exist as separate rules.
 
@@ -130,6 +132,21 @@ plugins:
       domain_only_depends_on_itself: error
       no_screens_dependencies: error
 ```
+
+### Allow third-party packages in domain
+
+By default `domain_only_depends_on_itself` reports every third-party package in `domain`. To allow them (`equatable`, `fpdart`, `meta`, …), enable `allow_third_party_packages_in_domain`:
+
+```yaml
+plugins:
+  clean_arch_lint:
+    version: ^3.0.0
+    diagnostics:
+      domain_only_depends_on_itself: true
+      allow_third_party_packages_in_domain: true
+```
+
+It never reports anything by itself; it only changes `domain_only_depends_on_itself`. Flutter SDK packages (`flutter`, `flutter_test`, …), `dart:ui`, `dart:io` and the project's other layers stay reported. The `plugins` section only accepts `diagnostics`, so the option is a diagnostic name.
 
 ### Suppress one line or a file
 

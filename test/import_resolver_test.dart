@@ -34,6 +34,19 @@ void main() {
       expect(layerOf(Uri.parse('file:///project/test/data/user_test.dart')), isNull);
     });
 
+    test('isThirdPartyPackage should accept only other non-Flutter packages', () {
+      final current = Uri.parse('package:my_app/domain/user.dart');
+      expect(isThirdPartyPackage(current, Uri.parse('package:equatable/equatable.dart')), isTrue);
+      expect(isThirdPartyPackage(current, Uri.parse('package:other/data/user.dart')), isTrue);
+      expect(isThirdPartyPackage(current, Uri.parse('package:my_app/data/user.dart')), isFalse);
+      expect(isThirdPartyPackage(current, Uri.parse('package:flutter/widgets.dart')), isFalse);
+      expect(
+        isThirdPartyPackage(current, Uri.parse('package:flutter_test/flutter_test.dart')),
+        isFalse,
+      );
+      expect(isThirdPartyPackage(current, Uri.parse('dart:io')), isFalse);
+    });
+
     test('isPureDartLibrary should allow only platform-independent SDK libraries', () {
       for (final library in ['core', 'async', 'collection', 'convert', 'math', 'typed_data']) {
         expect(isPureDartLibrary(Uri.parse('dart:$library')), isTrue, reason: 'dart:$library');

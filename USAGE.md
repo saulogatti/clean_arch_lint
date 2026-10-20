@@ -118,7 +118,7 @@ import 'package:my_app/presentation/pages/product_page.dart';
 
 **Allows:** `lib/domain/**`, `lib/src/domain/**`, and the pure Dart libraries `dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`.
 
-**Blocks:** `data`, `core`, `presentation`, `screens`, `package:flutter/*`, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, `dart:ffi`, …), third-party packages.
+**Blocks:** `data`, `core`, `presentation`, `screens`, `package:flutter/*`, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, `dart:ffi`, …), third-party packages (unless `allow_third_party_packages_in_domain` is enabled, see below).
 
 ```dart
 // ❌ domain/usecases/get_product_use_case.dart
@@ -147,6 +147,26 @@ plugins:
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
 ```
+
+### Allow third-party packages in domain
+
+Third-party packages are reported in `domain` by default. Enable `allow_third_party_packages_in_domain` to allow them:
+
+```yaml
+plugins:
+  clean_arch_lint:
+    version: ^3.0.0
+    diagnostics:
+      domain_only_depends_on_itself: true
+      allow_third_party_packages_in_domain: true
+```
+
+```dart
+// ✅ domain/entities/product_entity.dart, with the option enabled
+import 'package:equatable/equatable.dart';
+```
+
+The option reports nothing by itself and has no effect unless `domain_only_depends_on_itself` is enabled. Flutter SDK packages (`flutter`, `flutter_test`, …), `dart:ui`, `dart:io` and other layers are still reported.
 
 ### Ignore a line or a file
 

@@ -1,6 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:analyzer/src/lint/registry.dart';
 import 'package:analyzer_testing/analysis_rule/analysis_rule.dart';
+import 'package:analyzer_testing/utilities/utilities.dart';
 import 'package:clean_arch_lint/clean_arch_lint.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
 
@@ -9,7 +11,64 @@ void main() {
     defineReflectiveTests(NoDataDependenciesRuleTest);
     defineReflectiveTests(NoScreensDependenciesRuleTest);
     defineReflectiveTests(DomainOnlyDependsOnItselfRuleTest);
+    defineReflectiveTests(AllowThirdPartyPackagesInDomainRuleTest);
   });
+}
+
+/// `domain_only_depends_on_itself` with `allow_third_party_packages_in_domain`
+/// also enabled.
+@reflectiveTest
+class AllowThirdPartyPackagesInDomainRuleTest extends _ArchitectureRuleTest {
+  @override
+  bool get addFlutterPackageDep => true;
+
+  @override
+  void setUp() {
+    rule = DomainOnlyDependsOnItselfRule();
+    // AnalysisRuleTest registers and enables only `rule`.
+    final option = AllowThirdPartyPackagesInDomainRule();
+    Registry.ruleRegistry.registerLintRule(option);
+    newPackage('equatable').addFile('lib/equatable.dart', 'class Equatable {}');
+    newPackage('other').addFile('lib/data/other_type.dart', 'class OtherType {}');
+    super.setUp();
+    newAnalysisOptionsYamlFile(
+      testPackageRootPath,
+      analysisOptionsContent(rules: [rule.name, option.name]),
+    );
+  }
+
+  Future<void> test_dartIo() async {
+    const directive = "import 'dart:io';";
+    await assertImports('domain/entity.dart', [directive], 'File? f;', reported: [directive]);
+  }
+
+  Future<void> test_data() async {
+    const directive = "import 'package:test/data/data_type.dart';";
+    await assertImports('domain/entity.dart', [directive], 'DataType? t;', reported: [directive]);
+  }
+
+  Future<void> test_flutter() async {
+    const directive = "import 'package:flutter/widgets.dart';";
+    await assertImports('domain/entity.dart', [directive], 'Container? c;', reported: [directive]);
+  }
+
+  Future<void> test_otherPackageLayer() async {
+    await assertImports(
+      'domain/entity.dart',
+      ["import 'package:other/data/other_type.dart';"],
+      'OtherType? t;',
+      reported: [],
+    );
+  }
+
+  Future<void> test_thirdPartyPackage() async {
+    await assertImports(
+      'domain/entity.dart',
+      ["import 'package:equatable/equatable.dart';"],
+      'Equatable? e;',
+      reported: [],
+    );
+  }
 }
 
 @reflectiveTest

@@ -14,6 +14,18 @@ const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
   uniqueName: 'domain_only_depends_on_itself',
 );
 
+/// Code of `allow_third_party_packages_in_domain`, which is never reported.
+///
+/// Enabling the diagnostic only switches `domain_only_depends_on_itself` to
+/// allow third-party packages; see `AllowThirdPartyPackagesInDomainRule`.
+const LintCodeArchitecture allowThirdPartyPackagesInDomainCode = LintCodeArchitecture(
+  LintNames.allowThirdPartyPackagesInDomain,
+  'Domain may import third-party packages.',
+  correctionMessage: 'Remove the option to report third-party packages in domain again.',
+  severity: .INFO,
+  uniqueName: 'allow_third_party_packages_in_domain',
+);
+
 /// Reported when `presentation` imports `data`.
 const LintCodeArchitecture noDataDependenciesCodeInPresentation = LintCodeArchitecture(
   LintNames.noDataDependencies,
@@ -75,6 +87,9 @@ abstract final class LintNames {
 
   /// Domain may import only other domain files.
   static const String domainOnlyDependsOnItself = 'domain_only_depends_on_itself';
+
+  /// Lets `domain_only_depends_on_itself` allow third-party packages.
+  static const String allowThirdPartyPackagesInDomain = 'allow_third_party_packages_in_domain';
 
   /// Data and core must not import screens or presentation.
   static const String noScreensDependencies = 'no_screens_dependencies';

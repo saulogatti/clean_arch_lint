@@ -8,17 +8,21 @@ id: 6aa7ac7a-d351-4f5b-923a-18092c202be1
 flowchart TD
     A("Analysis Server Loads Plugin") --> B["Create plugin = CleanArchitectureLintPlugin()"]
     B --> C[["register(registry)"]]
-    C --> D["registerLintRule: NoDataDependenciesRule, NoScreensDependenciesRule, DomainOnlyDependsOnItselfRule"]
-    D --> E("Analyzer Encounters ImportDirective")
+    C --> D["registerLintRule: NoDataDependenciesRule, NoScreensDependenciesRule, DomainOnlyDependsOnItselfRule, AllowThirdPartyPackagesInDomainRule"]
+    D --> D1[["registerNodeProcessors(registry, context), per enabled rule and library"]]
+    D1 -.->|AllowThirdPartyPackagesInDomainRule enabled| D2["mark context: third-party packages allowed in domain"]
+    D1 --> E("Analyzer Encounters ImportDirective")
     E --> F[["ArchitectureImportRule _Visitor.visitImportDirective(node), per enabled rule"]]
     F --> G["currentUri := currentUnit.unit.declaredFragment.source.uri"]
     G --> H[["layerOf(currentUri)"]]
     H --> I{"currentLayer is null?"}
     I -->|Yes| Z("Return without diagnostic")
     I -->|No| J["importedUri := importedUriOf(node)"]
-    J --> K{"null or dart: scheme?"}
+    J --> K{"null or pure Dart library?"}
     K -->|Yes| Z
-    K -->|No| L["importedLayer := same package ? layerOf(importedUri) : null"]
+    K -->|No| K1{"rule.isAllowedImport(currentUri, importedUri, context)?"}
+    K1 -->|"Yes (domain, third-party package, context marked)"| Z
+    K1 -->|No| L["importedLayer := same package ? layerOf(importedUri) : null"]
     L --> N{"rule.diagnosticCodeFor(currentLayer, importedLayer)"}
 
     N -->|data or core| O{"imports screens or presentation?"}

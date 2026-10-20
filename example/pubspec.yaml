@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Third-party package used by domain/bad_example_third_party.dart.
+  meta: ^1.19.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0

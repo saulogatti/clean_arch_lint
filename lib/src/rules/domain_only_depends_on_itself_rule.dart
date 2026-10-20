@@ -1,5 +1,7 @@
+import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/error/error.dart';
 import 'package:clean_arch_lint/src/lint_utils.dart';
+import 'package:clean_arch_lint/src/rules/allow_third_party_packages_in_domain_rule.dart';
 import 'package:clean_arch_lint/src/rules/architecture_import_rule.dart';
 import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 
@@ -8,7 +10,9 @@ import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 /// `dart:convert`, `dart:math`, `dart:typed_data`).
 ///
 /// Flutter, other `dart:` libraries (`dart:ui`, `dart:io`, ...) and
-/// third-party packages are reported too.
+/// third-party packages are reported too. Enable
+/// `allow_third_party_packages_in_domain` to allow third-party packages
+/// (Flutter SDK packages stay reported).
 ///
 /// **Severity:** WARNING. Enable `domain_only_depends_on_itself` under
 /// `plugins.clean_arch_lint.diagnostics` (`true` or `error`).
@@ -29,6 +33,11 @@ class DomainOnlyDependsOnItselfRule extends ArchitectureImportRule {
 
   @override
   List<DiagnosticCode> get diagnosticCodes => [domainOnlyDependsOnItselfCode];
+
+  @override
+  bool isAllowedImport(Uri currentUri, Uri importedUri, RuleContext context) =>
+      isThirdPartyPackage(currentUri, importedUri) &&
+      AllowThirdPartyPackagesInDomainRule.isEnabledFor(context);
 
   @override
   DiagnosticCode? diagnosticCodeFor(
