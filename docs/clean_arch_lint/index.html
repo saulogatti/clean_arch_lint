@@ -65,7 +65,8 @@
 not by code generation. Each diagnostic is its own rule, so it can be enabled or
 disabled independently; all of them share the layer resolution in
 <code>ArchitectureImportRule</code>.</p>
-<p>Layers (<code>lib/{layer}/</code> or <code>lib/src/{layer}/</code>):</p>
+<p>Layers (<code>lib/{layer}/</code>, <code>lib/src/{layer}/</code>, or the feature-first
+<code>lib/features/&lt;feature&gt;/{layer}/</code>, also under <code>lib/src/</code>):</p>
 <ul>
 <li><strong>domain</strong>: innermost; may import only other domain files and pure Dart
 libraries (<code>dart:core</code>, <code>dart:async</code>, ...); <code>dart:ui</code>, <code>dart:io</code>, Flutter

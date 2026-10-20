@@ -56,7 +56,8 @@
  ├─ presentation/
  └─ screens/
 </code></pre>
-<p><code>lib/src/{layer}/</code> is also detected. No extra configuration.</p>
+<p><code>lib/src/{layer}/</code> is also detected, and so is a feature-first layout, <code>lib/features/&lt;feature&gt;/{layer}/</code> (or <code>lib/src/features/&lt;feature&gt;/{layer}/</code>). No extra configuration.</p>
+<p>In a feature-first layout the feature name plays no part in the checks: imports between features follow the same layer rules as any other import, so <code>features/cart/presentation</code> may import <code>features/product/domain</code> but not <code>features/product/data</code>.</p>
 <hr>
 <h2 id="layers">Layers</h2>
 <h3 id="domain">domain</h3>
