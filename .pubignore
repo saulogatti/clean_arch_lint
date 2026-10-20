@@ -1,0 +1,12 @@
+# Replaces .gitignore for `dart pub publish`, so repeat its entries here.
+.dart_tool/
+pubspec.lock
+.DS_Store
+
+# GitHub Pages output. pub.dev generates its own API docs from lib/.
+docs/
+# Local `dart doc` preview.
+doc/
+
+# Repository-only files.
+CLAUDE.md

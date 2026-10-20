@@ -13,7 +13,7 @@ In the **root** `analysis_options.yaml` (plugins are not inherited from nested o
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -141,7 +141,7 @@ import 'package:my_app/domain/entities/product_entity.dart';
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: true
@@ -155,7 +155,7 @@ Third-party packages are reported in `domain` by default. Enable `allow_third_pa
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       domain_only_depends_on_itself: true
       allow_third_party_packages_in_domain: true

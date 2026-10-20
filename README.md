@@ -84,7 +84,7 @@ Published:
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -126,7 +126,7 @@ Diagnostics also appear in VS Code / Android Studio while you type.
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: error
@@ -140,7 +140,7 @@ By default `domain_only_depends_on_itself` reports every third-party package in 
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       domain_only_depends_on_itself: true
       allow_third_party_packages_in_domain: true
