@@ -9,7 +9,8 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 
 /// Clean Architecture layers, matched by directory name under `lib/`,
-/// `lib/src/`, or `features/<feature>/` inside either of them.
+/// `lib/src/`, or `features/<feature>/` inside either of them, or by the
+/// `_{layer}` suffix of a package name (see [packageLayerOf]).
 enum ArchitectureLayer { data, presentation, screens, core, domain }
 
 /// Returns the [ArchitectureLayer] of the library identified by [uri].
@@ -18,6 +19,10 @@ enum ArchitectureLayer { data, presentation, screens, core, domain }
 /// the package name, or after `src/`. In a feature-first layout the layer is
 /// the directory after [featuresDirectory] and the feature name. Files outside
 /// `lib/` (tests, scripts) have `file:` URIs and return `null`.
+///
+/// When no directory names a layer, the layer comes from the package name
+/// ([packageLayerOf]), so every library of a layer package such as
+/// `my_app_data` belongs to that layer.
 ///
 /// The feature name plays no part in the checks: imports between features
 /// follow the same layer rules as any other import.
@@ -28,13 +33,16 @@ enum ArchitectureLayer { data, presentation, screens, core, domain }
 /// layerOf(Uri.parse('package:my_app/data/models/user.dart'));      // data
 /// layerOf(Uri.parse('package:my_app/src/domain/entities/u.dart')); // domain
 /// layerOf(Uri.parse('package:my_app/features/cart/data/cart.dart')); // data
+/// layerOf(Uri.parse('package:my_app_data/my_app_data.dart'));      // data
 /// layerOf(Uri.parse('package:my_app/main.dart'));                  // null
 /// layerOf(Uri.parse('dart:async'));                                // null
 /// ```
 ArchitectureLayer? layerOf(Uri uri) {
-  if (!uri.isScheme('package')) return null;
+  if (!uri.isScheme('package') || uri.pathSegments.isEmpty) return null;
+  return _directoryLayerOf(uri.pathSegments) ?? packageLayerOf(uri.pathSegments.first);
+}
 
-  final segments = uri.pathSegments;
+ArchitectureLayer? _directoryLayerOf(List<String> segments) {
   var layerIndex = segments.length > 2 && segments[1] == 'src' ? 2 : 1;
   // Skip `features/<feature>/` to reach the layer.
   if (segments.length > layerIndex + 2 && segments[layerIndex] == featuresDirectory) {
@@ -68,6 +76,69 @@ String? packageNameOf(Uri uri) {
   return uri.pathSegments.first;
 }
 
+/// Returns the layer named by the `_{layer}` suffix of [packageName], or
+/// `null` when it has none.
+///
+/// Supports monorepos with one package per layer (`my_app_domain`,
+/// `my_app_data`, `my_app_presentation`, ...). The suffix must follow a
+/// non-empty prefix, so a package named just `data` has no layer.
+///
+/// ## Examples
+///
+/// ```dart
+/// packageLayerOf('my_app_data');         // data
+/// packageLayerOf('my_app_presentation'); // presentation
+/// packageLayerOf('my_app');              // null
+/// packageLayerOf('data');                // null
+/// ```
+ArchitectureLayer? packageLayerOf(String packageName) {
+  for (final layer in ArchitectureLayer.values) {
+    final suffix = '_${layer.name}';
+    if (packageName.length > suffix.length && packageName.endsWith(suffix)) return layer;
+  }
+  return null;
+}
+
+/// Returns the project that [packageName] belongs to: the name without its
+/// layer suffix ([packageLayerOf]), or the name itself when it has none.
+///
+/// ## Examples
+///
+/// ```dart
+/// projectNameOf('my_app_data'); // 'my_app'
+/// projectNameOf('my_app');      // 'my_app'
+/// ```
+String projectNameOf(String packageName) {
+  final layer = packageLayerOf(packageName);
+  if (layer == null) return packageName;
+  return packageName.substring(0, packageName.length - layer.name.length - 1);
+}
+
+/// Whether the libraries at [currentUri] and [importedUri] belong to the same
+/// project, so the layer of [importedUri] counts.
+///
+/// That is the same package, or packages with the same [projectNameOf]: in a
+/// monorepo, `my_app`, `my_app_domain` and `my_app_data` are one project.
+/// Third-party packages that merely end in a layer name, such as
+/// `firebase_core`, belong to another project.
+///
+/// ## Examples
+///
+/// ```dart
+/// final current = Uri.parse('package:my_app_presentation/page.dart');
+/// isSameProject(current, Uri.parse('package:my_app_data/user.dart'));    // true
+/// isSameProject(current, Uri.parse('package:my_app/data/user.dart'));    // true
+/// isSameProject(current, Uri.parse('package:firebase_core/core.dart'));  // false
+/// isSameProject(current, Uri.parse('dart:io'));                          // false
+/// ```
+bool isSameProject(Uri currentUri, Uri importedUri) {
+  final currentPackage = packageNameOf(currentUri);
+  final importedPackage = packageNameOf(importedUri);
+  return currentPackage != null &&
+      importedPackage != null &&
+      projectNameOf(currentPackage) == projectNameOf(importedPackage);
+}
+
 /// Packages shipped with the Flutter SDK.
 ///
 /// They are never treated as third-party packages, so
@@ -85,8 +156,9 @@ const Set<String> flutterSdkPackages = {
 /// Whether [importedUri] is a library of a third-party package, seen from the
 /// library at [currentUri].
 ///
-/// A third-party package is any `package:` other than the current one and the
-/// [flutterSdkPackages]. `dart:` libraries are never third-party packages.
+/// A third-party package is any `package:` outside the current project
+/// ([isSameProject]) and the [flutterSdkPackages]. `dart:` libraries are never
+/// third-party packages.
 ///
 /// ## Examples
 ///
@@ -95,12 +167,13 @@ const Set<String> flutterSdkPackages = {
 /// isThirdPartyPackage(current, Uri.parse('package:equatable/equatable.dart')); // true
 /// isThirdPartyPackage(current, Uri.parse('package:flutter/widgets.dart'));     // false
 /// isThirdPartyPackage(current, Uri.parse('package:my_app/data/user.dart'));    // false
+/// isThirdPartyPackage(current, Uri.parse('package:my_app_data/user.dart'));    // false
 /// isThirdPartyPackage(current, Uri.parse('dart:io'));                          // false
 /// ```
 bool isThirdPartyPackage(Uri currentUri, Uri importedUri) {
   final importedPackage = packageNameOf(importedUri);
   return importedPackage != null &&
-      importedPackage != packageNameOf(currentUri) &&
+      !isSameProject(currentUri, importedUri) &&
       !flutterSdkPackages.contains(importedPackage);
 }
 

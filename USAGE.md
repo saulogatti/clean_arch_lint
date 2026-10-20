@@ -89,6 +89,23 @@ lib/
 
 Also detected under `lib/src/features/`. The layer is the directory right after `features/<feature>/`; files directly in the feature folder (`features/cart/cart.dart`) belong to no layer. There is no rule between features: `features/cart/presentation` importing `features/product/data` is reported as `presentation` importing `data`, and importing `features/product/domain` is allowed.
 
+### Monorepo with one package per layer
+
+```
+packages/
+ ├─ my_app/                 # app, layer directories optional
+ ├─ my_app_core/
+ ├─ my_app_domain/
+ ├─ my_app_data/
+ └─ my_app_presentation/
+```
+
+A package whose name ends in `_core`, `_domain`, `_data`, `_presentation` or `_screens` is a layer package: its files belong to that layer, unless they sit in a layer directory (`my_app_data/lib/domain/` is `domain`). Packages sharing the prefix (`my_app`) form one project, so `my_app_presentation` importing `package:my_app_data/my_app_data.dart` is reported by `no_data_dependencies`, and `my_app_domain` importing `my_app_core` by `domain_only_depends_on_itself`. Packages with another prefix (`firebase_core`, `other_data`) stay outside the project's layers, and count as third-party for [`allow_third_party_packages_in_domain`](#allow-third-party-packages-in-domain).
+
+The `plugins` section belongs to each package's own `analysis_options.yaml` (or one shared file it `include`s).
+
+> A single-package app whose name ends in a layer suffix (for example `shop_core`) is treated as a layer package too: files outside layer directories, such as `lib/main.dart`, get that layer.
+
 ---
 
 ## Diagnostics
@@ -239,9 +256,9 @@ jobs:
 
 ### "No issues" but the import is illegal
 
-1. File lives under `lib/{layer}/`, `lib/src/{layer}/` or `lib/features/<feature>/{layer}/` (also under `lib/src/features/`).
+1. File lives under `lib/{layer}/`, `lib/src/{layer}/` or `lib/features/<feature>/{layer}/` (also under `lib/src/features/`), or in a layer package (`my_app_data`).
 2. The matching diagnostic is enabled.
-3. Relative and `package:` imports of the **same** package are both resolved. Pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`) are allowed in every layer; other `dart:` libraries are only reported in `domain`.
+3. Relative and `package:` imports of the **same** package are both resolved. Other packages only have layers when they belong to the same project (`my_app_data` next to `my_app_presentation`). Pure Dart libraries (`dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`) are allowed in every layer; other `dart:` libraries are only reported in `domain`.
 4. You are analyzing the package root, a single file, or several files — not a directory. `dart analyze lib` or `dart analyze lib/presentation` silently skips analyzer plugins (only built-in lints run), a Dart SDK limitation tracked in [dart-lang/sdk#62710](https://github.com/dart-lang/sdk/issues/62710). Run `dart analyze` (or `flutter analyze`) from the package root instead.
 
 ---

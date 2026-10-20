@@ -1,6 +1,6 @@
 # Rules
 
-Each diagnostic below is one rule in [lib/src/rules](lib/src/rules) and can be enabled or disabled on its own under `plugins.clean_arch_lint.diagnostics`. Each rule checks `import` and `export` directives alike.
+Each diagnostic below is one rule in [lib/src/rules](lib/src/rules) and can be enabled or disabled on its own under `plugins.clean_arch_lint.diagnostics`. Each rule checks `import` and `export` directives alike. In a monorepo with one package per layer, packages of the same project (`my_app_data`, `my_app_presentation`, ...) count as those layers, so `import 'package:my_app_data/my_app_data.dart';` in `my_app_presentation` is reported like `package:my_app/data/...`.
 
 ## no_data_dependencies
 
@@ -54,7 +54,7 @@ import 'dart:ui';
 
 ### Description
 
-An option, not a check: it never reports anything. When enabled, `domain_only_depends_on_itself` stops reporting third-party packages in `domain`. Flutter SDK packages (`flutter`, `flutter_test`, …), `dart:` libraries other than the pure ones, and the project's other layers stay reported. Off by default.
+An option, not a check: it never reports anything. When enabled, `domain_only_depends_on_itself` stops reporting third-party packages in `domain`. Flutter SDK packages (`flutter`, `flutter_test`, …), `dart:` libraries other than the pure ones, and the project's other layers (including sibling layer packages such as `my_app_data`) stay reported. Off by default.
 
 ### Allowed when enabled
 

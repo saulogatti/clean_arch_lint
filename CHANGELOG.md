@@ -1,3 +1,18 @@
+## 3.3.0
+
+- **Features:**
+  - Monorepos with one package per layer are detected (#30). A package named `<project>_{layer}`
+    (`my_app_core`, `my_app_domain`, `my_app_data`, `my_app_presentation`, `my_app_screens`) is a
+    layer package: its files outside a layer directory get that layer (`packageLayerOf`, used by
+    `layerOf` as a fallback). Packages with the same `<project>` prefix, and `<project>` itself, form
+    one project (`isSameProject`), so `my_app_presentation` importing `package:my_app_data/...` is
+    reported. Packages of other projects (`firebase_core`, `other_data`) stay outside the layers.
+  - `allow_third_party_packages_in_domain` no longer treats sibling layer packages as third-party:
+    `my_app_domain` importing `my_app_data` stays reported.
+- **Note:** a single-package app whose name ends in a layer suffix (for example `shop_core`) is now a
+  layer package, so its files outside layer directories (`lib/main.dart`, `lib/widgets/`) get that
+  layer and may see new diagnostics.
+
 ## 3.2.0
 
 - **Features:**

@@ -23,6 +23,8 @@ lib/
 
 In a feature-first layout the feature name plays no part in the checks: imports between features follow the same layer rules as any other import, so `features/cart/presentation` may import `features/product/domain` but not `features/product/data`.
 
+Monorepos with one package per layer are detected by the package name suffix: `my_app_domain`, `my_app_data`, `my_app_presentation`, `my_app_core`, `my_app_screens` (and `my_app` itself) form one project, so `my_app_presentation` importing `package:my_app_data/...` is reported. Packages of another project that just end in a layer name, such as `firebase_core`, are not layers. Enable the plugin in each package's `analysis_options.yaml`.
+
 ---
 
 ## Layers

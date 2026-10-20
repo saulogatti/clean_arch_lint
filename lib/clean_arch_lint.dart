@@ -5,8 +5,9 @@
 /// disabled independently; all of them share the layer resolution in
 /// `ArchitectureImportRule`.
 ///
-/// Layers (`lib/{layer}/`, `lib/src/{layer}/`, or the feature-first
-/// `lib/features/<feature>/{layer}/`, also under `lib/src/`):
+/// Layers (`lib/{layer}/`, `lib/src/{layer}/`, the feature-first
+/// `lib/features/<feature>/{layer}/`, also under `lib/src/`, or a monorepo
+/// package named `<project>_{layer}`, such as `my_app_data`):
 ///
 /// - **domain**: innermost; may import only other domain files and pure Dart
 ///   libraries (`dart:core`, `dart:async`, ...); `dart:ui`, `dart:io`, Flutter
