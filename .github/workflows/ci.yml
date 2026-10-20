@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: Format, analyze and test (Dart ${{ matrix.sdk }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Minimum SDK from pubspec.yaml and the latest stable.
+        sdk: ["3.13", stable]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      # `--no-example`: example/ needs Flutter.
+      - run: dart pub get --no-example
+      - run: dart format --output=none --set-exit-if-changed lib test
+      # `lib test` instead of the root: the root also analyzes `example/`, which needs Flutter and
+      # is checked end to end by the `example` job.
+      - run: dart analyze --fatal-infos lib test
+      - run: dart test
+
+  example:
+    name: Plugin diagnostics in example/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: example
+      # The example loads the plugin via `path: ../`. Every `bad_example_*.dart` must be reported
+      # and no other file may have a diagnostic (`ignored_example_*.dart` included).
+      - name: Check reported files
+        working-directory: example
+        run: |
+          set +e
+          dart analyze --format=machine > analyze.txt 2>&1
+          set -e
+          cat analyze.txt
+          grep -o '|[^|]*\.dart|' analyze.txt | tr -d '|' | sed "s|^$PWD/||" | sort -u > reported.txt
+          find lib -name 'bad_example_*.dart' | sort > expected.txt
+          if ! diff -u expected.txt reported.txt; then
+            echo "::error::Files reported by dart analyze differ from the bad_example_*.dart files (- expected, + reported)."
+            exit 1
+          fi
