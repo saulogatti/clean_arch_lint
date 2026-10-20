@@ -33,9 +33,9 @@ Contains: entities, usecases, contracts.
 
 ### core
 
-Shared application code. Must not import `screens` or `presentation`.
+Shared application code with no business rule, usable by every layer except domain. Must not import `screens` or `presentation`.
 
-Contains: entities, usecases, contracts, business rules.
+Contains: utils, extensions, constants, shared services (logging, configuration).
 
 ### data
 
@@ -65,7 +65,7 @@ All of them are **WARNING** lint rules. Analyzer plugins disable lints until you
 | --- | --- |
 | `no_data_dependencies` | `presentation` or `screens` importing `data` |
 | `no_screens_dependencies` | `data` or `core` importing `screens` or `presentation` |
-| `domain_only_depends_on_itself` | `domain` importing anything outside `domain` |
+| `domain_only_depends_on_itself` | `domain` importing anything outside `domain`, except pure Dart libraries |
 
 `core_no_flutter`, `core_no_data_or_presentation`, `data_no_presentation`, `presentation_no_data`, and `domain_only` no longer exist as separate rules.
 
@@ -73,7 +73,7 @@ All of them are **WARNING** lint rules. Analyzer plugins disable lints until you
 
 ## Installation
 
-Requires Dart SDK **>= 3.13** (Flutter 3.38+). This is an `analysis_server_plugin`, not `custom_lint`.
+Requires Dart SDK **>= 3.13** (use a Flutter release that ships Dart 3.13 or newer). This is an `analysis_server_plugin`, not `custom_lint`.
 
 ### 1) Enable the plugin
 
@@ -111,6 +111,8 @@ dart analyze
 flutter analyze
 ```
 
+Run it from the package root (or pass single files). Analyzing a directory, such as `dart analyze lib`, silently skips analyzer plugins: only the built-in lints run. This is a Dart SDK limitation ([dart-lang/sdk#62710](https://github.com/dart-lang/sdk/issues/62710)).
+
 Diagnostics also appear in VS Code / Android Studio while you type.
 
 ---
@@ -142,7 +144,7 @@ import 'package:my_app/data/models/product_model.dart';
 
 ## Examples
 
-See [example/](example/) for a working feature split across all layers, with one intentional violation per layer and a naming convention that makes the layer of each class obvious from its suffix (`ProductEntity`, `ProductModel`, `ProductRepositoryImpl`, `ProductPage`, ...).
+See [example/](example/) for a working feature split across all layers, with one intentional violation per layer (including a relative import), two violations suppressed with `// ignore`, and a naming convention that makes the layer of each class obvious from its suffix (`ProductEntity`, `ProductModel`, `ProductRepositoryImpl`, `ProductPage`, ...).
 
 Allowed:
 

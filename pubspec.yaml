@@ -1,5 +1,5 @@
 name: clean_arch_lint
-description: Custom lint rules for enforcing Clean Architecture boundaries in Flutter/Dart projects.
+description: Analyzer plugin that enforces Clean Architecture layer boundaries in Flutter/Dart projects by checking imports.
 version: 3.0.0
 
 repository: https://github.com/saulogatti/clean_arch_lint
