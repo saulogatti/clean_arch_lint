@@ -29,7 +29,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # docs/ is regenerated below, so conflicts there resolve to main's side.
           git merge origin/main -X theirs --no-edit
-      - run: dart pub get
+      # `--no-example`: example/ needs Flutter.
+      - run: dart pub get --no-example
       - name: Generate docs
         run: |
           rm -rf docs

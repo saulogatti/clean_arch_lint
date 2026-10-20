@@ -23,7 +23,8 @@ jobs:
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - run: dart pub get
+      # `--no-example`: example/ needs Flutter.
+      - run: dart pub get --no-example
       - run: dart format --output=none --set-exit-if-changed lib test
       # `lib test` instead of the root: the root also analyzes `example/`, which needs Flutter and
       # is checked end to end by the `example` job.
