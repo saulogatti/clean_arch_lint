@@ -127,13 +127,13 @@ GitHub Actions (`.github/workflows/`):
   `dart analyze --fatal-infos lib test` and `dart test` on Dart 3.13 and stable, plus an end-to-end
   job that runs `dart analyze` in `example/` and fails unless exactly the `bad_example_*.dart` files
   are reported. A new `bad_example_*.dart` must therefore trigger a diagnostic.
-- `docs.yml`, on a `X.Y.Z` tag (or run by hand): generates the API docs with `dart doc` and deploys
+- `docs.yml`, on a `vX.Y.Z` tag (or run by hand): generates the API docs with `dart doc` and deploys
   them to GitHub Pages. The docs are not committed to the repository.
-- `publish.yml`, on a `X.Y.Z` tag: publishes to pub.dev through
+- `publish.yml`, on a `vX.Y.Z` tag: publishes to pub.dev through
   [automated publishing](https://dart.dev/tools/pub/automated-publishing).
 
 To release, update `pubspec.yaml` and CHANGELOG.md, merge, then push the tag
-(`git tag 3.2.0; git push origin 3.2.0`): both `publish.yml` and `docs.yml` run.
+(`git tag v3.2.0; git push origin v3.2.0`): both `publish.yml` and `docs.yml` run.
 
 ## Code standards
 
