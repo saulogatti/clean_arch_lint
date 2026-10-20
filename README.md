@@ -19,7 +19,9 @@ lib/
  └─ screens/
 ```
 
-`lib/src/{layer}/` is also detected. No extra configuration.
+`lib/src/{layer}/` is also detected, and so is a feature-first layout, `lib/features/<feature>/{layer}/` (or `lib/src/features/<feature>/{layer}/`). No extra configuration.
+
+In a feature-first layout the feature name plays no part in the checks: imports between features follow the same layer rules as any other import, so `features/cart/presentation` may import `features/product/domain` but not `features/product/data`.
 
 ---
 

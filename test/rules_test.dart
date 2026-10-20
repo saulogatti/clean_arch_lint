@@ -140,6 +140,20 @@ class DomainOnlyDependsOnItselfRuleTest extends _ArchitectureRuleTest {
     await assertImports('domain/entity.dart', [directive], 'Container? c;', reported: [directive]);
   }
 
+  Future<void> test_featureFirst_otherFeatureLayers() async {
+    const directive = "import 'package:test/features/product/data/product_model.dart';";
+    await assertImports(
+      'features/cart/domain/cart_entity.dart',
+      ["import 'package:test/features/product/domain/product_entity.dart';", directive],
+      'ProductEntity? e;\nProductModel? m;',
+      reported: [directive],
+      extraFiles: {
+        'features/product/domain/product_entity.dart': 'class ProductEntity {}',
+        'features/product/data/product_model.dart': 'class ProductModel {}',
+      },
+    );
+  }
+
   Future<void> test_pureDartLibraries() async {
     await assertImports(
       'domain/entity.dart',
@@ -181,6 +195,32 @@ class NoDataDependenciesRuleTest extends _ArchitectureRuleTest {
       ["import 'package:test/presentation/presentation_type.dart';"],
       'PresentationType? t;',
       reported: [],
+    );
+  }
+
+  Future<void> test_featureFirst_presentation_importsData() async {
+    const sameFeature = "import '../data/cart_model.dart';";
+    const otherFeature = "import 'package:test/features/product/data/product_model.dart';";
+    const topLevel = "import 'package:test/data/data_type.dart';";
+    await assertImports(
+      'features/cart/presentation/cart_page.dart',
+      [sameFeature, otherFeature, topLevel],
+      'CartModel? c;\nProductModel? p;\nDataType? d;',
+      reported: [sameFeature, otherFeature, topLevel],
+      extraFiles: {
+        'features/cart/data/cart_model.dart': 'class CartModel {}',
+        'features/product/data/product_model.dart': 'class ProductModel {}',
+      },
+    );
+  }
+
+  Future<void> test_featureFirst_presentation_importsOtherFeatureDomain() async {
+    await assertImports(
+      'src/features/cart/presentation/cart_page.dart',
+      ["import 'package:test/src/features/product/domain/product_entity.dart';"],
+      'ProductEntity? e;',
+      reported: [],
+      extraFiles: {'src/features/product/domain/product_entity.dart': 'class ProductEntity {}'},
     );
   }
 
@@ -325,8 +365,10 @@ abstract class _ArchitectureRuleTest extends AnalysisRuleTest {
 
     final content = '${directives.join('\n')}\n\n$body\n';
     final file = newFile('$testPackageLibPath/$path', content);
+    // Offsets come from the stored content: on Windows `newFile` writes `\r\n`.
+    final stored = file.readAsStringSync();
     await assertDiagnosticsInFile(file.path, [
-      for (final directive in reported) lint(content.indexOf(directive), directive.length),
+      for (final directive in reported) lint(stored.indexOf(directive), directive.length),
     ]);
   }
 

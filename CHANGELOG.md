@@ -5,6 +5,9 @@
     `ExportDirective` too). Re-exporting a forbidden library, such as
     `export 'package:app/data/models/product_model.dart';` in `presentation`, leaked it to every
     importer without a warning. Projects with such exports will see new diagnostics.
+  - Feature-first layouts are detected: `lib/features/<feature>/{layer}/` and
+    `lib/src/features/<feature>/{layer}/` (`layerOf` skips `features/<feature>/`). There is no rule
+    between features; imports across features follow the same layer rules.
 - **Package:** `topics` added to `pubspec.yaml` (`lints`, `analyzer`, `architecture`,
   `clean-architecture`, `flutter`), and the description mentions exports.
 

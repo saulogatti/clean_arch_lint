@@ -25,6 +25,29 @@ void main() {
       );
     });
 
+    test('layerOf should detect the layer from features/<feature>/{layer}/', () {
+      expect(
+        layerOf(Uri.parse('package:my_app/features/cart/data/models/cart.dart')),
+        ArchitectureLayer.data,
+      );
+      expect(
+        layerOf(Uri.parse('package:my_app/src/features/cart/presentation/page.dart')),
+        ArchitectureLayer.presentation,
+      );
+      // A feature named like a layer is skipped too.
+      expect(
+        layerOf(Uri.parse('package:my_app/features/data/domain/user.dart')),
+        ArchitectureLayer.domain,
+      );
+    });
+
+    test('layerOf should return null in a feature outside a layer directory', () {
+      expect(layerOf(Uri.parse('package:my_app/features/cart/cart.dart')), isNull);
+      expect(layerOf(Uri.parse('package:my_app/features/cart/data.dart')), isNull);
+      expect(layerOf(Uri.parse('package:my_app/features/cart/widgets/data/a.dart')), isNull);
+      expect(layerOf(Uri.parse('package:my_app/features/cart.dart')), isNull);
+    });
+
     test('layerOf should return null outside a layer directory', () {
       expect(layerOf(Uri.parse('package:my_app/main.dart')), isNull);
       expect(layerOf(Uri.parse('package:my_app/data.dart')), isNull);

@@ -37,7 +37,7 @@ flowchart TD
     S -->|No| T["reportAtNode(domain_only_depends_on_itself)"]
     S -->|Yes| Z
 
-    H -.-> H1["package:pkg/{layer}/... or package:pkg/src/{layer}/..."]
+    H -.-> H1["package:pkg/{layer}/... or package:pkg/src/{layer}/..., skipping features/feature/ if present"]
     H1 --> H2{"segment is a known layer?"}
     H2 -->|Yes| H3["return ArchitectureLayer"]
     H2 -->|No| H5["return null"]

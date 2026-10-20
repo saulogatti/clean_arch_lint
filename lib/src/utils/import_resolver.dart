@@ -8,21 +8,26 @@ library;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 
-/// Clean Architecture layers, matched by directory name under `lib/` or
-/// `lib/src/`.
+/// Clean Architecture layers, matched by directory name under `lib/`,
+/// `lib/src/`, or `features/<feature>/` inside either of them.
 enum ArchitectureLayer { data, presentation, screens, core, domain }
 
 /// Returns the [ArchitectureLayer] of the library identified by [uri].
 ///
 /// Only `package:` URIs are considered: the layer is the first directory after
-/// the package name, or after `src/`. Files outside `lib/` (tests, scripts)
-/// have `file:` URIs and return `null`.
+/// the package name, or after `src/`. In a feature-first layout the layer is
+/// the directory after [featuresDirectory] and the feature name. Files outside
+/// `lib/` (tests, scripts) have `file:` URIs and return `null`.
+///
+/// The feature name plays no part in the checks: imports between features
+/// follow the same layer rules as any other import.
 ///
 /// ## Examples
 ///
 /// ```dart
 /// layerOf(Uri.parse('package:my_app/data/models/user.dart'));      // data
 /// layerOf(Uri.parse('package:my_app/src/domain/entities/u.dart')); // domain
+/// layerOf(Uri.parse('package:my_app/features/cart/data/cart.dart')); // data
 /// layerOf(Uri.parse('package:my_app/main.dart'));                  // null
 /// layerOf(Uri.parse('dart:async'));                                // null
 /// ```
@@ -30,7 +35,11 @@ ArchitectureLayer? layerOf(Uri uri) {
   if (!uri.isScheme('package')) return null;
 
   final segments = uri.pathSegments;
-  final layerIndex = segments.length > 2 && segments[1] == 'src' ? 2 : 1;
+  var layerIndex = segments.length > 2 && segments[1] == 'src' ? 2 : 1;
+  // Skip `features/<feature>/` to reach the layer.
+  if (segments.length > layerIndex + 2 && segments[layerIndex] == featuresDirectory) {
+    layerIndex += 2;
+  }
   // The layer must be a directory, so at least one segment must follow it.
   if (segments.length <= layerIndex + 1) return null;
 
@@ -40,6 +49,10 @@ ArchitectureLayer? layerOf(Uri uri) {
   }
   return null;
 }
+
+/// Directory that groups features in a feature-first layout
+/// (`lib/features/<feature>/{layer}/...`).
+const String featuresDirectory = 'features';
 
 /// Returns the package name of a `package:` [uri], or `null` for any other
 /// scheme.
