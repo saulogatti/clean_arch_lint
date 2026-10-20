@@ -30,6 +30,18 @@ jobs:
       # is checked end to end by the `example` job.
       - run: dart analyze --fatal-infos lib test
       - run: dart test
+        if: matrix.sdk != 'stable'
+      # On stable, the same tests run with coverage, uploaded to Codecov.
+      - name: Test with coverage
+        if: matrix.sdk == 'stable'
+        run: |
+          dart pub global activate coverage
+          dart pub global run coverage:test_with_coverage
+      - uses: codecov/codecov-action@v5
+        if: matrix.sdk == 'stable'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
 
   example:
     name: Plugin diagnostics in example/

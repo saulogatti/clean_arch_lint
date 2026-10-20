@@ -1,5 +1,11 @@
 # clean_arch_lint
 
+[![pub package](https://img.shields.io/pub/v/clean_arch_lint.svg)](https://pub.dev/packages/clean_arch_lint)
+[![pub points](https://img.shields.io/pub/points/clean_arch_lint)](https://pub.dev/packages/clean_arch_lint/score)
+[![CI](https://github.com/saulogatti/clean_arch_lint/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/saulogatti/clean_arch_lint/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/saulogatti/clean_arch_lint/branch/main/graph/badge.svg)](https://codecov.io/gh/saulogatti/clean_arch_lint)
+[![license](https://img.shields.io/github/license/saulogatti/clean_arch_lint)](LICENSE)
+
 Analyzer plugin for **Flutter Clean Architecture**. It inspects `import` and `export` directives (AST) and reports layer violations in the IDE and via `dart analyze` / `flutter analyze`.
 
 Each diagnostic is its own rule (see [lib/src/rules](lib/src/rules)), so it can be enabled or disabled independently. All of them share the layer resolution in [ArchitectureImportRule](lib/src/rules/architecture_import_rule.dart).

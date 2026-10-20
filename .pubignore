@@ -2,6 +2,7 @@
 .dart_tool/
 pubspec.lock
 .DS_Store
+coverage/
 
 # Local `dart doc` output (also ignored by git). pub.dev generates its own API docs from lib/.
 docs/
