@@ -133,7 +133,7 @@ GitHub Actions (`.github/workflows/`):
   [automated publishing](https://dart.dev/tools/pub/automated-publishing).
 
 To release, update `pubspec.yaml` and CHANGELOG.md, merge, then push the tag
-(`git tag 3.3.0; git push origin 3.3.0`): both `publish.yml` and `docs.yml` run.
+(`git tag 3.2.0; git push origin 3.2.0`): both `publish.yml` and `docs.yml` run.
 
 ## Code standards
 
