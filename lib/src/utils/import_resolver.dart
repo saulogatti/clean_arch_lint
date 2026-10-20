@@ -125,7 +125,13 @@ bool isPureDartLibrary(Uri uri) => uri.isScheme('dart') && pureDartLibraries.con
 ///
 /// Returns `null` when the AST is not resolved or the URI is invalid
 /// (for example, string interpolation).
-Uri? importedUriOf(ImportDirective node) {
-  final uri = node.libraryImport?.uri;
-  return uri is DirectiveUriWithSource ? uri.source.uri : null;
-}
+Uri? importedUriOf(ImportDirective node) => _sourceUriOf(node.libraryImport?.uri);
+
+/// Returns the canonical URI of the library exported by [node].
+///
+/// Resolved like [importedUriOf]: relative and `package:` exports of the same
+/// file return the same URI, and `null` means the AST is not resolved or the
+/// URI is invalid.
+Uri? exportedUriOf(ExportDirective node) => _sourceUriOf(node.libraryExport?.uri);
+
+Uri? _sourceUriOf(DirectiveUri? uri) => uri is DirectiveUriWithSource ? uri.source.uri : null;

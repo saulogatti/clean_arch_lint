@@ -80,6 +80,7 @@ Exactly one warning per `bad_example_*.dart` file, and nothing else:
 | `domain/bad_example_dart_io.dart` | `domain_only_depends_on_itself` |
 | `domain/bad_example_third_party.dart` | `domain_only_depends_on_itself` |
 | `presentation/bad_example_data.dart` | `no_data_dependencies` |
+| `presentation/bad_example_export_data.dart` | `no_data_dependencies` |
 | `screens/bad_example_data.dart` | `no_data_dependencies` |
 
 Setting `allow_third_party_packages_in_domain: true` in `analysis_options.yaml` silences only `domain/bad_example_third_party.dart`.

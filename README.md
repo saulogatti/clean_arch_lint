@@ -1,6 +1,6 @@
 # clean_arch_lint
 
-Analyzer plugin for **Flutter Clean Architecture**. It inspects `import` directives (AST) and reports layer violations in the IDE and via `dart analyze` / `flutter analyze`.
+Analyzer plugin for **Flutter Clean Architecture**. It inspects `import` and `export` directives (AST) and reports layer violations in the IDE and via `dart analyze` / `flutter analyze`.
 
 Each diagnostic is its own rule (see [lib/src/rules](lib/src/rules)), so it can be enabled or disabled independently. All of them share the layer resolution in [ArchitectureImportRule](lib/src/rules/architecture_import_rule.dart).
 
@@ -60,6 +60,8 @@ Contains: screens / routes that compose presentation and domain.
 ## Diagnostics
 
 All of them are **WARNING** lint rules. Analyzer plugins disable lints until you turn them on.
+
+`export` directives are checked like imports: re-exporting a forbidden library leaks it to every file that imports the exporting one.
 
 | Code | Blocks |
 | --- | --- |

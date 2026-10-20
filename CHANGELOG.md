@@ -1,3 +1,11 @@
+## 3.2.0
+
+- **Features:**
+  - Every rule now checks `export` directives like imports (`ArchitectureImportRule` visits
+    `ExportDirective` too). Re-exporting a forbidden library, such as
+    `export 'package:app/data/models/product_model.dart';` in `presentation`, leaked it to every
+    importer without a warning. Projects with such exports will see new diagnostics.
+
 ## 3.1.0
 
 - **Features:**

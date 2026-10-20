@@ -6,8 +6,11 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 
-/// Base for the rules that check `import` directives between architecture
-/// layers.
+/// Base for the rules that check `import` and `export` directives between
+/// architecture layers.
+///
+/// Exports are checked like imports: re-exporting a library leaks it to every
+/// file that imports the exporting one.
 ///
 /// The analyzer only runs a rule when the diagnostic named after
 /// [AbstractAnalysisRule.name] is enabled, so each user-facing diagnostic name
@@ -39,20 +42,28 @@ abstract class ArchitectureImportRule extends MultiAnalysisRule {
 
   @override
   void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
-    registry.addImportDirective(this, _Visitor(this, context));
+    final visitor = _Visitor(this, context);
+    registry.addImportDirective(this, visitor);
+    registry.addExportDirective(this, visitor);
   }
 }
 
 class _Visitor(final ArchitectureImportRule rule, final RuleContext context)
     extends SimpleAstVisitor<void> {
   @override
-  void visitImportDirective(ImportDirective node) {
+  void visitExportDirective(ExportDirective node) => _check(node, exportedUriOf(node));
+
+  @override
+  void visitImportDirective(ImportDirective node) => _check(node, importedUriOf(node));
+
+  /// Reports [node] when the library at [importedUri] is not allowed in the
+  /// current file's layer.
+  void _check(NamespaceDirective node, Uri? importedUri) {
     final currentUri = context.currentUnit?.unit.declaredFragment?.source.uri;
     if (currentUri == null) return;
     final currentLayer = layerOf(currentUri);
     if (currentLayer == null) return;
 
-    final importedUri = importedUriOf(node);
     // Pure Dart libraries are allowed in every layer.
     if (importedUri == null || isPureDartLibrary(importedUri)) return;
     if (rule.isAllowedImport(currentUri, importedUri, context)) return;

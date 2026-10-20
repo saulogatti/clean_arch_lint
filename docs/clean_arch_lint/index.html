@@ -61,8 +61,8 @@
     
 <section class="desc markdown">
   <p>Analyzer plugin that enforces Flutter Clean Architecture layer boundaries.</p>
-<p>Isolation is checked by inspecting <code>import</code> directives (AST), not by
-code generation. Each diagnostic is its own rule, so it can be enabled or
+<p>Isolation is checked by inspecting <code>import</code> and <code>export</code> directives (AST),
+not by code generation. Each diagnostic is its own rule, so it can be enabled or
 disabled independently; all of them share the layer resolution in
 <code>ArchitectureImportRule</code>.</p>
 <p>Layers (<code>lib/{layer}/</code> or <code>lib/src/{layer}/</code>):</p>
@@ -214,7 +214,7 @@ packages in <code>domain</code>. It never reports anything.
 <footer>
   <span class="no-break">
     clean_arch_lint
-      3.1.0
+      3.2.0
   </span>
   
 </footer>

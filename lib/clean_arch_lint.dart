@@ -1,7 +1,7 @@
 /// Analyzer plugin that enforces Flutter Clean Architecture layer boundaries.
 ///
-/// Isolation is checked by inspecting `import` directives (AST), not by
-/// code generation. Each diagnostic is its own rule, so it can be enabled or
+/// Isolation is checked by inspecting `import` and `export` directives (AST),
+/// not by code generation. Each diagnostic is its own rule, so it can be enabled or
 /// disabled independently; all of them share the layer resolution in
 /// `ArchitectureImportRule`.
 ///

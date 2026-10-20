@@ -52,6 +52,15 @@ class AllowThirdPartyPackagesInDomainRuleTest extends _ArchitectureRuleTest {
     await assertImports('domain/entity.dart', [directive], 'Container? c;', reported: [directive]);
   }
 
+  Future<void> test_exportThirdPartyPackage() async {
+    await assertImports(
+      'domain/entity.dart',
+      ["export 'package:equatable/equatable.dart';"],
+      '',
+      reported: [],
+    );
+  }
+
   Future<void> test_otherPackageLayer() async {
     await assertImports(
       'domain/entity.dart',
@@ -112,6 +121,20 @@ class DomainOnlyDependsOnItselfRuleTest extends _ArchitectureRuleTest {
     );
   }
 
+  Future<void> test_exportDomain() async {
+    await assertImports(
+      'domain/domain.dart',
+      ["export 'package:test/domain/domain_type.dart';"],
+      '',
+      reported: [],
+    );
+  }
+
+  Future<void> test_exportFlutter() async {
+    const directive = "export 'package:flutter/widgets.dart';";
+    await assertImports('domain/entity.dart', [directive], '', reported: [directive]);
+  }
+
   Future<void> test_flutter() async {
     const directive = "import 'package:flutter/widgets.dart';";
     await assertImports('domain/entity.dart', [directive], 'Container? c;', reported: [directive]);
@@ -157,6 +180,20 @@ class NoDataDependenciesRuleTest extends _ArchitectureRuleTest {
       'data/repository.dart',
       ["import 'package:test/presentation/presentation_type.dart';"],
       'PresentationType? t;',
+      reported: [],
+    );
+  }
+
+  Future<void> test_presentation_exportsData() async {
+    const directive = "export 'package:test/data/data_type.dart' show DataType;";
+    await assertImports('presentation/page.dart', [directive], '', reported: [directive]);
+  }
+
+  Future<void> test_presentation_exportsDomain() async {
+    await assertImports(
+      'presentation/page.dart',
+      ["export 'package:test/domain/domain_type.dart';"],
+      '',
       reported: [],
     );
   }
@@ -233,6 +270,11 @@ class NoScreensDependenciesRuleTest extends _ArchitectureRuleTest {
   Future<void> test_core_importsScreens() async {
     const directive = "import 'package:test/screens/screens_type.dart';";
     await assertImports('core/app.dart', [directive], 'ScreensType? t;', reported: [directive]);
+  }
+
+  Future<void> test_data_exportsPresentationRelative() async {
+    const directive = "export '../presentation/presentation_type.dart';";
+    await assertImports('data/repository.dart', [directive], '', reported: [directive]);
   }
 
   Future<void> test_data_importsDomain() async {
