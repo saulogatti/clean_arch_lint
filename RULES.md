@@ -50,6 +50,18 @@ import 'dart:io';
 import 'dart:ui';
 ```
 
+## allow_third_party_packages_in_domain
+
+### Description
+
+An option, not a check: it never reports anything. When enabled, `domain_only_depends_on_itself` stops reporting third-party packages in `domain`. Flutter SDK packages (`flutter`, `flutter_test`, …), `dart:` libraries other than the pure ones, and the project's other layers stay reported. Off by default.
+
+### Allowed when enabled
+
+```dart
+import 'package:equatable/equatable.dart';
+```
+
 ----
 
 Reminders:

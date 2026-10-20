@@ -60,7 +60,7 @@
 <hr>
 <h2 id="layers">Layers</h2>
 <h3 id="domain">domain</h3>
-<p>Innermost layer. Other layers may import domain; domain imports only itself plus the pure Dart libraries (<code>dart:core</code>, <code>dart:async</code>, <code>dart:collection</code>, <code>dart:convert</code>, <code>dart:math</code>, <code>dart:typed_data</code>). Flutter, other <code>dart:</code> libraries (<code>dart:ui</code>, <code>dart:io</code>, <code>dart:html</code>, …), and third-party packages are reported.</p>
+<p>Innermost layer. Other layers may import domain; domain imports only itself plus the pure Dart libraries (<code>dart:core</code>, <code>dart:async</code>, <code>dart:collection</code>, <code>dart:convert</code>, <code>dart:math</code>, <code>dart:typed_data</code>). Flutter, other <code>dart:</code> libraries (<code>dart:ui</code>, <code>dart:io</code>, <code>dart:html</code>, …), and third-party packages are reported. Third-party packages can be allowed with <a href="#allow-third-party-packages-in-domain"><code>allow_third_party_packages_in_domain</code></a>.</p>
 <p>Contains: entities, usecases, contracts.</p>
 <h3 id="core">core</h3>
 <p>Shared application code with no business rule, usable by every layer except domain. Must not import <code>screens</code> or <code>presentation</code>.</p>
@@ -99,6 +99,7 @@
 </tr>
 </tbody>
 </table>
+<p><code>allow_third_party_packages_in_domain</code> is an option, not a check; see <a href="#allow-third-party-packages-in-domain">Configuration</a>.</p>
 <p><code>core_no_flutter</code>, <code>core_no_data_or_presentation</code>, <code>data_no_presentation</code>, <code>presentation_no_data</code>, and <code>domain_only</code> no longer exist as separate rules.</p>
 <hr>
 <h2 id="installation">Installation</h2>
@@ -107,7 +108,7 @@
 <p>Published:</p>
 <pre class="language-yaml"><code class="language-yaml">plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -135,12 +136,22 @@ flutter analyze
 <h3 id="raise-severity">Raise severity</h3>
 <pre class="language-yaml"><code class="language-yaml">plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: error
       no_screens_dependencies: error
 </code></pre>
+<h3 id="allow-third-party-packages-in-domain">Allow third-party packages in domain</h3>
+<p>By default <code>domain_only_depends_on_itself</code> reports every third-party package in <code>domain</code>. To allow them (<code>equatable</code>, <code>fpdart</code>, <code>meta</code>, …), enable <code>allow_third_party_packages_in_domain</code>:</p>
+<pre class="language-yaml"><code class="language-yaml">plugins:
+  clean_arch_lint:
+    version: ^3.1.0
+    diagnostics:
+      domain_only_depends_on_itself: true
+      allow_third_party_packages_in_domain: true
+</code></pre>
+<p>It never reports anything by itself; it only changes <code>domain_only_depends_on_itself</code>. Flutter SDK packages (<code>flutter</code>, <code>flutter_test</code>, …), <code>dart:ui</code>, <code>dart:io</code> and the project's other layers stay reported. The <code>plugins</code> section only accepts <code>diagnostics</code>, so the option is a diagnostic name.</p>
 <h3 id="suppress-one-line-or-a-file">Suppress one line or a file</h3>
 <pre class="language-dart"><code class="language-dart">// ignore: clean_arch_lint/no_data_dependencies
 import 'package:my_app/data/models/product_model.dart';
@@ -255,7 +266,7 @@ import 'package:my_app/core/utils/price_formatter_util.dart';
 <footer>
   <span class="no-break">
     clean_arch_lint
-      3.0.0
+      3.1.0
   </span>
   
 </footer>

@@ -98,6 +98,10 @@ and third-party packages are not allowed</li>
 </tr>
 </tbody>
 </table>
+<p><code>allow_third_party_packages_in_domain</code> is an option, not a check: when
+enabled, <code>domain_only_depends_on_itself</code> stops reporting third-party
+packages (<code>package:equatable/...</code>). Flutter SDK packages, <code>dart:ui</code>,
+<code>dart:io</code> and the other layers stay reported. It is off by default.</p>
 <p>Lint rules from analyzer plugins are <strong>disabled by default</strong>. Enable them
 in the top-level <code>plugins</code> section of <code>analysis_options.yaml</code>.</p>
 <p>Local checkout:</p>
@@ -112,12 +116,14 @@ in the top-level <code>plugins</code> section of <code>analysis_options.yaml</co
 <p>Published package:</p>
 <pre class="language-yaml"><code class="language-yaml">plugins:
   clean_arch_lint:
-    version: ^3.0.0
+    version: ^3.1.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
 </code></pre>
+<p>Add <code>allow_third_party_packages_in_domain: true</code> to allow third-party
+packages in <code>domain</code>.</p>
 <p>Use <code>error</code> instead of <code>true</code> to raise severity. Suppress with
 <code>// ignore: clean_arch_lint/no_data_dependencies</code>.</p>
 </section>
@@ -126,6 +132,15 @@ in the top-level <code>plugins</code> section of <code>analysis_options.yaml</co
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
+          <dt id="AllowThirdPartyPackagesInDomainRule">
+  <span class="name "><a href="../clean_arch_lint/AllowThirdPartyPackagesInDomainRule-class.html">AllowThirdPartyPackagesInDomainRule</a></span> 
+
+</dt>
+<dd>
+  Option that lets <code>domain_only_depends_on_itself</code> allow third-party
+packages in <code>domain</code>. It never reports anything.
+</dd>
+
           <dt id="CleanArchitectureLintPlugin">
   <span class="name "><a href="../clean_arch_lint/CleanArchitectureLintPlugin-class.html">CleanArchitectureLintPlugin</a></span> 
 
@@ -199,7 +214,7 @@ in the top-level <code>plugins</code> section of <code>analysis_options.yaml</co
 <footer>
   <span class="no-break">
     clean_arch_lint
-      3.0.0
+      3.1.0
   </span>
   
 </footer>

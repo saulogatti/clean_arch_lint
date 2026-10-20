@@ -12,5 +12,7 @@ plugins:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
+      # Set to true to allow third-party packages (meta, equatable, ...) in domain.
+      allow_third_party_packages_in_domain: false
 
 

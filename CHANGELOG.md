@@ -1,3 +1,11 @@
+## 3.1.0
+
+- **Features:**
+  - `allow_third_party_packages_in_domain`: when enabled, `domain_only_depends_on_itself` allows
+    third-party packages in `domain` (`AllowThirdPartyPackagesInDomainRule`). It reports nothing
+    by itself. Flutter SDK packages, `dart:ui`, `dart:io` and other layers stay reported. Off by
+    default, so third-party packages are still reported unless the option is enabled.
+
 ## 3.0.0
 
 - **Breaking changes:**

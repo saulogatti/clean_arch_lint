@@ -31,6 +31,7 @@ lib/
  │   ├─ bad_example_data.dart                    # ❌ domain → data
  │   ├─ bad_example_flutter.dart                 # ❌ domain → Flutter
  │   ├─ bad_example_dart_io.dart                 # ❌ domain → dart:io
+│   ├─ bad_example_third_party.dart             # ❌ domain → third-party package (meta)
  │   └─ ignored_example_dart_developer.dart      # 🔕 domain → dart:developer, ignore_for_file
  ├─ data/
  │   ├─ models/product_model.dart                # ProductModel (fromJson, toEntity)
@@ -77,8 +78,11 @@ Exactly one warning per `bad_example_*.dart` file, and nothing else:
 | `domain/bad_example_data.dart` | `domain_only_depends_on_itself` |
 | `domain/bad_example_flutter.dart` | `domain_only_depends_on_itself` |
 | `domain/bad_example_dart_io.dart` | `domain_only_depends_on_itself` |
+| `domain/bad_example_third_party.dart` | `domain_only_depends_on_itself` |
 | `presentation/bad_example_data.dart` | `no_data_dependencies` |
 | `screens/bad_example_data.dart` | `no_data_dependencies` |
+
+Setting `allow_third_party_packages_in_domain: true` in `analysis_options.yaml` silences only `domain/bad_example_third_party.dart`.
 
 ## Suppressed violations
 

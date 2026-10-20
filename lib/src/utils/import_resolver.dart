@@ -55,6 +55,42 @@ String? packageNameOf(Uri uri) {
   return uri.pathSegments.first;
 }
 
+/// Packages shipped with the Flutter SDK.
+///
+/// They are never treated as third-party packages, so
+/// `allow_third_party_packages_in_domain` does not allow Flutter in `domain`.
+const Set<String> flutterSdkPackages = {
+  'flutter',
+  'flutter_driver',
+  'flutter_localizations',
+  'flutter_test',
+  'flutter_web_plugins',
+  'integration_test',
+  'sky_engine',
+};
+
+/// Whether [importedUri] is a library of a third-party package, seen from the
+/// library at [currentUri].
+///
+/// A third-party package is any `package:` other than the current one and the
+/// [flutterSdkPackages]. `dart:` libraries are never third-party packages.
+///
+/// ## Examples
+///
+/// ```dart
+/// final current = Uri.parse('package:my_app/domain/user.dart');
+/// isThirdPartyPackage(current, Uri.parse('package:equatable/equatable.dart')); // true
+/// isThirdPartyPackage(current, Uri.parse('package:flutter/widgets.dart'));     // false
+/// isThirdPartyPackage(current, Uri.parse('package:my_app/data/user.dart'));    // false
+/// isThirdPartyPackage(current, Uri.parse('dart:io'));                          // false
+/// ```
+bool isThirdPartyPackage(Uri currentUri, Uri importedUri) {
+  final importedPackage = packageNameOf(importedUri);
+  return importedPackage != null &&
+      importedPackage != packageNameOf(currentUri) &&
+      !flutterSdkPackages.contains(importedPackage);
+}
+
 /// Dart SDK libraries that are plain language support, with no UI, I/O or
 /// platform access.
 ///

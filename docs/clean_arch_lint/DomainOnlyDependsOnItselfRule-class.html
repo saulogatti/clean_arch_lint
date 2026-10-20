@@ -58,7 +58,9 @@
 <code>pureDartLibraries</code> (<code>dart:core</code>, <code>dart:async</code>, <code>dart:collection</code>,
 <code>dart:convert</code>, <code>dart:math</code>, <code>dart:typed_data</code>).</p>
 <p>Flutter, other <code>dart:</code> libraries (<code>dart:ui</code>, <code>dart:io</code>, ...) and
-third-party packages are reported too.</p>
+third-party packages are reported too. Enable
+<code>allow_third_party_packages_in_domain</code> to allow third-party packages
+(Flutter SDK packages stay reported).</p>
 <p><strong>Severity:</strong> WARNING. Enable <code>domain_only_depends_on_itself</code> under
 <code>plugins.clean_arch_lint.diagnostics</code> (<code>true</code> or <code>error</code>).</p>
 <pre class="language-dart"><code class="language-dart">// domain/usecases/get_product_use_case.dart
@@ -256,6 +258,20 @@ library in <code>importedLayer</code>, or <code>null</code> when the import is a
 
 </dd>
 
+        <dt id="isAllowedImport" class="callable">
+  <span class="name"><a href="../clean_arch_lint/DomainOnlyDependsOnItselfRule/isAllowedImport.html">isAllowedImport</a></span><span class="signature">(<wbr><span class="parameter" id="isAllowedImport-param-currentUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">currentUri</span>, </span><span class="parameter" id="isAllowedImport-param-importedUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">importedUri</span>, </span><span class="parameter" id="isAllowedImport-param-context"><span class="type-annotation"><a href="https://pub.dev/documentation/analyzer/14.5.0/analysis_rule_rule_context/RuleContext-class.html">RuleContext</a></span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Whether the import of <code>importedUri</code> by the library at <code>currentUri</code> is
+allowed regardless of layers, so <a href="../clean_arch_lint/DomainOnlyDependsOnItselfRule/diagnosticCodeFor.html">diagnosticCodeFor</a> is not asked.
+  
+
+</dd>
+
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -428,7 +444,7 @@ and <code>contextMessages</code>.
 <footer>
   <span class="no-break">
     clean_arch_lint
-      3.0.0
+      3.1.0
   </span>
   
 </footer>
