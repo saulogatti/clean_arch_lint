@@ -42,7 +42,7 @@ Thank you for considering contributing to clean_arch_lint.
    ```
 
 5. **Make your changes** following the standards:
-   - Follow [Effective Dart](https://dart.dev/guides/language/effective-dart)
+   - Follow [Effective Dart](https://dart.dev/effective-dart)
    - Use descriptive names for variables and functions
    - Add comments when necessary
    - Keep lines within the project formatter width (100)
@@ -58,6 +58,8 @@ Thank you for considering contributing to clean_arch_lint.
    - `docs:` for documentation changes
    - `test:` for adding/modifying tests
    - `refactor:` for refactorings
+   - `ci:` for GitHub Actions workflows
+   - `chore:` for maintenance (package metadata, dependencies)
 
 8. **Push** and open a Pull Request explaining what changed, why, and how to test.
 
@@ -66,17 +68,19 @@ Thank you for considering contributing to clean_arch_lint.
 ```
 clean_arch_lint/
 ├── lib/
-│   ├── main.dart                         # plugin + `plugin` entry point
+│   ├── main.dart                         # top-level `plugin` loaded by the analysis server
+│   ├── clean_arch_lint.dart              # CleanArchitectureLintPlugin, registers the rules
 │   └── src/
 │       ├── lint_utils.dart               # LintCode + LintNames
 │       ├── rules/
-│       │   ├── architecture_import_rule.dart   # shared base + ImportDirective visitor
+│       │   ├── architecture_import_rule.dart   # shared base + import/export visitor
+│       │   ├── allow_third_party_packages_in_domain_rule.dart   # option, never reports
 │       │   ├── domain_only_depends_on_itself_rule.dart
 │       │   ├── no_data_dependencies_rule.dart
 │       │   └── no_screens_dependencies_rule.dart
 │       └── utils/
-│           └── import_resolver.dart
-├── .github/workflows/                     # CI, docs and pub.dev publishing
+│           └── import_resolver.dart      # layer detection from resolved URIs
+├── .github/workflows/                    # CI, docs and pub.dev publishing
 ├── example/                              # analysis_options + violations
 └── test/
 ```
@@ -92,16 +96,17 @@ Each user-facing diagnostic name is one rule class extending `ArchitectureImport
 
 1. Register with `registry.registerLintRule(...)` in `CleanArchitectureLintPlugin.register` (`lib/clean_arch_lint.dart`) and export the class there.
 2. Enable the diagnostic name in `example/analysis_options.yaml` under `plugins.clean_arch_lint.diagnostics`.
-3. Add example files under `example/lib/{layer}/`.
+3. Add example files under `example/lib/{layer}/`. Violations go in `bad_example_*.dart` (CI fails unless each one is reported, and nothing else is) and get a row in `example/README.md`.
 4. Rule tests in `test/rules_test.dart` (`AnalysisRuleTest` from `analyzer_testing`) for every new diagnostic case, plus `test/import_resolver_test.dart` for new resolver behavior.
 5. Dartdoc on public APIs; update README.md, USAGE.md, RULES.md, CHANGELOG.md.
 
-Reuse `layerOf`, `packageNameOf`, `importedUriOf`. Work with the analyzer's resolved URIs (`node.libraryImport`, `context.currentUnit?.unit.declaredFragment?.source.uri`), not file-system paths.
+Reuse the helpers in `import_resolver.dart` (`layerOf`, `isSameProject`, `isThirdPartyPackage`, `importedUriOf`, `exportedUriOf`). Work with the analyzer's resolved URIs (`node.libraryImport`, `node.libraryExport`, `context.currentUnit?.unit.declaredFragment?.source.uri`), not file-system paths.
 
 ```dart
 registry.registerLintRule(NoDataDependenciesRule());
 registry.registerLintRule(NoScreensDependenciesRule());
 registry.registerLintRule(DomainOnlyDependsOnItselfRule());
+registry.registerLintRule(AllowThirdPartyPackagesInDomainRule());
 ```
 
 ## Testing locally
@@ -115,7 +120,7 @@ dart test test/rules_test.dart --name "test_srcLayout"
 
 ```bash
 cd example
-dart pub get
+flutter pub get
 dart analyze
 ```
 

@@ -23,7 +23,7 @@ lib/
 
 In a feature-first layout the feature name plays no part in the checks: imports between features follow the same layer rules as any other import, so `features/cart/presentation` may import `features/product/domain` but not `features/product/data`.
 
-Monorepos with one package per layer are detected by the package name suffix: `my_app_domain`, `my_app_data`, `my_app_presentation`, `my_app_core`, `my_app_screens` (and `my_app` itself) form one project, so `my_app_presentation` importing `package:my_app_data/...` is reported. Packages of another project that just end in a layer name, such as `firebase_core`, are not layers. Enable the plugin in each package's `analysis_options.yaml`.
+Monorepos with one package per layer are detected by the package name suffix: `my_app_domain`, `my_app_data`, `my_app_presentation`, `my_app_core`, `my_app_screens` (and `my_app` itself) form one project, so `my_app_presentation` importing `package:my_app_data/...` is reported. Packages of another project that just end in a layer name, such as `firebase_core`, are not layers. Enable the plugin in the `analysis_options.yaml` at the root of each package, or once at the root of a [pub workspace](https://dart.dev/tools/pub/workspaces).
 
 ---
 
@@ -90,7 +90,7 @@ Published:
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.1.0
+    version: ^3.2.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -132,7 +132,7 @@ Diagnostics also appear in VS Code / Android Studio while you type.
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.1.0
+    version: ^3.2.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: error
@@ -146,7 +146,7 @@ By default `domain_only_depends_on_itself` reports every third-party package in 
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.1.0
+    version: ^3.2.0
     diagnostics:
       domain_only_depends_on_itself: true
       allow_third_party_packages_in_domain: true
@@ -167,7 +167,7 @@ import 'package:my_app/data/models/product_model.dart';
 
 ## Examples
 
-See [example/](example/) for a working feature split across all layers, with one intentional violation per layer (including a relative import), two violations suppressed with `// ignore`, and a naming convention that makes the layer of each class obvious from its suffix (`ProductEntity`, `ProductModel`, `ProductRepositoryImpl`, `ProductPage`, ...).
+See [example/](example/) for a working feature split across all layers, with intentional violations in every layer (including a relative import, a re-export and a feature-first folder), two violations suppressed with `// ignore`, and a naming convention that makes the layer of each class obvious from its suffix (`ProductEntity`, `ProductModel`, `ProductRepositoryImpl`, `ProductPage`, ...).
 
 Allowed:
 

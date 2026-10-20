@@ -1,38 +1,44 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: A diagnostic is missing, wrong, or the plugin does not load
 title: ''
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+What happened, and what you expected (a diagnostic that should fire and does not, a false positive, the plugin not loading, ...).
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Import that triggers it**
+The file path (from `lib/`) and the `import` or `export` directive:
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+```dart
+// lib/presentation/pages/product_page.dart
+import 'package:my_app/data/models/product_model.dart';
+```
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Configuration**
+The `plugins` section of your `analysis_options.yaml`:
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+```yaml
+plugins:
+  clean_arch_lint:
+    version: ^3.2.0
+    diagnostics:
+      no_data_dependencies: true
+```
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**How you ran the analysis**
+IDE, or the exact command and the directory it ran from (`dart analyze` from the package root; `dart analyze lib` skips analyzer plugins).
+
+**Versions**
+- clean_arch_lint:
+- Dart SDK (`dart --version`):
+- Flutter (`flutter --version`), if used:
+
+**Project layout**
+Single package, `lib/src/`, feature-first, or monorepo (package names), and whether it is a pub workspace.
 
 **Additional context**
-Add any other context about the problem here.
+Anything else that helps reproduce it.

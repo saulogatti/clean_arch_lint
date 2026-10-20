@@ -15,14 +15,14 @@ import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 /// The analyzer only runs a rule when the diagnostic named after
 /// [AbstractAnalysisRule.name] is enabled, so each user-facing diagnostic name
 /// needs its own rule. This class resolves the layers of the current file and
-/// of the imported library once per import; subclasses only decide, in
+/// of the imported library once per directive; subclasses only decide, in
 /// [diagnosticCodeFor], which code (if any) to report.
 abstract class ArchitectureImportRule extends MultiAnalysisRule {
   /// Creates a rule enabled by the diagnostic [name].
   ArchitectureImportRule({required super.name, required super.description});
 
-  /// Returns the code to report when a file in [currentLayer] imports a
-  /// library in [importedLayer], or `null` when the import is allowed.
+  /// Returns the code to report when a file in [currentLayer] imports or
+  /// exports a library in [importedLayer], or `null` when it is allowed.
   ///
   /// [importedLayer] is `null` for libraries outside this project's layers
   /// (packages of other projects, see [isSameProject], or files outside a

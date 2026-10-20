@@ -50,7 +50,7 @@
 /// ```yaml
 /// plugins:
 ///   clean_arch_lint:
-///     version: ^3.1.0
+///     version: ^3.2.0
 ///     diagnostics:
 ///       no_data_dependencies: true
 ///       domain_only_depends_on_itself: true

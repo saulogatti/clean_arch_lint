@@ -3,9 +3,8 @@
 pubspec.lock
 .DS_Store
 
-# GitHub Pages output. pub.dev generates its own API docs from lib/.
+# Local `dart doc` output (also ignored by git). pub.dev generates its own API docs from lib/.
 docs/
-# Local `dart doc` preview.
 doc/
 
 # Repository-only files.

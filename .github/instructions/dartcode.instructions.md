@@ -52,8 +52,8 @@ Codificação consistentes**.
 
 ### Formatação
 
--   **USE** `dart format`.\
--   **PREFIRA** linhas até 80 caracteres.\
+-   **USE** `dart format lib test` (nunca `dart format .`).\
+-   **USE** linhas até 100 caracteres (`page_width` do `analysis_options.yaml`).\
 -   **USE** chaves em todas as declarações de controle de fluxo.
 
 ------------------------------------------------------------------------
@@ -75,7 +75,7 @@ Codificação consistentes**.
 -   **EVITE** redundâncias.\
 -   **PREFIRA** verbos na 3ª pessoa para funções.\
 -   **PREFIRA** frases nominais para variáveis.\
--   **USE** "Se" para booleanos.\
+-   **USE** "Whether" no início da doc de booleanos (a documentação do código é em inglês).\
 -   **NÃO** duplique doc em getter/setter.\
 -   **CONSIDERE** exemplos de código.\
 -   **USE** colchetes `[]` para identificadores.\
@@ -95,7 +95,7 @@ Codificação consistentes**.
 
 -   **PREFIRA** ser breve.\
 -   **EVITE** siglas obscuras.\
--   **PREFIRA** "esta" para se referir à instância.
+-   **PREFIRA** "this" para se referir à instância nos doc comments.
 
 ------------------------------------------------------------------------
 
@@ -103,9 +103,10 @@ Codificação consistentes**.
 
 #### Bibliotecas
 
--   **USE** `part of`.\
--   **NÃO** importe dentro de `src`.\
--   **PREFIRA** caminhos relativos.
+-   **USE** strings em diretivas `part of`.\
+-   **NÃO** importe bibliotecas de dentro do `src` de outro pacote.\
+-   **USE** imports `package:clean_arch_lint/...` para os arquivos do próprio
+    pacote em `lib/` (lint `always_use_package_imports`), não caminhos relativos.
 
 #### Null Safety
 

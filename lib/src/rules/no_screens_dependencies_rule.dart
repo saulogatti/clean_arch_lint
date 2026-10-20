@@ -10,7 +10,7 @@ import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 ///
 /// ```dart
 /// // data/repositories/product_repository_impl.dart
-/// import 'package:app/presentation/pages/product_page.dart'; // no_screens_dependencies
+/// import 'package:my_app/presentation/pages/product_page.dart'; // no_screens_dependencies
 /// ```
 class NoScreensDependenciesRule extends ArchitectureImportRule {
   /// Creates the rule.

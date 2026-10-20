@@ -8,12 +8,12 @@ This package is an **analyzer plugin** (`analysis_server_plugin`), not `custom_l
 
 ### 1. Enable the plugin
 
-In the **root** `analysis_options.yaml` (plugins are not inherited from nested options files unless you `include` a file that already lists them):
+In the `analysis_options.yaml` at the **root** of the package (or of the [pub workspace](https://dart.dev/tools/pub/workspaces)). A `plugins` section in a nested options file is ignored:
 
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.1.0
+    version: ^3.2.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
@@ -46,7 +46,7 @@ flutter analyze
 
 ## Layer structure
 
-Three folder layouts are detected automatically.
+Four layouts are detected automatically, with no configuration.
 
 ### Direct (simple projects)
 
@@ -102,7 +102,7 @@ packages/
 
 A package whose name ends in `_core`, `_domain`, `_data`, `_presentation` or `_screens` is a layer package: its files belong to that layer, unless they sit in a layer directory (`my_app_data/lib/domain/` is `domain`). Packages sharing the prefix (`my_app`) form one project, so `my_app_presentation` importing `package:my_app_data/my_app_data.dart` is reported by `no_data_dependencies`, and `my_app_domain` importing `my_app_core` by `domain_only_depends_on_itself`. Packages with another prefix (`firebase_core`, `other_data`) stay outside the project's layers, and count as third-party for [`allow_third_party_packages_in_domain`](#allow-third-party-packages-in-domain).
 
-The `plugins` section belongs to each package's own `analysis_options.yaml` (or one shared file it `include`s).
+Each package analyzed on its own needs the `plugins` section in the `analysis_options.yaml` at its root. In a pub workspace (`resolution: workspace`), list it once in the workspace root's `analysis_options.yaml`.
 
 > A single-package app whose name ends in a layer suffix (for example `shop_core`) is treated as a layer package too: files outside layer directories, such as `lib/main.dart`, get that layer.
 
@@ -153,7 +153,7 @@ import 'package:my_app/presentation/pages/product_page.dart';
 
 **What it does:** Domain may import only other domain files.
 
-**Allows:** `lib/domain/**`, `lib/src/domain/**`, and the pure Dart libraries `dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`.
+**Allows:** other `domain` files (`lib/domain/**`, `lib/src/domain/**`, `features/<feature>/domain/**`, a `my_app_domain` package), and the pure Dart libraries `dart:core`, `dart:async`, `dart:collection`, `dart:convert`, `dart:math`, `dart:typed_data`.
 
 **Blocks:** `data`, `core`, `presentation`, `screens`, `package:flutter/*`, other `dart:` libraries (`dart:ui`, `dart:io`, `dart:html`, `dart:ffi`, …), third-party packages (unless `allow_third_party_packages_in_domain` is enabled, see below).
 
@@ -178,7 +178,7 @@ import 'package:my_app/domain/entities/product_entity.dart';
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.1.0
+    version: ^3.2.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: true
@@ -192,7 +192,7 @@ Third-party packages are reported in `domain` by default. Enable `allow_third_pa
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.1.0
+    version: ^3.2.0
     diagnostics:
       domain_only_depends_on_itself: true
       allow_third_party_packages_in_domain: true
@@ -231,7 +231,7 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dart-lang/setup-dart@v1
 
       - name: Install dependencies
@@ -241,7 +241,7 @@ jobs:
         run: dart analyze
 ```
 
-`dart analyze` / `flutter analyze` load the plugin. Do **not** run `dart run custom_lint`.
+For a Flutter app, use `subosito/flutter-action@v2` instead of `setup-dart`, then `flutter pub get` and `flutter analyze`. Run the analysis from the package root (not `dart analyze lib`, see [Troubleshooting](#no-issues-but-the-import-is-illegal)). `dart analyze` / `flutter analyze` load the plugin. Do **not** run `dart run custom_lint`.
 
 ---
 
@@ -249,7 +249,7 @@ jobs:
 
 ### Plugin not loading
 
-1. Plugin is listed in the **root** `analysis_options.yaml` under `plugins:` (not under `analyzer.plugins`).
+1. Plugin is listed in the `analysis_options.yaml` at the **root** of the package or pub workspace, under the top-level `plugins:` (not under `analyzer.plugins`).
 2. Lint diagnostics are explicitly `true` (or `error`).
 3. Dart Analysis Server was restarted after the `plugins` change.
 4. SDK is >= 3.13.
@@ -267,11 +267,11 @@ jobs:
 
 See `example/`:
 
-- Valid files under `core/`, `domain/`, `data/`, `presentation/`, `screens/`
-- Violations in `bad_example_*.dart`
+- Valid files under `core/`, `domain/`, `data/`, `presentation/`, `screens/` and `features/cart/`
+- Violations in `bad_example_*.dart`, and violations silenced with `// ignore` in `ignored_example_*.dart`
 
 ```bash
 cd example
-dart pub get
+flutter pub get
 dart analyze
 ```

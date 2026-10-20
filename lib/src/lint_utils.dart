@@ -2,10 +2,12 @@
 
 import 'package:analyzer/error/error.dart';
 
-/// Reported when `domain` imports a file outside `lib/**/domain/`.
+/// Reported when `domain` imports or exports a library outside the domain
+/// layer.
 ///
-/// Only pure Dart libraries (`dart:async`, `dart:core`, ...) are allowed;
-/// `dart:ui`, `dart:io`, Flutter and third-party packages are not.
+/// Besides `domain`, only pure Dart libraries (`dart:async`, `dart:core`, ...)
+/// are allowed; `dart:ui`, `dart:io`, Flutter and third-party packages are not,
+/// unless `allow_third_party_packages_in_domain` allows the latter.
 const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
   LintNames.domainOnlyDependsOnItself,
   'Domain should only depend on domain and pure Dart libraries.',
@@ -67,6 +69,7 @@ const LintCodeArchitecture noScreensDependenciesCode = LintCodeArchitecture(
 /// - [LintNames.noDataDependencies]: presentation/screens must not import data
 /// - [LintNames.noScreensDependencies]: data/core must not import UI layers
 /// - [LintNames.domainOnlyDependsOnItself]: domain imports only domain
+/// - [LintNames.allowThirdPartyPackagesInDomain]: option, never reported
 final class LintCodeArchitecture extends LintCode {
   /// Creates an architecture diagnostic.
   const LintCodeArchitecture(
@@ -85,7 +88,7 @@ abstract final class LintNames {
   /// Presentation and screens must not import data.
   static const String noDataDependencies = 'no_data_dependencies';
 
-  /// Domain may import only other domain files.
+  /// Domain may import only other domain files and pure Dart libraries.
   static const String domainOnlyDependsOnItself = 'domain_only_depends_on_itself';
 
   /// Lets `domain_only_depends_on_itself` allow third-party packages.

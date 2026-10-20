@@ -19,7 +19,7 @@ import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 ///
 /// ```dart
 /// // domain/usecases/get_product_use_case.dart
-/// import 'package:app/data/models/product_model.dart'; // domain_only_depends_on_itself
+/// import 'package:my_app/data/models/product_model.dart'; // domain_only_depends_on_itself
 /// import 'package:flutter/material.dart'; // domain_only_depends_on_itself
 /// import 'dart:io'; // domain_only_depends_on_itself
 /// ```
