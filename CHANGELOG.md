@@ -5,6 +5,8 @@
     `ExportDirective` too). Re-exporting a forbidden library, such as
     `export 'package:app/data/models/product_model.dart';` in `presentation`, leaked it to every
     importer without a warning. Projects with such exports will see new diagnostics.
+- **Package:** `topics` added to `pubspec.yaml` (`lints`, `analyzer`, `architecture`,
+  `clean-architecture`, `flutter`), and the description mentions exports.
 
 ## 3.1.0
 
