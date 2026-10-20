@@ -13,3 +13,6 @@ docs/
 
 # Coverage from `coverage:test_with_coverage`.
 coverage/
+
+# Personal Claude Code settings.
+.claude/settings.local.json
