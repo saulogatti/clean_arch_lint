@@ -51,6 +51,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Reuses the Flutter SDK and the pub cache between runs instead of downloading them.
+          cache: true
+          pub-cache: true
       - run: flutter pub get
         working-directory: example
       # The example loads the plugin via `path: ../`. Every `bad_example_*.dart` must be reported
