@@ -31,7 +31,7 @@ lib/
  │   ├─ bad_example_data.dart                    # ❌ domain → data
  │   ├─ bad_example_flutter.dart                 # ❌ domain → Flutter
  │   ├─ bad_example_dart_io.dart                 # ❌ domain → dart:io
-│   ├─ bad_example_third_party.dart             # ❌ domain → third-party package (meta)
+ │   ├─ bad_example_third_party.dart             # ❌ domain → third-party package (meta)
  │   └─ ignored_example_dart_developer.dart      # 🔕 domain → dart:developer, ignore_for_file
  ├─ data/
  │   ├─ models/product_model.dart                # ProductModel (fromJson, toEntity)
@@ -42,10 +42,15 @@ lib/
  │   ├─ view_models/product_view_model.dart      # ProductViewModel
  │   ├─ pages/product_page.dart                  # ProductPage
  │   ├─ bad_example_data.dart                    # ❌ presentation → data
+ │   ├─ bad_example_export_data.dart             # ❌ presentation re-exports data
  │   └─ ignored_example_data.dart                # 🔕 presentation → data, ignore on one line
- └─ screens/
-     ├─ home/home_screen.dart                    # HomeScreen
-     └─ bad_example_data.dart                    # ❌ screens → data (relative import)
+ ├─ screens/
+ │   ├─ home/home_screen.dart                    # HomeScreen
+ │   └─ bad_example_data.dart                    # ❌ screens → data (relative import)
+ └─ features/cart/                               # feature-first layout
+     ├─ domain/entities/cart_item_entity.dart    # CartItemEntity
+     ├─ data/models/cart_item_model.dart         # CartItemModel
+     └─ presentation/bad_example_data.dart       # ❌ presentation → data inside the feature
 ```
 
 Flow: `HomeScreen` → `ProductViewModel` → `GetProductUseCase` → `ProductRepositoryContract`, implemented by `ProductRepositoryImpl`, which turns the `ProductModel` from `ProductRemoteDataSource` into a `ProductEntity`. Only `lib/main.dart` knows the `data` implementations and wires them in.
@@ -82,6 +87,7 @@ Exactly one warning per `bad_example_*.dart` file, and nothing else:
 | `presentation/bad_example_data.dart` | `no_data_dependencies` |
 | `presentation/bad_example_export_data.dart` | `no_data_dependencies` |
 | `screens/bad_example_data.dart` | `no_data_dependencies` |
+| `features/cart/presentation/bad_example_data.dart` | `no_data_dependencies` |
 
 Setting `allow_third_party_packages_in_domain: true` in `analysis_options.yaml` silences only `domain/bad_example_third_party.dart`.
 
