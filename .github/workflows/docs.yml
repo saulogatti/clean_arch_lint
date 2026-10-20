@@ -1,0 +1,44 @@
+name: Docs
+
+# GitHub Pages serves `/docs` from the `main-doc` branch. After each merge into `main`, bring
+# `main-doc` up to date and regenerate the API docs there.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: docs
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main-doc
+          fetch-depth: 0
+      - uses: dart-lang/setup-dart@v1
+      - name: Merge main into main-doc
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # docs/ is regenerated below, so conflicts there resolve to main's side.
+          git merge origin/main -X theirs --no-edit
+      # `--no-example`: example/ needs Flutter.
+      - run: dart pub get --no-example
+      - name: Generate docs
+        run: |
+          rm -rf docs
+          dart doc --output docs
+      - name: Commit and push
+        run: |
+          git add -A docs
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: Regenerar documentação da API (${GITHUB_SHA::7})"
+          fi
+          git push origin main-doc
