@@ -1,6 +1,6 @@
 # Rules
 
-Each diagnostic below is one rule in [lib/src/rules](lib/src/rules) and can be enabled or disabled on its own under `plugins.clean_arch_lint.diagnostics`.
+Each diagnostic below is one rule in [lib/src/rules](lib/src/rules) and can be enabled or disabled on its own under `plugins.clean_arch_lint.diagnostics`. Each rule checks `import` and `export` directives alike.
 
 ## no_data_dependencies
 

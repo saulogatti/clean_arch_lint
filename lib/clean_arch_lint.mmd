@@ -11,13 +11,13 @@ flowchart TD
     C --> D["registerLintRule: NoDataDependenciesRule, NoScreensDependenciesRule, DomainOnlyDependsOnItselfRule, AllowThirdPartyPackagesInDomainRule"]
     D --> D1[["registerNodeProcessors(registry, context), per enabled rule and library"]]
     D1 -.->|AllowThirdPartyPackagesInDomainRule enabled| D2["mark context: third-party packages allowed in domain"]
-    D1 --> E("Analyzer Encounters ImportDirective")
-    E --> F[["ArchitectureImportRule _Visitor.visitImportDirective(node), per enabled rule"]]
+    D1 --> E("Analyzer Encounters ImportDirective or ExportDirective")
+    E --> F[["ArchitectureImportRule _Visitor._check(node), per enabled rule"]]
     F --> G["currentUri := currentUnit.unit.declaredFragment.source.uri"]
     G --> H[["layerOf(currentUri)"]]
     H --> I{"currentLayer is null?"}
     I -->|Yes| Z("Return without diagnostic")
-    I -->|No| J["importedUri := importedUriOf(node)"]
+    I -->|No| J["importedUri := importedUriOf(node) or exportedUriOf(node)"]
     J --> K{"null or pure Dart library?"}
     K -->|Yes| Z
     K -->|No| K1{"rule.isAllowedImport(currentUri, importedUri, context)?"}

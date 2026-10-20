@@ -77,6 +77,8 @@ lib/
 
 All codes are WARNING lints. They stay off until listed under `plugins.clean_arch_lint.diagnostics`.
 
+Every rule checks `export` directives the same way as imports, so `export 'package:my_app/data/models/product_model.dart';` in `presentation` is reported too.
+
 ### 1. `no_data_dependencies`
 
 **What it does:** Stops UI (`presentation`, `screens`) from depending on infrastructure (`data`).
