@@ -80,7 +80,9 @@ that is not available from the AST nodes or their associated elements.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
-  registry.addImportDirective(this, _Visitor(this, context));
+  final visitor = _Visitor(this, context);
+  registry.addImportDirective(this, visitor);
+  registry.addExportDirective(this, visitor);
 }</code></pre>
 </section>
 
@@ -109,7 +111,7 @@ void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
 <footer>
   <span class="no-break">
     clean_arch_lint
-      3.1.0
+      3.2.0
   </span>
   
 </footer>
