@@ -22,7 +22,7 @@ flowchart TD
     K -->|Yes| Z
     K -->|No| K1{"rule.isAllowedImport(currentUri, importedUri, context)?"}
     K1 -->|"Yes (domain, third-party package, context marked)"| Z
-    K1 -->|No| L["importedLayer := same package ? layerOf(importedUri) : null"]
+    K1 -->|No| L["importedLayer := isSameProject ? layerOf(importedUri) : null"]
     L --> N{"rule.diagnosticCodeFor(currentLayer, importedLayer)"}
 
     N -->|data or core| O{"imports screens or presentation?"}
@@ -40,4 +40,6 @@ flowchart TD
     H -.-> H1["package:pkg/{layer}/... or package:pkg/src/{layer}/..., skipping features/feature/ if present"]
     H1 --> H2{"segment is a known layer?"}
     H2 -->|Yes| H3["return ArchitectureLayer"]
-    H2 -->|No| H5["return null"]
+    H2 -->|No| H4{"package name ends in _{layer}?"}
+    H4 -->|Yes| H3
+    H4 -->|No| H5["return null"]

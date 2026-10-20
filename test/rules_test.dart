@@ -2,6 +2,7 @@
 
 import 'package:analyzer/src/lint/registry.dart';
 import 'package:analyzer_testing/analysis_rule/analysis_rule.dart';
+import 'package:analyzer_testing/package_config_file_builder.dart';
 import 'package:analyzer_testing/utilities/utilities.dart';
 import 'package:clean_arch_lint/clean_arch_lint.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
@@ -30,10 +31,21 @@ class AllowThirdPartyPackagesInDomainRuleTest extends _ArchitectureRuleTest {
     Registry.ruleRegistry.registerLintRule(option);
     newPackage('equatable').addFile('lib/equatable.dart', 'class Equatable {}');
     newPackage('other').addFile('lib/data/other_type.dart', 'class OtherType {}');
+    newLayerPackage('data');
     super.setUp();
     newAnalysisOptionsYamlFile(
       testPackageRootPath,
       analysisOptionsContent(rules: [rule.name, option.name]),
+    );
+  }
+
+  Future<void> test_monorepo_dataPackage() async {
+    const directive = "import 'package:test_data/test_data.dart';";
+    await assertImports(
+      'domain/entity.dart',
+      [directive],
+      'DataPackageType? t;',
+      reported: [directive],
     );
   }
 
@@ -89,7 +101,29 @@ class DomainOnlyDependsOnItselfRuleTest extends _ArchitectureRuleTest {
   void setUp() {
     rule = DomainOnlyDependsOnItselfRule();
     newPackage('equatable').addFile('lib/equatable.dart', 'class Equatable {}');
+    newLayerPackage('core');
+    newLayerPackage('domain');
     super.setUp();
+  }
+
+  Future<void> test_monorepo_domainPackage_importsCorePackage() async {
+    const directive = "import 'package:test_core/test_core.dart';";
+    await assertImports(
+      'entities/user.dart',
+      [directive, "import 'package:test/domain/domain_type.dart';"],
+      'CorePackageType? c;\nDomainType? d;',
+      reported: [directive],
+      libPath: newAnalyzedLayerPackage('domain', dependencies: ['test_core']),
+    );
+  }
+
+  Future<void> test_monorepo_domain_importsDomainPackage() async {
+    await assertImports(
+      'domain/entity.dart',
+      ["import 'package:test_domain/test_domain.dart';"],
+      'DomainPackageType? t;',
+      reported: [],
+    );
   }
 
   Future<void> test_dartIo_inData() async {
@@ -186,7 +220,40 @@ class NoDataDependenciesRuleTest extends _ArchitectureRuleTest {
   void setUp() {
     rule = NoDataDependenciesRule();
     newPackage('other').addFile('lib/data/other_type.dart', 'class OtherType {}');
+    newPackage('other_data').addFile('lib/other_data.dart', 'class OtherDataType {}');
+    newLayerPackage('data');
+    newLayerPackage('domain');
     super.setUp();
+  }
+
+  Future<void> test_monorepo_presentation_importsDataPackage() async {
+    const directive = "import 'package:test_data/test_data.dart';";
+    await assertImports(
+      'presentation/page.dart',
+      [directive, "import 'package:test_domain/test_domain.dart';"],
+      'DataPackageType? d;\nDomainPackageType? t;',
+      reported: [directive],
+    );
+  }
+
+  Future<void> test_monorepo_presentation_importsOtherProjectDataPackage() async {
+    await assertImports(
+      'presentation/page.dart',
+      ["import 'package:other_data/other_data.dart';"],
+      'OtherDataType? t;',
+      reported: [],
+    );
+  }
+
+  Future<void> test_monorepo_presentationPackage_importsDataPackage() async {
+    const directive = "import 'package:test_data/test_data.dart';";
+    await assertImports(
+      'widgets/page.dart',
+      [directive, "import 'package:test/domain/domain_type.dart';"],
+      'DataPackageType? d;\nDomainType? t;',
+      reported: [directive],
+      libPath: newAnalyzedLayerPackage('presentation', dependencies: ['test_data']),
+    );
   }
 
   Future<void> test_data_importsPresentation() async {
@@ -304,7 +371,20 @@ class NoScreensDependenciesRuleTest extends _ArchitectureRuleTest {
   @override
   void setUp() {
     rule = NoScreensDependenciesRule();
+    newLayerPackage('presentation');
     super.setUp();
+  }
+
+  Future<void> test_monorepo_dataPackage_importsPresentation() async {
+    const package = "import 'package:test_presentation/test_presentation.dart';";
+    const directory = "import 'package:test/presentation/presentation_type.dart';";
+    await assertImports(
+      'repositories/repository.dart',
+      [package, directory],
+      'PresentationPackageType? p;\nPresentationType? t;',
+      reported: [package, directory],
+      libPath: newAnalyzedLayerPackage('data', dependencies: ['test_presentation']),
+    );
   }
 
   Future<void> test_core_importsScreens() async {
@@ -353,23 +433,57 @@ abstract class _ArchitectureRuleTest extends AnalysisRuleTest {
   /// that exactly the directives in [reported] get the rule's lint.
   ///
   /// [body] must use every import, so no `unused_import` warning is reported.
-  /// [extraFiles] are written under `lib/` first.
+  /// [extraFiles] are written under `lib/` first. [libPath] is the `lib/`
+  /// folder of the package holding the file, `test` by default (see
+  /// [newLayerPackage]).
   Future<void> assertImports(
     String path,
     List<String> directives,
     String body, {
     required List<String> reported,
     Map<String, String> extraFiles = const {},
+    String? libPath,
   }) async {
-    extraFiles.forEach((extraPath, content) => newFile('$testPackageLibPath/$extraPath', content));
+    libPath ??= testPackageLibPath;
+    extraFiles.forEach((extraPath, content) => newFile('$libPath/$extraPath', content));
 
     final content = '${directives.join('\n')}\n\n$body\n';
-    final file = newFile('$testPackageLibPath/$path', content);
+    final file = newFile('$libPath/$path', content);
     // Offsets come from the stored content: on Windows `newFile` writes `\r\n`.
     final stored = file.readAsStringSync();
     await assertDiagnosticsInFile(file.path, [
       for (final directive in reported) lint(stored.indexOf(directive), directive.length),
     ]);
+  }
+
+  /// Adds the monorepo package `test_[layer]`, a dependency of `test`, with
+  /// `lib/test_[layer].dart` declaring `[Layer]PackageType`.
+  ///
+  /// Must be called before `super.setUp()`, like `newPackage`.
+  void newLayerPackage(String layer) {
+    final type = '${layer[0].toUpperCase()}${layer.substring(1)}PackageType';
+    newPackage('test_$layer').addFile('lib/test_$layer.dart', 'class $type {}');
+  }
+
+  /// Creates the monorepo package `test_[layer]` in the workspace, so its own
+  /// files are analyzed with the rule, and returns its `lib/` path.
+  ///
+  /// It depends on `test` and on the [dependencies] added with
+  /// [newLayerPackage], which must not include `test_[layer]` itself (its
+  /// files would no longer be `package:test_[layer]`). Call it after
+  /// `super.setUp()`.
+  String newAnalyzedLayerPackage(String layer, {List<String> dependencies = const []}) {
+    final root = '$workspaceRootPath/test_$layer';
+    newPubspecYamlFile(root, 'name: test_$layer');
+    newAnalysisOptionsYamlFile(root, analysisOptionsContent(rules: [rule.name]));
+    final config = PackageConfigFileBuilder()
+      ..add(name: 'test', rootFolder: getFolder(testPackageRootPath));
+    for (final dependency in dependencies) {
+      // `newPackage` writes packages under `/package/`.
+      config.add(name: dependency, rootFolder: getFolder('/package/$dependency'));
+    }
+    writePackageConfig2(root, packageName: 'test_$layer', config: config);
+    return '$root/lib';
   }
 
   @override

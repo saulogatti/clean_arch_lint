@@ -24,8 +24,9 @@ abstract class ArchitectureImportRule extends MultiAnalysisRule {
   /// Returns the code to report when a file in [currentLayer] imports a
   /// library in [importedLayer], or `null` when the import is allowed.
   ///
-  /// [importedLayer] is `null` for libraries outside this package's layers
-  /// (other packages, or files of this package outside a layer directory).
+  /// [importedLayer] is `null` for libraries outside this project's layers
+  /// (packages of other projects, see [isSameProject], or files outside a
+  /// layer directory in a package without a layer suffix).
   /// Libraries in [pureDartLibraries] never reach this method; other `dart:`
   /// libraries arrive with a `null` [importedLayer].
   DiagnosticCode? diagnosticCodeFor(
@@ -68,10 +69,9 @@ class _Visitor(final ArchitectureImportRule rule, final RuleContext context)
     if (importedUri == null || isPureDartLibrary(importedUri)) return;
     if (rule.isAllowedImport(currentUri, importedUri, context)) return;
 
-    // Only libraries of the same package belong to this project's layers.
-    final importedLayer = packageNameOf(importedUri) == packageNameOf(currentUri)
-        ? layerOf(importedUri)
-        : null;
+    // Only libraries of the same project (package, or sibling layer packages)
+    // belong to this project's layers.
+    final importedLayer = isSameProject(currentUri, importedUri) ? layerOf(importedUri) : null;
 
     final diagnosticCode = rule.diagnosticCodeFor(currentLayer, importedLayer);
     if (diagnosticCode != null) {

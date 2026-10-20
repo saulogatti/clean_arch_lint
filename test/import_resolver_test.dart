@@ -48,6 +48,47 @@ void main() {
       expect(layerOf(Uri.parse('package:my_app/features/cart.dart')), isNull);
     });
 
+    test('layerOf should fall back to the layer suffix of the package name', () {
+      expect(layerOf(Uri.parse('package:my_app_data/my_app_data.dart')), ArchitectureLayer.data);
+      expect(
+        layerOf(Uri.parse('package:my_app_presentation/src/widgets/button.dart')),
+        ArchitectureLayer.presentation,
+      );
+      // A layer directory wins over the package name.
+      expect(layerOf(Uri.parse('package:my_app_data/domain/user.dart')), ArchitectureLayer.domain);
+    });
+
+    test('packageLayerOf should read the _{layer} suffix of a package name', () {
+      expect(packageLayerOf('my_app_core'), ArchitectureLayer.core);
+      expect(packageLayerOf('my_app_data'), ArchitectureLayer.data);
+      expect(packageLayerOf('my_app_domain'), ArchitectureLayer.domain);
+      expect(packageLayerOf('my_app_presentation'), ArchitectureLayer.presentation);
+      expect(packageLayerOf('my_app_screens'), ArchitectureLayer.screens);
+      expect(packageLayerOf('my_app'), isNull);
+      expect(packageLayerOf('data'), isNull);
+      expect(packageLayerOf('_data'), isNull);
+      expect(packageLayerOf('metadata'), isNull);
+    });
+
+    test('projectNameOf should strip the layer suffix', () {
+      expect(projectNameOf('my_app_data'), 'my_app');
+      expect(projectNameOf('my_app_presentation'), 'my_app');
+      expect(projectNameOf('my_app'), 'my_app');
+      expect(projectNameOf('data'), 'data');
+    });
+
+    test('isSameProject should accept the same package and sibling layer packages', () {
+      final current = Uri.parse('package:my_app_presentation/page.dart');
+      expect(isSameProject(current, Uri.parse('package:my_app_presentation/a.dart')), isTrue);
+      expect(isSameProject(current, Uri.parse('package:my_app_data/user.dart')), isTrue);
+      expect(isSameProject(current, Uri.parse('package:my_app/data/user.dart')), isTrue);
+      expect(isSameProject(current, Uri.parse('package:other_data/user.dart')), isFalse);
+      expect(isSameProject(current, Uri.parse('package:firebase_core/core.dart')), isFalse);
+      expect(isSameProject(current, Uri.parse('package:my_app_widgets/a.dart')), isFalse);
+      expect(isSameProject(current, Uri.parse('dart:io')), isFalse);
+      expect(isSameProject(Uri.parse('file:///p/test/a_test.dart'), current), isFalse);
+    });
+
     test('layerOf should return null outside a layer directory', () {
       expect(layerOf(Uri.parse('package:my_app/main.dart')), isNull);
       expect(layerOf(Uri.parse('package:my_app/data.dart')), isNull);
@@ -62,6 +103,8 @@ void main() {
       expect(isThirdPartyPackage(current, Uri.parse('package:equatable/equatable.dart')), isTrue);
       expect(isThirdPartyPackage(current, Uri.parse('package:other/data/user.dart')), isTrue);
       expect(isThirdPartyPackage(current, Uri.parse('package:my_app/data/user.dart')), isFalse);
+      expect(isThirdPartyPackage(current, Uri.parse('package:my_app_data/user.dart')), isFalse);
+      expect(isThirdPartyPackage(current, Uri.parse('package:firebase_core/core.dart')), isTrue);
       expect(isThirdPartyPackage(current, Uri.parse('package:flutter/widgets.dart')), isFalse);
       expect(
         isThirdPartyPackage(current, Uri.parse('package:flutter_test/flutter_test.dart')),

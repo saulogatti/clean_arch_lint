@@ -83,7 +83,8 @@ Do not run `dart run custom_lint`.
 ### Layer detection
 
 - Layers: `package:<pkg>/{layer}/...` and `package:<pkg>/src/{layer}/...` (i.e. `lib/{layer}/` and `lib/src/{layer}/`)
-- Only imports from the same package count as project layers
+- Fallback: the `_{layer}` suffix of the package name (`packageLayerOf`), for monorepos with one package per layer
+- Only imports from the same project count as project layers (`isSameProject`: same package, or the same name once the layer suffix is stripped)
 
 ## Common Gotchas
 
