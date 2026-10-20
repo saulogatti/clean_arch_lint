@@ -1,11 +1,11 @@
 name: Publish to pub.dev
 
 # Requires "Automated publishing" enabled on pub.dev (Admin tab of the package) for this repository
-# with the tag pattern `{{version}}`.
+# with the tag pattern `v{{version}}`.
 on:
   push:
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+*"
+      - "v[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
   publish:
