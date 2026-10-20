@@ -21,7 +21,7 @@ dart analyze lib test
 dart format lib test                                  # never `dart format .` (formatter page_width is 100)
 
 # Manual end-to-end check: the example loads the plugin via `path: ../`
-cd example; dart pub get; dart analyze
+cd example; flutter pub get; dart analyze
 ```
 
 Run `dart analyze` on the package root (or on single files) when checking plugin diagnostics: analyzing a directory such as `dart analyze lib` silently skips analyzer plugins (built-in lints still run). This is a Dart SDK limitation (dart-lang/sdk#62710), not a bug in this plugin.
@@ -60,4 +60,5 @@ presentation and screens must not import data.
 
 - Imports: `dart:`, then `package:`, then relative; alphabetical in each group. Code in `lib/` imports its own files via `package:clean_arch_lint/...`.
 - `///` dartdoc on public APIs (Effective Dart, see `.github/instructions/dartcode.instructions.md`).
-- Commits: `<type>: <description>` (feat, fix, docs, style, refactor, test); `.github/copilot-commit-message-instructions.md` asks for the description in Portuguese, mentioning changed class names when possible. Update CHANGELOG.md and the `pubspec.yaml` version together.
+- Commits: `<type>: <description>` (feat, fix, docs, style, refactor, test, ci, chore); `.github/copilot-commit-message-instructions.md` asks for the description in Portuguese, mentioning changed class names when possible. Update CHANGELOG.md and the `pubspec.yaml` version together.
+- Releases: push a `vX.Y.Z` tag; `.github/workflows/publish.yml` publishes to pub.dev and `docs.yml` deploys the API docs. `ci.yml` runs format, analyze and tests on every PR, plus an end-to-end check that exactly the `example/lib/**/bad_example_*.dart` files are reported.

@@ -3,6 +3,8 @@
 /// Layers are detected from the canonical `package:` URIs the analyzer assigns
 /// to every library under `lib/`, so relative and `package:` imports of the
 /// same file resolve identically and no file-system path handling is needed.
+/// The layer comes from a directory ([layerOf]) or, in a monorepo with one
+/// package per layer, from the package name ([packageLayerOf]).
 library;
 
 import 'package:analyzer/dart/ast/ast.dart';
@@ -157,8 +159,8 @@ const Set<String> flutterSdkPackages = {
 /// library at [currentUri].
 ///
 /// A third-party package is any `package:` outside the current project
-/// ([isSameProject]) and the [flutterSdkPackages]. `dart:` libraries are never
-/// third-party packages.
+/// ([isSameProject]) that is not one of the [flutterSdkPackages]. `dart:`
+/// libraries are never third-party packages.
 ///
 /// ## Examples
 ///

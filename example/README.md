@@ -1,6 +1,6 @@
 # clean_arch_lint Usage Example
 
-This example enables the plugin via `analysis_options.yaml` and contains a small working feature (load and show a product) split across the layers, plus one intentional violation per layer and two suppressed with `// ignore`.
+This example enables the plugin via `analysis_options.yaml` and contains a small working feature (load and show a product) split across the layers, plus intentional violations in every layer (`bad_example_*.dart`) and two suppressed with `// ignore` (`ignored_example_*.dart`).
 
 ## Naming convention
 
@@ -66,11 +66,11 @@ Flow: `HomeScreen` → `ProductViewModel` → `GetProductUseCase` → `ProductRe
 2. From this directory (not a subdirectory, see the troubleshooting note in `USAGE.md`):
 
 ```bash
-dart pub get
+flutter pub get
 dart analyze
 ```
 
-Restart the Dart Analysis Server after changing `plugins`.
+Restart the Dart Analysis Server after changing `plugins`. CI runs the same check and fails unless exactly the files below are reported.
 
 ## What should be reported
 

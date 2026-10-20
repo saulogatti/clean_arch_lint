@@ -10,7 +10,7 @@ import 'package:clean_arch_lint/src/utils/import_resolver.dart';
 ///
 /// ```dart
 /// // presentation/pages/product_page.dart
-/// import 'package:app/data/models/product_model.dart'; // no_data_dependencies
+/// import 'package:my_app/data/models/product_model.dart'; // no_data_dependencies
 /// ```
 class NoDataDependenciesRule extends ArchitectureImportRule {
   /// Creates the rule.
