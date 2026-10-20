@@ -76,6 +76,7 @@ clean_arch_lint/
 │       │   └── no_screens_dependencies_rule.dart
 │       └── utils/
 │           └── import_resolver.dart
+├── .github/workflows/                     # CI, docs and pub.dev publishing
 ├── example/                              # analysis_options + violations
 ├── test/
 └── docs/                                 # generated dart doc (optional)
@@ -118,6 +119,20 @@ cd example
 dart pub get
 dart analyze
 ```
+
+## Continuous integration and releases
+
+GitHub Actions (`.github/workflows/`):
+
+- `ci.yml`, on every pull request and push to `main`: `dart format --set-exit-if-changed lib test`,
+  `dart analyze --fatal-infos lib test` and `dart test` on Dart 3.13 and stable, plus an end-to-end
+  job that runs `dart analyze` in `example/` and fails unless exactly the `bad_example_*.dart` files
+  are reported. A new `bad_example_*.dart` must therefore trigger a diagnostic.
+- `docs.yml`, on push to `main`: merges `main` into `main-doc`, regenerates `docs/` with `dart doc`
+  and pushes, so GitHub Pages (`main-doc` → `/docs`) rebuilds.
+- `publish.yml`, on a `X.Y.Z` tag: publishes to pub.dev through
+  [automated publishing](https://dart.dev/tools/pub/automated-publishing). To release, update
+  `pubspec.yaml` and CHANGELOG.md, merge, then push the tag (`git tag 3.3.0; git push origin 3.3.0`).
 
 ## Code standards
 
