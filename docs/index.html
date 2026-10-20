@@ -63,8 +63,8 @@
 <p>Innermost layer. Other layers may import domain; domain imports only itself plus the pure Dart libraries (<code>dart:core</code>, <code>dart:async</code>, <code>dart:collection</code>, <code>dart:convert</code>, <code>dart:math</code>, <code>dart:typed_data</code>). Flutter, other <code>dart:</code> libraries (<code>dart:ui</code>, <code>dart:io</code>, <code>dart:html</code>, …), and third-party packages are reported.</p>
 <p>Contains: entities, usecases, contracts.</p>
 <h3 id="core">core</h3>
-<p>Shared application code. Must not import <code>screens</code> or <code>presentation</code>.</p>
-<p>Contains: entities, usecases, contracts, business rules.</p>
+<p>Shared application code with no business rule, usable by every layer except domain. Must not import <code>screens</code> or <code>presentation</code>.</p>
+<p>Contains: utils, extensions, constants, shared services (logging, configuration).</p>
 <h3 id="data">data</h3>
 <p>Infrastructure. Must not import <code>screens</code> or <code>presentation</code>.</p>
 <p>Contains: datasources, models / DTOs, mappers, repository implementations.</p>
@@ -95,14 +95,14 @@
 </tr>
 <tr>
 <td><code>domain_only_depends_on_itself</code></td>
-<td><code>domain</code> importing anything outside <code>domain</code></td>
+<td><code>domain</code> importing anything outside <code>domain</code>, except pure Dart libraries</td>
 </tr>
 </tbody>
 </table>
 <p><code>core_no_flutter</code>, <code>core_no_data_or_presentation</code>, <code>data_no_presentation</code>, <code>presentation_no_data</code>, and <code>domain_only</code> no longer exist as separate rules.</p>
 <hr>
 <h2 id="installation">Installation</h2>
-<p>Requires Dart SDK <strong>&gt;= 3.13</strong> (Flutter 3.38+). This is an <code>analysis_server_plugin</code>, not <code>custom_lint</code>.</p>
+<p>Requires Dart SDK <strong>&gt;= 3.13</strong> (use a Flutter release that ships Dart 3.13 or newer). This is an <code>analysis_server_plugin</code>, not <code>custom_lint</code>.</p>
 <h3 id="1-enable-the-plugin">1) Enable the plugin</h3>
 <p>Published:</p>
 <pre class="language-yaml"><code class="language-yaml">plugins:
@@ -128,6 +128,7 @@
 # or
 flutter analyze
 </code></pre>
+<p>Run it from the package root (or pass single files). Analyzing a directory, such as <code>dart analyze lib</code>, silently skips analyzer plugins: only the built-in lints run. This is a Dart SDK limitation (<a href="https://github.com/dart-lang/sdk/issues/62710">dart-lang/sdk#62710</a>).</p>
 <p>Diagnostics also appear in VS Code / Android Studio while you type.</p>
 <hr>
 <h2 id="configuration">Configuration</h2>
@@ -148,7 +149,7 @@ import 'package:my_app/data/models/product_model.dart';
 </code></pre>
 <hr>
 <h2 id="examples">Examples</h2>
-<p>See <a href="example/">example/</a> for a working feature split across all layers, with one intentional violation per layer and a naming convention that makes the layer of each class obvious from its suffix (<code>ProductEntity</code>, <code>ProductModel</code>, <code>ProductRepositoryImpl</code>, <code>ProductPage</code>, ...).</p>
+<p>See <a href="example/">example/</a> for a working feature split across all layers, with one intentional violation per layer (including a relative import), two violations suppressed with <code>// ignore</code>, and a naming convention that makes the layer of each class obvious from its suffix (<code>ProductEntity</code>, <code>ProductModel</code>, <code>ProductRepositoryImpl</code>, <code>ProductPage</code>, ...).</p>
 <p>Allowed:</p>
 <pre class="language-dart"><code class="language-dart">import 'package:my_app/domain/entities/product_entity.dart';
 import 'package:my_app/core/utils/price_formatter_util.dart';

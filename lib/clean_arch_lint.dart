@@ -21,7 +21,7 @@
 /// | --- | --- |
 /// | `no_data_dependencies` | `presentation`/`screens` import `data` |
 /// | `no_screens_dependencies` | `data`/`core` import `screens` or `presentation` |
-/// | `domain_only_depends_on_itself` | `domain` imports anything outside `domain` |
+/// | `domain_only_depends_on_itself` | `domain` imports anything outside `domain`, except pure Dart libraries |
 ///
 /// Lint rules from analyzer plugins are **disabled by default**. Enable them
 /// in the top-level `plugins` section of `analysis_options.yaml`.

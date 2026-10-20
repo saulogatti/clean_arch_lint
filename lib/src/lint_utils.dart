@@ -8,8 +8,8 @@ import 'package:analyzer/error/error.dart';
 /// `dart:ui`, `dart:io`, Flutter and third-party packages are not.
 const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
   LintNames.domainOnlyDependsOnItself,
-  'Domain should only depend on itself. Domain should not depend on data or presentation.',
-  correctionMessage: 'Domain should only depend on itself',
+  'Domain should only depend on domain and pure Dart libraries.',
+  correctionMessage: 'Depend on a domain contract and implement it outside domain.',
   severity: .WARNING,
   uniqueName: 'domain_only_depends_on_itself',
 );
@@ -17,8 +17,10 @@ const LintCodeArchitecture domainOnlyDependsOnItselfCode = LintCodeArchitecture(
 /// Reported when `presentation` imports `data`.
 const LintCodeArchitecture noDataDependenciesCodeInPresentation = LintCodeArchitecture(
   LintNames.noDataDependencies,
-  'No data dependencies in presentation. Presentation should not depend on data.',
-  correctionMessage: 'No data dependencies in presentation',
+  'Presentation should not depend on data.',
+  correctionMessage:
+      'Depend on domain use cases or contracts and inject the data implementation '
+      'from the composition root.',
   severity: .WARNING,
   uniqueName: 'no_data_dependencies_in_presentation',
 );
@@ -26,8 +28,10 @@ const LintCodeArchitecture noDataDependenciesCodeInPresentation = LintCodeArchit
 /// Reported when `screens` imports `data`.
 const LintCodeArchitecture noDataDependenciesCodeInScreens = LintCodeArchitecture(
   LintNames.noDataDependencies,
-  'No data dependencies in screens. Screens should not depend on data.',
-  correctionMessage: 'No data dependencies in screens',
+  'Screens should not depend on data.',
+  correctionMessage:
+      'Depend on domain use cases or contracts and inject the data implementation '
+      'from the composition root.',
   severity: .WARNING,
   uniqueName: 'no_data_dependencies_in_screens',
 );
@@ -36,7 +40,7 @@ const LintCodeArchitecture noDataDependenciesCodeInScreens = LintCodeArchitectur
 const LintCodeArchitecture noScreensDependenciesCode = LintCodeArchitecture(
   LintNames.noScreensDependencies,
   'Data and core should not depend on screens or presentation.',
-  correctionMessage: 'Depend on domain or core contracts instead of UI code',
+  correctionMessage: 'Depend on domain or core contracts instead of UI code.',
   severity: .WARNING,
   uniqueName: 'no_screens_dependencies_data_or_presentation',
 );

@@ -26,6 +26,9 @@
     `packageNameOf`, `importedUriOf`, `isPureDartLibrary`).
   - Unused `noPresentationDependenciesCode`, `isFlutterImport`, debug `LoggerUtil` and the `path`
     dependency.
+- **Messages:** diagnostic messages rewritten. `domain_only_depends_on_itself` no longer says
+  only data and presentation are forbidden, and every correction message now suggests a fix
+  instead of repeating the problem.
 - **Tests:** rule tests with `analyzer_testing` for all three diagnostics (replacing placeholder
   tests).
 - **Docs:** troubleshooting note — `dart analyze <directory>` skips analyzer plugins
