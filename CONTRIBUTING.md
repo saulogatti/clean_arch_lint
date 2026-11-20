@@ -75,6 +75,7 @@ clean_arch_lint/
 │       ├── rules/
 │       │   ├── architecture_import_rule.dart   # shared base + import/export visitor
 │       │   ├── allow_third_party_packages_in_domain_rule.dart   # option, never reports
+│       │   ├── core_independent_rule.dart
 │       │   ├── domain_only_depends_on_itself_rule.dart
 │       │   ├── no_data_dependencies_rule.dart
 │       │   └── no_screens_dependencies_rule.dart

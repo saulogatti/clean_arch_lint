@@ -23,6 +23,7 @@ lib/
  ├─ main.dart                                   # composition root (outside the layers)
  ├─ core/
  │   ├─ utils/price_formatter_util.dart          # PriceFormatterUtil
+ │   ├─ bad_example_domain.dart                  # ❌ core → domain
  │   └─ bad_example_screens.dart                 # ❌ core → screens
  ├─ domain/
  │   ├─ entities/product_entity.dart             # ProductEntity
@@ -62,6 +63,7 @@ Flow: `HomeScreen` → `ProductViewModel` → `GetProductUseCase` → `ProductRe
    - `no_data_dependencies`
    - `domain_only_depends_on_itself`
    - `no_screens_dependencies`
+   - `core_independent`
 
 2. From this directory (not a subdirectory, see the troubleshooting note in `USAGE.md`):
 
@@ -78,6 +80,7 @@ Exactly one warning per `bad_example_*.dart` file, and nothing else:
 
 | File | Diagnostic |
 | --- | --- |
+| `core/bad_example_domain.dart` | `core_independent` |
 | `core/bad_example_screens.dart` | `no_screens_dependencies` |
 | `data/bad_example_presentation.dart` | `no_screens_dependencies` |
 | `domain/bad_example_data.dart` | `domain_only_depends_on_itself` |

@@ -12,7 +12,7 @@
 /// - **domain**: innermost; may import only other domain files and pure Dart
 ///   libraries (`dart:core`, `dart:async`, ...); `dart:ui`, `dart:io`, Flutter
 ///   and third-party packages are not allowed
-/// - **core**: must not import `screens` or `presentation`
+/// - **core**: must not import `domain`, `data`, `screens` or `presentation`
 /// - **data**: must not import `screens` or `presentation`
 /// - **presentation**: must not import `data`
 /// - **screens**: must not import `data`
@@ -24,6 +24,7 @@
 /// | `no_data_dependencies` | `presentation`/`screens` import `data` |
 /// | `no_screens_dependencies` | `data`/`core` import `screens` or `presentation` |
 /// | `domain_only_depends_on_itself` | `domain` imports anything outside `domain`, except pure Dart libraries |
+/// | `core_independent` | `core` imports `domain` or `data` |
 ///
 /// `allow_third_party_packages_in_domain` is an option, not a check: when
 /// enabled, `domain_only_depends_on_itself` stops reporting third-party
@@ -43,6 +44,7 @@
 ///       no_data_dependencies: true
 ///       domain_only_depends_on_itself: true
 ///       no_screens_dependencies: true
+///       core_independent: true
 /// ```
 ///
 /// Published package:
@@ -50,11 +52,12 @@
 /// ```yaml
 /// plugins:
 ///   clean_arch_lint:
-///     version: ^3.2.0
+///     version: ^3.3.0
 ///     diagnostics:
 ///       no_data_dependencies: true
 ///       domain_only_depends_on_itself: true
 ///       no_screens_dependencies: true
+///       core_independent: true
 /// ```
 ///
 /// Add `allow_third_party_packages_in_domain: true` to allow third-party
@@ -69,12 +72,14 @@ import 'dart:async';
 import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
 import 'package:clean_arch_lint/src/rules/allow_third_party_packages_in_domain_rule.dart';
+import 'package:clean_arch_lint/src/rules/core_independent_rule.dart';
 import 'package:clean_arch_lint/src/rules/domain_only_depends_on_itself_rule.dart';
 import 'package:clean_arch_lint/src/rules/no_data_dependencies_rule.dart';
 import 'package:clean_arch_lint/src/rules/no_screens_dependencies_rule.dart';
 
 export 'src/rules/allow_third_party_packages_in_domain_rule.dart'
     show AllowThirdPartyPackagesInDomainRule;
+export 'src/rules/core_independent_rule.dart' show CoreIndependentRule;
 export 'src/rules/domain_only_depends_on_itself_rule.dart' show DomainOnlyDependsOnItselfRule;
 export 'src/rules/no_data_dependencies_rule.dart' show NoDataDependenciesRule;
 export 'src/rules/no_screens_dependencies_rule.dart' show NoScreensDependenciesRule;
@@ -89,6 +94,7 @@ class CleanArchitectureLintPlugin extends Plugin {
     registry.registerLintRule(NoDataDependenciesRule());
     registry.registerLintRule(NoScreensDependenciesRule());
     registry.registerLintRule(DomainOnlyDependsOnItselfRule());
+    registry.registerLintRule(CoreIndependentRule());
     registry.registerLintRule(AllowThirdPartyPackagesInDomainRule());
   }
 }
