@@ -8,7 +8,7 @@ id: 6aa7ac7a-d351-4f5b-923a-18092c202be1
 flowchart TD
     A("Analysis Server Loads Plugin") --> B["Create plugin = CleanArchitectureLintPlugin()"]
     B --> C[["register(registry)"]]
-    C --> D["registerLintRule: NoDataDependenciesRule, NoScreensDependenciesRule, DomainOnlyDependsOnItselfRule, AllowThirdPartyPackagesInDomainRule"]
+    C --> D["registerLintRule: NoDataDependenciesRule, NoScreensDependenciesRule, DomainOnlyDependsOnItselfRule, CoreIndependentRule, AllowThirdPartyPackagesInDomainRule"]
     D --> D1[["registerNodeProcessors(registry, context), per enabled rule and library"]]
     D1 -.->|AllowThirdPartyPackagesInDomainRule enabled| D2["mark context: third-party packages allowed in domain"]
     D1 --> E("Analyzer Encounters ImportDirective or ExportDirective")
@@ -28,6 +28,10 @@ flowchart TD
     N -->|data or core| O{"imports screens or presentation?"}
     O -->|Yes| P["reportAtNode(no_screens_dependencies)"]
     O -->|No| Z
+
+    N -->|core| U{"imports domain or data?"}
+    U -->|Yes| V["reportAtNode(core_independent)"]
+    U -->|No| Z
 
     N -->|presentation or screens| Q{"imports data?"}
     Q -->|Yes| R["reportAtNode(no_data_dependencies)"]

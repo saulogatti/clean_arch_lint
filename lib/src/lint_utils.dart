@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:analyzer/error/error.dart';
 
 /// Reported when `domain` imports or exports a library outside the domain
@@ -59,16 +57,32 @@ const LintCodeArchitecture noScreensDependenciesCode = LintCodeArchitecture(
   uniqueName: 'no_screens_dependencies_data_or_presentation',
 );
 
-/// Lint code whose [LintCode.name] can be shared across variants.
+/// Reported when `core` imports `domain` or `data`.
+const LintCodeArchitecture coreIndependentCode = LintCodeArchitecture(
+  LintNames.coreIndependent,
+  'Core should not depend on domain or data.',
+  correctionMessage:
+      'Move the code that needs domain or data out of core, or pass the values it needs '
+      'as parameters.',
+  severity: .WARNING,
+  uniqueName: 'core_independent',
+);
+
+/// Lint code whose `name` can be shared across variants.
 ///
-/// [LintCode.name] is what users enable in `plugins.*.diagnostics` and suppress
-/// with `// ignore`. [LintCode.uniqueName] must stay unique per variant so the
-/// analyzer can tell messages apart.
+/// The `name` (a [LintNames] constant) is what users enable in
+/// `plugins.*.diagnostics` and suppress with `// ignore`. The `uniqueName` must
+/// stay unique per variant so the analyzer can tell messages apart.
+///
+/// Both are plain code spans, not `[LintCode.name]` links: the analyzer
+/// deprecates those getters, and Dart 3.13 reports `deprecated_member_use` on
+/// doc references while Dart 3.14 reports an `ignore` for it as unnecessary.
 ///
 /// Grouping today:
 /// - [LintNames.noDataDependencies]: presentation/screens must not import data
 /// - [LintNames.noScreensDependencies]: data/core must not import UI layers
 /// - [LintNames.domainOnlyDependsOnItself]: domain imports only domain
+/// - [LintNames.coreIndependent]: core must not import domain or data
 /// - [LintNames.allowThirdPartyPackagesInDomain]: option, never reported
 final class LintCodeArchitecture extends LintCode {
   /// Creates an architecture diagnostic.
@@ -96,4 +110,7 @@ abstract final class LintNames {
 
   /// Data and core must not import screens or presentation.
   static const String noScreensDependencies = 'no_screens_dependencies';
+
+  /// Core must not import domain or data.
+  static const String coreIndependent = 'core_independent';
 }

@@ -13,11 +13,12 @@ In the `analysis_options.yaml` at the **root** of the package (or of the [pub wo
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.2.0
+    version: ^3.3.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
+      core_independent: true
 ```
 
 Local checkout:
@@ -30,6 +31,7 @@ plugins:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
+      core_independent: true
 ```
 
 Restart the Dart Analysis Server after any change to `plugins`.
@@ -171,6 +173,27 @@ import 'package:my_app/domain/entities/product_entity.dart';
 
 ---
 
+### 4. `core_independent`
+
+**What it does:** Stops `core` from importing `domain` or `data`.
+
+**Why:** Core is shared code with no business rule. Code that needs an entity or a data
+implementation belongs to the layer that owns it; core receives plain values as parameters.
+`core` importing `screens` or `presentation` is reported by `no_screens_dependencies`.
+
+```dart
+// ❌ core/utils/price_formatter_util.dart
+import 'package:my_app/domain/entities/product_entity.dart';
+import 'package:my_app/data/models/product_model.dart';
+```
+
+```dart
+// ✅ core/utils/price_formatter_util.dart takes the value, not the entity
+String format(double price) => '\$${price.toStringAsFixed(2)}';
+```
+
+---
+
 ## Advanced configuration
 
 ### Make a diagnostic an error
@@ -178,11 +201,12 @@ import 'package:my_app/domain/entities/product_entity.dart';
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.2.0
+    version: ^3.3.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
+      core_independent: true
 ```
 
 ### Allow third-party packages in domain
@@ -192,7 +216,7 @@ Third-party packages are reported in `domain` by default. Enable `allow_third_pa
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.2.0
+    version: ^3.3.0
     diagnostics:
       domain_only_depends_on_itself: true
       allow_third_party_packages_in_domain: true

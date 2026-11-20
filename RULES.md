@@ -50,6 +50,19 @@ import 'dart:io';
 import 'dart:ui';
 ```
 
+## core_independent
+
+### Description
+
+`core` must not import `domain` or `data`. Core is shared code with no business rule; `core` importing `screens` or `presentation` is reported by `no_screens_dependencies`.
+
+### Example
+
+```dart
+import 'package:my_app/domain/entities/product_entity.dart';
+import 'package:my_app/data/models/product_model.dart';
+```
+
 ## allow_third_party_packages_in_domain
 
 ### Description
@@ -68,5 +81,6 @@ Reminders:
 
 - Domain is inward-only.
 - Data and core must not know about UI (`presentation`, `screens`).
+- Core must not know about domain or data.
 - Presentation and screens must not import data implementations; depend on domain/core and inject implementations.
 - Flutter-in-core (`core_no_flutter`) is **not** a separate rule anymore.

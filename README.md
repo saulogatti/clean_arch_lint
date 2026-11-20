@@ -43,7 +43,7 @@ Contains: entities, usecases, contracts.
 
 ### core
 
-Shared application code with no business rule, usable by every layer except domain. Must not import `screens` or `presentation`.
+Shared application code with no business rule, usable by every layer except domain. Must not import `domain`, `data`, `screens` or `presentation`.
 
 Contains: utils, extensions, constants, shared services (logging, configuration).
 
@@ -78,6 +78,7 @@ All of them are **WARNING** lint rules. Analyzer plugins disable lints until you
 | `no_data_dependencies` | `presentation` or `screens` importing `data` |
 | `no_screens_dependencies` | `data` or `core` importing `screens` or `presentation` |
 | `domain_only_depends_on_itself` | `domain` importing anything outside `domain`, except pure Dart libraries |
+| `core_independent` | `core` importing `domain` or `data` |
 
 `allow_third_party_packages_in_domain` is an option, not a check; see [Configuration](#allow-third-party-packages-in-domain).
 
@@ -96,11 +97,12 @@ Published:
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.2.0
+    version: ^3.3.0
     diagnostics:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
+      core_independent: true
 ```
 
 Local path (see `example/analysis_options.yaml`):
@@ -113,6 +115,7 @@ plugins:
       no_data_dependencies: true
       domain_only_depends_on_itself: true
       no_screens_dependencies: true
+      core_independent: true
 ```
 
 Restart the Dart Analysis Server after changing the `plugins` section.
@@ -138,11 +141,12 @@ Diagnostics also appear in VS Code / Android Studio while you type.
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.2.0
+    version: ^3.3.0
     diagnostics:
       no_data_dependencies: error
       domain_only_depends_on_itself: error
       no_screens_dependencies: error
+      core_independent: error
 ```
 
 ### Allow third-party packages in domain
@@ -152,7 +156,7 @@ By default `domain_only_depends_on_itself` reports every third-party package in 
 ```yaml
 plugins:
   clean_arch_lint:
-    version: ^3.2.0
+    version: ^3.3.0
     diagnostics:
       domain_only_depends_on_itself: true
       allow_third_party_packages_in_domain: true
@@ -201,7 +205,7 @@ import 'package:flutter/material.dart'; // domain_only_depends_on_itself
 | Layer        | Must not import                         |
 | ------------ | --------------------------------------- |
 | domain       | anything outside domain (except pure Dart libraries) |
-| core         | screens, presentation                   |
+| core         | domain, data, screens, presentation     |
 | data         | screens, presentation                   |
 | presentation | data                                    |
 | screens      | data                                    |

@@ -13,6 +13,7 @@ void main() {
     defineReflectiveTests(NoScreensDependenciesRuleTest);
     defineReflectiveTests(DomainOnlyDependsOnItselfRuleTest);
     defineReflectiveTests(AllowThirdPartyPackagesInDomainRuleTest);
+    defineReflectiveTests(CoreIndependentRuleTest);
   });
 }
 
@@ -88,6 +89,102 @@ class AllowThirdPartyPackagesInDomainRuleTest extends _ArchitectureRuleTest {
       ["import 'package:equatable/equatable.dart';"],
       'Equatable? e;',
       reported: [],
+    );
+  }
+}
+
+@reflectiveTest
+class CoreIndependentRuleTest extends _ArchitectureRuleTest {
+  @override
+  void setUp() {
+    rule = CoreIndependentRule();
+    newPackage('other').addFile('lib/domain/other_type.dart', 'class OtherType {}');
+    newLayerPackage('domain');
+    super.setUp();
+  }
+
+  Future<void> test_core_exportsDataRelative() async {
+    const directive = "export '../data/data_type.dart';";
+    await assertImports('core/app.dart', [directive], '', reported: [directive]);
+  }
+
+  Future<void> test_core_importsCore() async {
+    await assertImports(
+      'core/app.dart',
+      ["import 'package:test/core/core_type.dart';"],
+      'CoreType? t;',
+      reported: [],
+    );
+  }
+
+  Future<void> test_core_importsData() async {
+    const directive = "import 'package:test/data/data_type.dart';";
+    await assertImports('core/app.dart', [directive], 'DataType? t;', reported: [directive]);
+  }
+
+  Future<void> test_core_importsDomain() async {
+    const directive = "import 'package:test/domain/domain_type.dart';";
+    await assertImports('core/app.dart', [directive], 'DomainType? t;', reported: [directive]);
+  }
+
+  Future<void> test_core_importsOtherPackageLayer() async {
+    await assertImports(
+      'core/app.dart',
+      ["import 'package:other/domain/other_type.dart';"],
+      'OtherType? t;',
+      reported: [],
+    );
+  }
+
+  Future<void> test_core_importsScreens() async {
+    // Reported by no_screens_dependencies, not by core_independent.
+    await assertImports(
+      'core/app.dart',
+      ["import 'package:test/screens/screens_type.dart';"],
+      'ScreensType? t;',
+      reported: [],
+    );
+  }
+
+  Future<void> test_data_importsDomain() async {
+    await assertImports(
+      'data/repository.dart',
+      ["import 'package:test/domain/domain_type.dart';"],
+      'DomainType? t;',
+      reported: [],
+    );
+  }
+
+  Future<void> test_featureFirst_coreImportsDomain() async {
+    const directive = "import 'package:test/features/cart/domain/cart_entity.dart';";
+    await assertImports(
+      'features/cart/core/cart_util.dart',
+      [directive],
+      'CartEntity? e;',
+      reported: [directive],
+      extraFiles: {'features/cart/domain/cart_entity.dart': 'class CartEntity {}'},
+    );
+  }
+
+  Future<void> test_monorepo_corePackage_importsDomainPackage() async {
+    const directive = "import 'package:test_domain/test_domain.dart';";
+    await assertImports(
+      'utils/util.dart',
+      [directive],
+      'DomainPackageType? d;',
+      reported: [directive],
+      libPath: newAnalyzedLayerPackage('core', dependencies: ['test_domain']),
+    );
+  }
+
+  Future<void> test_srcLayout_coreImportsData() async {
+    const directive = "import 'package:test/src/data/data_type.dart';";
+    await assertImports(
+      'src/core/app.dart',
+      [directive],
+      'DataType? t;',
+      reported: [directive],
+      extraFiles: {'src/data/data_type.dart': 'class DataType {}'},
     );
   }
 }
