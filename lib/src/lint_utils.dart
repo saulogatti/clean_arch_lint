@@ -68,11 +68,15 @@ const LintCodeArchitecture coreIndependentCode = LintCodeArchitecture(
   uniqueName: 'core_independent',
 );
 
-/// Lint code whose [LintCode.name] can be shared across variants.
+/// Lint code whose `name` can be shared across variants.
 ///
-/// [LintCode.name] is what users enable in `plugins.*.diagnostics` and suppress
-/// with `// ignore`. [LintCode.uniqueName] must stay unique per variant so the
-/// analyzer can tell messages apart.
+/// The `name` (a [LintNames] constant) is what users enable in
+/// `plugins.*.diagnostics` and suppress with `// ignore`. The `uniqueName` must
+/// stay unique per variant so the analyzer can tell messages apart.
+///
+/// Both are plain code spans, not `[LintCode.name]` links: the analyzer
+/// deprecates those getters, and Dart 3.13 reports `deprecated_member_use` on
+/// doc references while Dart 3.14 reports an `ignore` for it as unnecessary.
 ///
 /// Grouping today:
 /// - [LintNames.noDataDependencies]: presentation/screens must not import data
