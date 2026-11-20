@@ -2,9 +2,12 @@ include:
   - package:flutter_lints/flutter.yaml
 
 analyzer:
-
   exclude:
     - build/**
+  errors:
+    # Recent Flutter stable deprecates package:flutter/material.dart (use package:material_ui).
+    # The example only exists to show the plugin's diagnostics, so CI must see nothing else.
+    deprecated_member_use: ignore
 plugins:
   clean_arch_lint:
     path: ../

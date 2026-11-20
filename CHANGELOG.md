@@ -7,6 +7,9 @@
     `no_screens_dependencies`, which still reports it). Off until enabled under
     `plugins.clean_arch_lint.diagnostics`, so existing projects see no new diagnostics until they
     turn it on.
+- **Maintenance:** Dart 3.14 reports the `ignore_for_file: deprecated_member_use` in
+  `lint_utils.dart` as unnecessary, so it is removed. The example ignores
+  `deprecated_member_use`, because recent Flutter deprecates `package:flutter/material.dart`.
 
 ## 3.2.0
 

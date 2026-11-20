@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:analyzer/error/error.dart';
 
 /// Reported when `domain` imports or exports a library outside the domain
